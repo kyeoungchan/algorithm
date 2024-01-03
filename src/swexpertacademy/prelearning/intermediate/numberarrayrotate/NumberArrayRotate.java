@@ -20,58 +20,45 @@ public class NumberArrayRotate {
                 data.add(iRow);
             }
             System.out.println("#" + test_case);
-            List<List<Integer>> result = rotateData(data, n);
-            printList(result);
-            data.clear();
-            result.clear();
+            List<String> result = rotateData(data, n);
+            for (String answer : result) {
+                System.out.println(answer);
+            }
         }
     }
 
-    private static List<List<Integer>> rotateData(List<List<Integer>> data, int n) {
-        List<List<Integer>> result = new ArrayList<>();
+    private static List<String> rotateData(List<List<Integer>> data, int n) {
+        List<String> result = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            ArrayList<Integer> iRow = new ArrayList<>();
-            iRow.add(rotate90(data, i, n));
-            iRow.add(rotate180(data, i, n));
-            iRow.add(rotate270(data, i, n));
-            result.add(iRow);
+            result.add(rotate90(data, i, n) + " " + rotate180(data, i, n) + " " + rotate270(data, i, n));
         }
         return result;
     }
 
-    private static int rotate90(List<List<Integer>> data, int row, int n) {
+    private static String rotate90(List<List<Integer>> data, int row, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
             int rotatedNumber = data.get(n - 1 - i).get(row);
             sb.append(rotatedNumber);
         }
-        return Integer.parseInt(sb.toString());
+        return sb.toString();
     }
 
-    private static int rotate180(List<List<Integer>> data, int row, int n) {
+    private static String rotate180(List<List<Integer>> data, int row, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
             int rotatedNumber = data.get(n - 1 - row).get(n - 1 - i);
             sb.append(rotatedNumber);
         }
-        return Integer.parseInt(sb.toString());
+        return sb.toString();
     }
 
-    private static int rotate270(List<List<Integer>> data, int row, int n) {
+    private static String rotate270(List<List<Integer>> data, int row, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
             int rotatedNumber = data.get(i).get(n - 1 - row);
             sb.append(rotatedNumber);
         }
-        return Integer.parseInt(sb.toString());
-    }
-
-    private static void printList(List<List<Integer>> data) {
-        for (List<Integer> dataRow : data) {
-            for (Integer number : dataRow) {
-                System.out.print(number + " ");
-            }
-            System.out.println();
-        }
+        return sb.toString();
     }
 }
