@@ -86,3 +86,15 @@ https://www.acmicpc.net/problem/17135
 ```text
 14
 ```
+
+입력7
+```text
+3 3 2
+1 0 1
+0 1 0
+1 0 1
+```
+출력7
+```text
+5
+```

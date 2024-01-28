@@ -2,8 +2,7 @@ package baekjoon.castledefense;
 
 import java.util.*;
 import java.io.*;
-/*
-* */
+
 public class Baekjoon17135_CastleDefense {
 
     static int[] dI = {0, -1, 0};
@@ -42,26 +41,44 @@ public class Baekjoon17135_CastleDefense {
         boolean[][] killed = new boolean[n][m];
         for (int round = 1; round <= n; round++) {
             int lowerBound = n + 1 - round;
-            score += bfs(map, a1, d, lowerBound, killed, n, m);
-            score += bfs(map, a2, d, lowerBound, killed, n, m);
-            score += bfs(map, a3, d, lowerBound, killed, n, m);
+            score = getScorePerArcher(map, a1, d, n, m, score, killed, lowerBound);
+            score = getScorePerArcher(map, a2, d, n, m, score, killed, lowerBound);
+            score = getScorePerArcher(map, a3, d, n, m, score, killed, lowerBound);
         }
         return score;
     }
 
-    static int bfs(int[][] map, int a, int d, int lowerBound, boolean[][] killed, int n, int m) {
+    private static int getScorePerArcher(int[][] map, int a, int d, int n, int m, int score, boolean[][] killed, int lowerBound) {
+
+        int[] killedPos = bfs(map, a, d, lowerBound, killed, n, m);
+        if (killedPos != null) {
+            int aI = killedPos[0];
+            int aJ = killedPos[1];
+            if (!killed[aI][aJ]) {
+                killed[aI][aJ] = true;
+                score++;
+            }
+        }
+        return score;
+    }
+
+    // 적을 죽이는 데 성공하면 적의 좌표를, 실패하면 null 반환
+    static int[] bfs(int[][] map, int a, int d, int lowerBound, boolean[][] killed, int n, int m) {
         Deque<int[]> queue = new ArrayDeque<>();
         boolean[][] visited = new boolean[n][m];
         int nI = lowerBound - 1;
-        int nJ = a;
-        if (d == 1) {
-            if (map[nI][nJ] == 1) {
-                killed[nI][nJ] = true;
-                return 1;
-            }
-            return 0;
+
+        // d가 1인 것과 관계없이 바로 위에 죽이지 않은 1이 있으면 바로 좌표 반환
+        if (map[nI][a] == 1 && !killed[nI][a]) {
+            return new int[]{nI, a};
         }
-        queue.addLast(new int[]{nI, nJ, 1});
+
+        // d가 1이고 바로 위가 0이면 바로 null 반환
+        if (d == 1 && map[nI][a] == 0) {
+            return null;
+        }
+
+        queue.addLast(new int[]{nI, a, 1});
         while (!queue.isEmpty()) {
             int[] polled = queue.poll();
             int polledI = polled[0];
@@ -77,15 +94,14 @@ public class Baekjoon17135_CastleDefense {
                 if (newJ < 0 || newJ >= m) {
                     continue;
                 }
-                if (map[newI][newJ] == 1) {
-                    killed[newI][newJ] = true;
-                    return 1;
-                } else if (!visited[newI][newJ] && distance < d && newI > lowerBound){
+                if (map[newI][newJ] == 1 && !killed[newI][newJ]) {
+                    return new int[]{newI, newJ};
+                } else if (!visited[newI][newJ] && distance < d) {
                     visited[newI][newJ] = true;
-                    queue.addLast(new int[] {newI, newJ, distance + 1});
+                    queue.addLast(new int[]{newI, newJ, distance + 1});
                 }
             }
         }
-        return 0;
+        return null;
     }
 }
