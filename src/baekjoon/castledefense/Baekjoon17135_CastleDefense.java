@@ -5,65 +5,103 @@ import java.io.*;
 
 public class Baekjoon17135_CastleDefense {
 
+    static int n;
+    static int m;
+    static int d;
+    static int[][] map;
     static int[] dI = {0, -1, 0};
     static int[] dJ = {-1, 0, 1};
+    static int result;
+    static int[] picked = new int[3];
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
-        int d = Integer.parseInt(st.nextToken());
-        int[][] map = new int[n][m];
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+        d = Integer.parseInt(st.nextToken());
+        map = new int[n][m];
         for (int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
+            st = new StringTokenizer(br.readLine(), " ");
             for (int j = 0; j < m; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
-        int result = 0;
+/*
         // 첫 번째 궁수가 있을 수 있는 인덱스는 0~m-3
         for (int a1 = 0; a1 < m - 2; a1++) {
             // 두 번째 궁수가 있을 수 있는 인덱스는 a1 + 1 ~ m - 2
             for (int a2 = a1 + 1; a2 < m - 1; a2++) {
                 // 세 번째 궁수가 있을 수 있는 인덱스는 a2 + 1 ~ m - 1
                 for (int a3 = a2 + 1; a3 < m; a3++) {
-                    result = Math.max(result, calculateScore(map, a1, a2, a3, d, n, m));
+                    result = Math.max(result, calculateScore(a1, a2, a3));
                 }
             }
         }
+*/
+        pick(0, 0);
+
         System.out.println(result);
         br.close();
     }
 
-    static int calculateScore(int[][] map, int a1, int a2, int a3, int d, int n, int m) {
+    static void pick(int cnt, int start) {
+        if (cnt == 3) {
+            result = Math.max(result, calculateScore(picked[0], picked[1], picked[2]));
+            return;
+        }
+        for (int i = start; i < m; i++) {
+            picked[cnt] = i;
+            pick(cnt + 1, i + 1);
+        }
+    }
+
+    static int calculateScore(int a1, int a2, int a3) {
         int score = 0;
         boolean[][] killed = new boolean[n][m];
         for (int round = 1; round <= n; round++) {
             int lowerBound = n + 1 - round;
-            score = getScorePerArcher(map, a1, d, n, m, score, killed, lowerBound);
-            score = getScorePerArcher(map, a2, d, n, m, score, killed, lowerBound);
-            score = getScorePerArcher(map, a3, d, n, m, score, killed, lowerBound);
-        }
-        return score;
-    }
-
-    private static int getScorePerArcher(int[][] map, int a, int d, int n, int m, int score, boolean[][] killed, int lowerBound) {
-
-        int[] killedPos = bfs(map, a, d, lowerBound, killed, n, m);
-        if (killedPos != null) {
-            int aI = killedPos[0];
-            int aJ = killedPos[1];
-            if (!killed[aI][aJ]) {
-                killed[aI][aJ] = true;
-                score++;
+            int[] killedPos1 = bfs(a1, lowerBound, killed);
+            int[] killedPos2 = bfs(a2, lowerBound, killed);
+            int[] killedPos3 = bfs(a3, lowerBound, killed);
+            if (killedPos1 != null) {
+                int aI1 = killedPos1[0];
+                int aJ1 = killedPos1[1];
+                if (!killed[aI1][aJ1]) {
+                    killed[aI1][aJ1] = true;
+                    score++;
+                }
+            }
+            if (killedPos2 != null) {
+                int aI2 = killedPos2[0];
+                int aJ2 = killedPos2[1];
+                if (!killed[aI2][aJ2]) {
+                    killed[aI2][aJ2] = true;
+                    score++;
+                }
+            }
+            if (killedPos3 != null) {
+                int aI3 = killedPos3[0];
+                int aJ3 = killedPos3[1];
+                if (!killed[aI3][aJ3]) {
+                    killed[aI3][aJ3] = true;
+                    score++;
+                }
             }
         }
+        for (int i = 0; i < n; i++) {
+            System.out.println(Arrays.toString(killed[i]));
+        }
+        System.out.println("a1 = " + a1);
+        System.out.println("a2 = " + a2);
+        System.out.println("a3 = " + a3);
+        System.out.println("score = " + score);
+        System.out.println();
         return score;
     }
 
     // 적을 죽이는 데 성공하면 적의 좌표를, 실패하면 null 반환
-    static int[] bfs(int[][] map, int a, int d, int lowerBound, boolean[][] killed, int n, int m) {
+    static int[] bfs(int a, int lowerBound, boolean[][] killed) {
         Deque<int[]> queue = new ArrayDeque<>();
         boolean[][] visited = new boolean[n][m];
         int nI = lowerBound - 1;
