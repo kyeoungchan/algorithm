@@ -1,6 +1,41 @@
 # 백준 17135 - 캐슬디펜스
 https://www.acmicpc.net/problem/17135
 
+## 배운점
+```java
+while (!queue.isEmpty()) {
+    int[] polled = queue.poll();
+    int polledI = polled[0];
+    int polledJ = polled[1];
+    int distance = polled[2];
+
+    for (int i = 0; i < 3; i++) {
+        int newI = polledI + dI[i];
+        int newJ = polledJ + dJ[i];
+        if (newI < 0 || newI >= N || newJ < 0 || newJ >= M) {
+            continue;
+        }
+        if (map[newI][newJ] == 1 && !killed[newI][newJ]) {
+            return new int[] { newI, newJ };
+        } else if (!visited[newI][newJ] && distance + 1 < D) {
+            // 넣기 전에 체크를 하는 구조고, 이미 넣은 원소는 꺼내는 역할만 하기 때문에, distance + 1 < D여야 한다.
+            // 만약 distance < D인 상태라면, distance = 1 => 넣을 때는 distance + 1 = 2인 상태로 넣어지고,
+            // 그러면 newI와 newJ를 탐색하는 과정에서 distance가 3까지 올라가지만, 큐에 넣기도 전에 1에 해당하면 바로 리턴해버린다.
+            // 큐에 넣기 전에 한 번 더 탐색해도 괜찮은 지를 판단시키는 게 맞다.
+            // 만약 큐에서 꺼낸 값을 newI, newJ로 확장시키기 전에 kill 여부를 판단하는 로직 구조라면 distance < D 로직이 타당할 수 있다.
+            visited[newI][newJ] = true;
+            queue.addLast(new int[] { newI, newJ, distance + 1 });
+        }
+    }
+}
+```
+- 주석에 적어놨다시피, `distance < D`로 처음에 표시를 했을 때는
+  - 큐에 넣을 때 `distance + 1`로 넣는다는 점
+  - 꺼낸 후 담는 과정을 거치기 전에 한 칸 씩 이동했을 때 적을 발견하면 공격하게 했다는 점을 간과했다.
+  - 즉, `distance`가 2만큼 갑자기 증가하게 되면서 사정거리를 초과하게 되는 것이다.
+- 따라서, 큐에 담기 전에 살펴보는 로직을 선택했다면, 큐에 집어넣는 값으로 비교를 해야한다는 것을 기억하자.
+  - 즉, 큐에 집어넣어야할 `distance + 1`을 기준으로 살펴봐야한다는 것을 의미한다.
+
 입력1
 ```text
 5 5 1
