@@ -48,7 +48,7 @@ public class Solution_d9_1767_프로세서연결하기_서울_20반_우경찬 {
     }
 
     static void dfs(int cnt, int d) {
-        if (leastLength == 0) {
+        if (leastLength == 0 || (tempUnconnectedCnt == totalUnconnectedCnt && tempTotalLength == leastLength)) {
             return;
         }
 
