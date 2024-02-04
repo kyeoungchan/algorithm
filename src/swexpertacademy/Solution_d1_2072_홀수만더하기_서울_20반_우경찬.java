@@ -1,13 +1,13 @@
-package swexpertacademy.a0110d1;
+package swexpertacademy;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class Solution2072 {
+public class Solution_d1_2072_홀수만더하기_서울_20반_우경찬 {
     public static void main(String[] args) throws Exception {
-//        System.setIn(new FileInputStream("input.txt"));
+        System.setIn(new FileInputStream("res/input_d1_2072.txt"));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
         int T = Integer.parseInt(br.readLine());
