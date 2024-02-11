@@ -7,10 +7,11 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬 {
 
     static int N, W, H, MIN;
     static int[][] board, tempBoard;
-    static int[] order, di = {0, 1, 0}, dj = {1, 0, -1};
+    static int[] order, di = { -1, 0, 1, 0 }, dj = { 0, 1, 0, -1 };
+    static boolean[][] visited;
 
     public static void main(String[] args) throws Exception {
-//        System.setIn(new FileInputStream("res/input_d9_5656.txt"));
+        System.setIn(new FileInputStream("res/input_d9_5656.txt"));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
         int T = Integer.parseInt(br.readLine());
@@ -28,14 +29,12 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬 {
             for (int i = 0; i < H; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
                 for (int j = 0; j < W; j++) {
-//                    board[i][j] = Integer.parseInt(st.nextToken());
-                    tempBoard[i][j] = Integer.parseInt(st.nextToken());
+                    board[i][j] = Integer.parseInt(st.nextToken());
+//					tempBoard[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
 
-//            getOrder(0);
-            drop();
-            printBoard();
+            getOrder(0);
             sb.append("#").append(tc).append(" ").append(MIN).append("\n");
         }
         System.out.println(sb.toString());
@@ -52,12 +51,6 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬 {
             }
             play();
             MIN = Math.min(MIN, getRestBricks());
-            if (N == 3 && H == 10 && W == 10) {
-                System.out.println("MIN = " + MIN);
-                System.out.println(Arrays.toString(order));
-                printBoard();
-                System.out.println();
-            }
             return;
         }
         for (int i = 0; i < W; i++) {
@@ -83,6 +76,7 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬 {
             int j = order[o];
             for (int i = 0; i < H; i++) {
                 if (tempBoard[i][j] != 0) {
+                    visited = new boolean[H][W]; // 파괴를 시작하기 전에 초기화
                     destroy(i, j);
                     drop();
                     break;
@@ -92,13 +86,14 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬 {
     }
 
     static void destroy(int i, int j) {
-        int range = tempBoard[i][j] - 1; // 숫자가 4라면, 우하좌로 3칸씩 죽인다.
+        visited[i][j] = true;
+        int range = tempBoard[i][j] - 1; // 숫자가 4라면, 상우하좌로 3칸씩 죽인다.
         tempBoard[i][j] = 0;
         for (int k = 1; k < range + 1; k++) {
-            for (int d = 0; d < 3; d++) {
+            for (int d = 0; d < 4; d++) {
                 int ni = i + di[d] * k;
                 int nj = j + dj[d] * k;
-                if (0 <= ni && ni < H && 0 <= nj && nj < W && tempBoard[ni][nj] != 0) {
+                if (0 <= ni && ni < H && 0 <= nj && nj < W && !visited[ni][nj]) {
                     destroy(ni, nj);
                 }
             }
@@ -115,50 +110,26 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬 {
     }
 
     static void drop() {
-        boolean[][] visited = new boolean[H][W];
-        int startI = -1;
-        int endI = -1;
         for (int j = 0; j < W; j++) {
-            for (int i = H - 1; i > 0; i--) {
+            int startI = -1;
+            int endI = -1;
+            for (int i = H - 1; i >= 0; i--) {
                 if (tempBoard[i][j] == 0 && startI == -1) {
                     startI = i;
                 } else if (tempBoard[i][j] != 0 && startI != -1) {
-                    int idx = -1;
                     endI = i;
                     for (int k = 0; k < startI - endI; k++) {
                         if (endI - k >= 0) {
                             tempBoard[startI - k][j] = tempBoard[endI - k][j];
                             tempBoard[endI - k][j] = 0;
+                        } else {
+                            break;
                         }
-                        else {idx = endI - k + 1;
-                        break;}
                     }
-                    if (idx != -1) {
-                        tempBoard[idx][j] = 0;
-                    } else {
-                        tempBoard[2 * endI - startI + 1][j] = 0;
-                    }
+                    i = startI+1;
                     startI = -1;
                 }
             }
         }
-/*
-        for (int i = 0; i < H; i++) {
-            for (int j = 0; j < W; j++) {
-                if (tempBoard[i][j] != 0 && !visited[i][j]) {
-                    visited[i][j] = true;
-                    for (int k = 1; k < H - i; k++) {
-                        visited[i + k][j] = true;
-                        if (tempBoard[i + k][j] != 0) {
-                            break;
-                        } else {
-                            tempBoard[i + k][j] = tempBoard[i + k - 1][j];
-                            tempBoard[i + k - 1][j] = 0;
-                        }
-                    }
-                }
-            }
-        }
-*/
     }
 }
