@@ -3,7 +3,7 @@ package swexpertacademy;
 import java.util.*;
 import java.io.*;
 
-public class Solution_d4_1251_서울_20반_우경찬 {
+public class Solution_d4_1251_하나로_서울_20반_우경찬 {
 
     static int[][] graph;
     static double E;
@@ -81,6 +81,6 @@ public class Solution_d4_1251_서울_20반_우경찬 {
         long sj = graph[i][1];
         long ei = graph[j][0];
         long ej = graph[j][1];
-        return Math.round((Math.pow((si - ei), 2) + Math.pow((sj - ej), 2)) * E);
+        return Math.round(((long)Math.pow((si - ei), 2) + (long)Math.pow((sj - ej), 2)) * E);
     }
 }
