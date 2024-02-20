@@ -31,7 +31,8 @@ public class Solution_d9_1767_프로세서연결하기_서울_20반_우경찬 {
                     String s = st.nextToken();
                     if (s.equals("1")) {
                         maxynos[i][j] = Integer.parseInt(s);
-                        coreInfo.add(new int[]{i, j}); // 좌표 정보 저장
+                        if (!(i == 0 || i == N - 1 || j == 0 || j == N - 1))
+                            coreInfo.add(new int[]{i, j}); // 좌표 정보 저장
                     }
                 }
             }
@@ -48,15 +49,16 @@ public class Solution_d9_1767_프로세서연결하기_서울_20반_우경찬 {
     }
 
     static void dfs(int cnt, int d) {
+        // 전선의 길이의 합이 이미 0이거나 이전에 측정한 연결되지 않은 프로세서의 개수를 이미 초과하려고 함과 동시에 최소 연결 길이의 합도 초과하려고 한다면 재귀 호출을 끊어낸다.
         if (leastLength == 0 || (tempUnconnectedCnt == totalUnconnectedCnt && tempTotalLength == leastLength)) {
             return;
         }
 
-        if (cnt == totalCores) {
-            if (tempUnconnectedCnt < totalUnconnectedCnt) {
+        if (cnt == totalCores) { // 모든 프로세서를 다 체크했을 때
+            if (tempUnconnectedCnt < totalUnconnectedCnt) { // 만약 이전에 측정한 비연결 프로세서의 개수보다 더 작다면 업데이트
                 totalUnconnectedCnt = tempUnconnectedCnt;
-                leastLength = tempTotalLength;
-            } else if (tempUnconnectedCnt == totalUnconnectedCnt) {
+                leastLength = tempTotalLength; // 프로세서의 연결의 수가 더 높다면 연결의 길이의 합이 더 크고 작은 건 의미가 없다.
+            } else if (tempUnconnectedCnt == totalUnconnectedCnt) { // 비연결 프로세서의 개수가 같다면 길이의 합이 더 최소인 것만 업데이트
                 leastLength = Math.min(leastLength, tempTotalLength);
             }
             return;
@@ -65,7 +67,7 @@ public class Solution_d9_1767_프로세서연결하기_서울_20반_우경찬 {
         int i = coreInfo.get(cnt)[0];
         int j = coreInfo.get(cnt)[1];
         if (i == 0 || i == N - 1 || j == 0 || j == N - 1) {
-            // 가에 있으면 이미 연결된 상태이므로 길이도 0으로 유지시키면서 다음 코어를 살피러 간다.
+            // 가장자리에 있으면 이미 연결된 상태이므로 길이도 0으로 유지시키면서 다음 코어를 살피러 간다.
             for (int nd = 0; nd < 4; nd++) {
                 dfs(cnt + 1, nd);
             }
@@ -79,7 +81,7 @@ public class Solution_d9_1767_프로세서연결하기_서울_20반_우경찬 {
             for (int k = 1; k < loopCnt + 1; k++) {
                 int ni = i + di[d] * k;
                 int nj = j + dj[d] * k;
-                if (maxynos[ni][nj] == 0) {
+                if (maxynos[ni][nj] == 0) { // 이동시키면서 1로 변경시켜준다.
                     maxynos[ni][nj] = 1;
                 } else {
                     // 전선이 겹친다면, 다시 복구 시키고 다음 코어를 보러 간다.
@@ -91,24 +93,24 @@ public class Solution_d9_1767_프로세서연결하기_서울_20반_우경찬 {
                         // 만약 이미 연결이 안 된 코어의 수를 초과했다면 더이상의 재귀호출은 무의미하다.
                         return;
                     }
-                    isConnected = false;
+                    isConnected = false; // 비연결을 표시하고 개수도 업데이트한다.
                     tempUnconnectedCnt++;
                     break;
                 }
             }
-            if (isConnected) {
+            if (isConnected) { // 연결되었다면 길이도 업데이트한다.
                 tempTotalLength += loopCnt;
             }
-            for (int nd = 0; nd < 4; nd++) {
+            for (int nd = 0; nd < 4; nd++) { // 그리고 새로운 사방 탐색을 위한 dfs
                 dfs(cnt + 1, nd);
             }
-            if (isConnected) {
+            if (isConnected) { // 다음 재귀호출에 영향을 안 주기 위해서 리셋
                 // 연결이 된 코어만 복구시키면 된다.
                 tempTotalLength -= loopCnt;
                 for (int k = 1; k < loopCnt + 1; k++) {
                     maxynos[i + di[d] * k][j + dj[d] * k] = 0;
                 }
-            } else {
+            } else { // 그냥 연결이 안 된 상태라면 영향을 안 주기 위해서 비연결 프로세서 갯수만 감소
                 tempUnconnectedCnt--;
             }
         }
