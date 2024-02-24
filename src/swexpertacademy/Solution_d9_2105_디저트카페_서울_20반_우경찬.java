@@ -53,7 +53,7 @@ public class Solution_d9_2105_디저트카페_서울_20반_우경찬 {
 				idx++;
 			}
 		}
-		Arrays.sort(sizes, Comparator.comparingInt((int[] s)-> -(s[0] + s[1])));
+		Arrays.sort(sizes, Comparator.comparingInt(s-> -(s[0] + s[1])));
 		for (int s = 0; s < sizes.length; s++) {
 			visitedCafe = new boolean[maxKind + 1];
 			int tempLeft = sizes[s][0];

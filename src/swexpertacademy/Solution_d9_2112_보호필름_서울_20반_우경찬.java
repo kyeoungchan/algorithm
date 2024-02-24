@@ -9,7 +9,7 @@ public class Solution_d9_2112_보호필름_서울_20반_우경찬 {
     static int[][] film;
 
     public static void main(String[] args) throws Exception {
-        //System.setIn(new FileInputStream("res/input_d9_2112.txt"));
+//        System.setIn(new FileInputStream("res/input_d9_2112.txt"));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
         StringTokenizer st;
