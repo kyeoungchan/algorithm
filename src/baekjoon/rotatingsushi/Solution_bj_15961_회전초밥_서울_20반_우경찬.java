@@ -29,8 +29,8 @@ public class Solution_bj_15961_회전초밥_서울_20반_우경찬 {
 		
 		int answer = 0;
 		for (int i = 1; i < N; i++) {
-			if (answer <= count) { // 아직 쿠폰 초밥을 안 먹은 상태
-				if (eated[C] == 0) {
+			if (answer <= count) {
+				if (eated[C] == 0) { // 아직 쿠폰 초밥을 안 먹은 상태
 					answer = count + 1;
 				} else { // 이미 쿠폰 초밥을 먹은 상태
 					answer = count;
