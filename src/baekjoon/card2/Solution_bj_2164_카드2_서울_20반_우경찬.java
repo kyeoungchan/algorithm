@@ -1,4 +1,4 @@
-package swexpertacademy;
+package baekjoon.card2;
 
 import java.util.*;
 import java.io.*;
