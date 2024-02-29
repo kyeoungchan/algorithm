@@ -5,7 +5,7 @@ import java.io.*;
 
 public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
     static int N, cnt1, cnt2, ANS;
-    static int[][] map, stairInfo;
+    static int[][] /*map,*/ stairInfo;
     static List<int[]> peopleInfo;
 
     public static void main(String[] args) throws Exception {
@@ -16,11 +16,11 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
         int T = Integer.parseInt(br.readLine());
         for (int tc = 1; tc < T + 1; tc++) {
             N = Integer.parseInt(br.readLine());
-            map = new int[N][N];
+//            map = new int[N][N];
             stairInfo = new int[2][3];
             peopleInfo = new ArrayList<>();
-            peopleInfo.add(null);
-            int peopleId = 1;
+            peopleInfo.add(null); // size == 1 -> idx = 1
+//            int peopleId = 1;
             int stairId = 0;
             for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
@@ -28,13 +28,13 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
                     int data = Integer.parseInt(st.nextToken());
                     if (data == 1) {
                         peopleInfo.add(new int[]{i, j});
-                        map[i][j] = peopleId++; // 사람은 id로 표현하며, 1부터 시작
+//                        map[i][j] = peopleId++; // 사람은 id로 표현하며, 1부터 시작
                     } else if (data != 0) {
                         stairInfo[stairId][0] = i;
                         stairInfo[stairId][1] = j;
                         stairInfo[stairId][2] = data;
                         stairId++;
-                        map[i][j] = -1; // 계단은 -1로 표현
+//                        map[i][j] = -1; // 계단은 -1로 표현
                     }
                 }
             }
@@ -55,14 +55,12 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
             return;
         }
 
-//        selectedStairs[cnt] = 0;
         selectStairs(cnt + 1, selectedStairs);
         selectedStairs[cnt] = 1;
         selectStairs(cnt + 1, selectedStairs);
     }
 
     static void calculateTime(int[] selectedStairs, int stairId) {
-//        PriorityQueue<int[]> q = new PriorityQueue<>((Comparator.comparing((int[] o) -> o[1]).thenComparing(o -> -o[2]).thenComparing(o -> o[3])));
         ArrayDeque<int[]> q = new ArrayDeque<>();
 
         int cost = stairInfo[stairId][2];
@@ -77,7 +75,7 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
         int[] occupyingP = new int[3];
         while (!q.isEmpty()) {
             int size = q.size();
-            time++;
+            boolean[] updateNext = new boolean[3];
 
             for (int i = 0; i < size; i++) {
                 int[] cur = q.poll();
@@ -96,26 +94,29 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
                         int selfIdx = -1;
                         boolean hasEmptySpace = false;
                         int emtpyIdx = -1;
-                        for (int j = 0; j < 3; j++) {
+                        for (int j = 0; j < 3; j++) { // 1번 친구 -> 2번친구. 1번 친구 -> 2번 친구
                             if (occupyingP[j] == pId) {
                                 isOccupying = true;
                                 selfIdx = j;
                                 break;
                             } else if (!hasEmptySpace && occupyingP[j] == 0) {
+                            	// 가장 앞에 빈 칸 하나를 탐색했으면 그 다음 빈 칸은 탐색을 생략하기 위해 hasEmptySpace도 조건문으로 추가
+                            	if (updateNext[j]) continue; // 이번 턴에서 빈 칸이 생긴 경우라면 다음 턴에서부터 사용할 수 있어야하므로 건너뛴다.
                                 hasEmptySpace = true;
                                 emtpyIdx = j;
                             }
                         }
                         if (isOccupying) {
                             // 이미 차지하고 있다면
-                            if (goingDownTime == 0) {
+                            if (goingDownTime - 1 == 0) { // 1번 친구 -> 0 1 2 자리 중에서 0번 사용 반납 -> 동시간대에 2번친구
                                 // 다 내려왔다면
                                 occupyingP[selfIdx] = 0;
+                                updateNext[selfIdx] = true;
                             } else {
                                 q.offer(new int[]{pId, dist, waitTime, goingDownTime - 1});
                             }
                         } else if (hasEmptySpace) {
-                            // 본인이 차지하고 있지는 않지만, 빈 자리가 있다면
+                            // 본인이 차지하고 있지는 않지만, 빈 자리가 환있다면
                             occupyingP[emtpyIdx] = pId;
                             q.offer(new int[]{pId, dist, waitTime, goingDownTime - 1});
                         } else {
@@ -125,9 +126,8 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
                     }
                 }
             }
+            time++;
         }
-        time--;
-        // 왜 정답보다 1씩 더 크게 나오는지는 모르겠다;
         if (stairId == 0) {
             cnt1 = time;
         } else {
