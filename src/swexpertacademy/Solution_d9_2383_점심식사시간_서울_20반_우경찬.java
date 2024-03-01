@@ -5,7 +5,7 @@ import java.io.*;
 
 public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
     static int N, cnt1, cnt2, ANS;
-    static int[][] /*map,*/ stairInfo;
+    static int[][] stairInfo;
     static List<int[]> peopleInfo;
 
     public static void main(String[] args) throws Exception {
@@ -16,11 +16,9 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
         int T = Integer.parseInt(br.readLine());
         for (int tc = 1; tc < T + 1; tc++) {
             N = Integer.parseInt(br.readLine());
-//            map = new int[N][N];
             stairInfo = new int[2][3];
             peopleInfo = new ArrayList<>();
             peopleInfo.add(null); // size == 1 -> idx = 1
-//            int peopleId = 1;
             int stairId = 0;
             for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
@@ -28,13 +26,11 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
                     int data = Integer.parseInt(st.nextToken());
                     if (data == 1) {
                         peopleInfo.add(new int[]{i, j});
-//                        map[i][j] = peopleId++; // 사람은 id로 표현하며, 1부터 시작
                     } else if (data != 0) {
                         stairInfo[stairId][0] = i;
                         stairInfo[stairId][1] = j;
                         stairInfo[stairId][2] = data;
                         stairId++;
-//                        map[i][j] = -1; // 계단은 -1로 표현
                     }
                 }
             }
@@ -58,6 +54,7 @@ public class Solution_d9_2383_점심식사시간_서울_20반_우경찬 {
         selectStairs(cnt + 1, selectedStairs);
         selectedStairs[cnt] = 1;
         selectStairs(cnt + 1, selectedStairs);
+        selectedStairs[cnt] = 0;
     }
 
     static void calculateTime(int[] selectedStairs, int stairId) {
