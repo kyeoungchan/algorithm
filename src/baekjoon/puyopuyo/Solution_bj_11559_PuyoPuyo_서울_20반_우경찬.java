@@ -1,4 +1,4 @@
-package a0229;
+package baekjoon.puyopuyo;
 
 import java.util.*;
 import java.io.*;
@@ -8,8 +8,7 @@ public class Solution_bj_11559_PuyoPuyo_서울_20반_우경찬 {
 	static int[] di = new int[] {-1, 0, 1, 0}, dj = {0, 1, 0, -1};
 	static char[][] map;
 	static boolean hasPuyo;
-	static List<int[]> puyoPos;
-	
+
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		map = new char[12][6];
@@ -25,7 +24,7 @@ public class Solution_bj_11559_PuyoPuyo_서울_20반_우경찬 {
 			hasPuyo = false;
 			ArrayDeque<int[]> q = new ArrayDeque<>();
 			boolean[][] v = new boolean[12][6];
-			List<int[]> popPos = new ArrayList<>();
+			List<int[]> puyoPos = new ArrayList<>();
 			for (int i = 0; i < 12; i++) {
 				for (int j = 0; j < 6; j++) {
 					if (map[i][j] == '.' || v[i][j]) continue;
@@ -48,12 +47,12 @@ public class Solution_bj_11559_PuyoPuyo_서울_20반_우경찬 {
 						if (!hasPuyo)
 							result++;
 						hasPuyo = true;
-						popPos.add(new int[] {i, j});
+						puyoPos.add(new int[] {i, j});
 					}
 				}
 			}
 			q.clear();
-			for (int[] pos : popPos) {
+			for (int[] pos : puyoPos) {
 				char c = map[pos[0]][pos[1]];
 				map[pos[0]][pos[1]] = '.';
 				q.offer(new int[] {pos[0], pos[1]});
@@ -69,9 +68,6 @@ public class Solution_bj_11559_PuyoPuyo_서울_20반_우경찬 {
 				}
 			}
 			drop();
-//			for(int i = 0; i < 12; i++)
-//			System.out.println(Arrays.toString(map[i]));
-//			System.out.println();
 		}
 		System.out.println(result);
 		br.close();
