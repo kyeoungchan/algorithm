@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.lunchtime;
 
 import java.util.*;
 import java.io.*;
