@@ -19,7 +19,10 @@ public class Soultion_bj_17140_이차원배열과연산_서울_20반_우경찬 {
             }
         }
         int time = 0;
-        int result = A[r][c] != k ? -1 : 0;
+        int result = -1;
+        if (r < 3 && c < 3 && A[r][c] == k) {
+            result = 0;
+        }
         while (time < 100 && result == -1) {
             time++;
             if (A.length >= A[0].length) {
@@ -29,7 +32,7 @@ public class Soultion_bj_17140_이차원배열과연산_서울_20반_우경찬 {
                 A = calcC(A);
 //                printForDebug(A);
             }
-            if (A[r][c] == k) {
+            if (r < A.length && c < A[0].length && A[r][c] == k) {
                 result = time;
             }
         }

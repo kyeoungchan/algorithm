@@ -42,15 +42,7 @@ public class Solution_d9_5658_보물상자비밀번호_서울_20반_우경찬 {
 				if (!isDupl)
 					numbers.add(numInfo);
 			}
-//			int ans = 0;
-//			int idx = 0;
 			Collections.sort(numbers, Comparator.comparingInt(n -> -n.hex)); // 내림차순 정렬
-/*			for (NumInfo n : numbers) {
-				if (idx++ == K - 1) {
-					ans = n.hex; // 찾는 값의 인덱스 반
-					break;
-				}
-			}*/
 			int ans = numbers.get(K - 1).hex;
 			sb.append("#").append(tc).append(" ").append(ans).append("\n");
 		}
