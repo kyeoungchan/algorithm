@@ -11,7 +11,7 @@ import java.io.*;
  * 	- BFS가 끝나면 link를 더해준다. => 연결된 선거구의 개수가 2 초과 혹은 2 미만이 나올 수 있게 된다.
  * 3. 전역변수로 선언한 min을 link가 2인 경우의 두 선거구의 인구수의 차와 비교하여 최솟값을 업데이트한다.
  */
-public class Main_17471_Gerrymandering {
+public class Solution_bj_17471_게리맨더링_서울_20반_우경찬 {
 
     static int N;
     static int[] populations, area;
