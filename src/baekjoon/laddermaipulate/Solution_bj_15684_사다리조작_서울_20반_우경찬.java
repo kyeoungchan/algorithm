@@ -1,4 +1,4 @@
-package a0216;
+package baekjoon.laddermaipulate;
 
 import java.util.*;
 import java.io.*;
