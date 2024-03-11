@@ -1,4 +1,4 @@
-package test;
+package test.a1;
 
 import java.io.*;
 import java.util.*;
@@ -7,7 +7,7 @@ import java.util.*;
 public class Solution2 {
 
 	static int N, ANS;
-	static int[][] houseInfo, chargeInfo;
+	static int[][] houseInfo;
 	static List<Integer>[][] idMap;
 	static int[][] cntMap, distanceMap;
 	static int[] di = {-1, 0, 1, 0}, dj = {0, 1, 0, -1};

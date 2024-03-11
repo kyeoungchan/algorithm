@@ -52,3 +52,14 @@ https://www.acmicpc.net/problem/15686
 ```text
 32
 ```
+
+### 필기
+- 처음에는 `boolan[]` 을 활용해서 백트래킹을 통해서 풀었지만, 나중에는 조합을 통해서도 해결하였다.
+- 백트래킹을 하는 경우도 코드를 잘 살펴보자.
+    ```java
+    for (int i = start; i < chickenHouses.size(); i++) {
+        exist[i] = true;
+        comb(cnt + 1, i + 1);
+        exist[i] = false;
+    }
+    ```
