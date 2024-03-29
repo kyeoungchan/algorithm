@@ -5,9 +5,8 @@ import java.io.*;
 
 public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬2 {
 	
-	static int N, W, H, map[][], tempMap[][], ANS, dropPos[], di[] = {-1, 0, 1, 0}, dj[] = {0, 1, 0, -1}, total, tempANS;
+	static int N, W, H, map[][], tempMap[][], ANS, dropPos[], di[] = {-1, 0, 1, 0}, dj[] = {0, 1, 0, -1}, total, tempANS, top[];
 	static boolean[][] v;
-	static int TC;
 
 	public static void main(String[] args) throws Exception {
 		System.setIn(new FileInputStream("res/input_d9_5656.txt"));
@@ -17,7 +16,6 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬2 {
 		
 		int T = Integer.parseInt(br.readLine());
 		for (int tc = 1; tc < T + 1; tc++) {
-			TC = tc;
 			st = new StringTokenizer(br.readLine(), " ");
 			N = Integer.parseInt(st.nextToken());
 			W = Integer.parseInt(st.nextToken());
@@ -55,7 +53,7 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬2 {
 	static void play() {
 		tempMap = new int[H][W];
 		tempANS = total;
-		int[] top = new int[W];
+		top = new int[W];
 		boolean[] hasTop = new boolean[W];
 		for (int i = 0; i < H; i++) {
 			for (int j = 0; j < W; j++) {
@@ -75,26 +73,7 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬2 {
 			
 //			pop(i, j, true);
 			popByQ(i, j);
-			for (int jj = 0; jj < W; jj++) {
-				for (int ii = H - 1; ii > top[jj]; ii--) {
-					if (tempMap[ii][jj] == 0) {
-						for (int ui = ii - 1; ui >= top[jj]; ui--) {
-							if (tempMap[ui][jj] != 0) {
-								tempMap[ii][jj] = tempMap[ui][jj];
-								tempMap[ui][jj] = 0;
-								break;
-							}
-						}
-					}
-				}
-				for (int ii = top[jj]; ii < H; ii++) {
-					if (tempMap[ii][jj] != 0) {
-						top[jj] = ii;
-						break;
-					}
-				}
-				if (tempMap[top[jj]][jj] == 0) top[jj] = H-1;
-			}
+			drop();
 		}
 		ANS = Math.min(tempANS, ANS);
 	}
@@ -119,6 +98,26 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬2 {
 					tempANS--;
 					q.offer(new int[]{ni, nj, v, 1});
 				}
+			}
+		}
+	}
+
+	static void drop() {
+		ArrayDeque<Integer> q = new ArrayDeque<>();
+		for (int j = 0; j < W; j++) {
+			for (int i = H - 1; i >= top[j]; i--) {
+				q.offer(tempMap[i][j]);
+				tempMap[i][j] = 0;
+			}
+			int idx = H - 1;
+			while (!q.isEmpty()) {
+				int cur = q.poll();
+				if (cur == 0) continue;
+				top[j] = idx;
+				tempMap[idx--][j] = cur;
+			}
+			if (tempMap[top[j]][j] == 0) {
+				top[j] = H - 1;
 			}
 		}
 	}
