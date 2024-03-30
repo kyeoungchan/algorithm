@@ -106,13 +106,15 @@ public class Solution_d9_5656_벽돌깨기_서울_20반_우경찬2 {
 		ArrayDeque<Integer> q = new ArrayDeque<>();
 		for (int j = 0; j < W; j++) {
 			for (int i = H - 1; i >= top[j]; i--) {
-				q.offer(tempMap[i][j]);
-				tempMap[i][j] = 0;
+				if (tempMap[i][j] != 0) {
+					q.offer(tempMap[i][j]);
+					tempMap[i][j] = 0;
+				}
 			}
 			int idx = H - 1;
 			while (!q.isEmpty()) {
 				int cur = q.poll();
-				if (cur == 0) continue;
+//				if (cur == 0) continue;
 				top[j] = idx;
 				tempMap[idx--][j] = cur;
 			}
