@@ -3,7 +3,7 @@ package swexpertacademy.swimmingleague;
 import java.util.*;
 import java.io.*;
 
-public class Solution_d4_4193_수영결승대회 {
+public class Solution_d4_4193_수영대회결승전 {
 
     public static void main(String[] args) throws Exception {
         int[] di = {-1, 0, 1, 0}, dj = {0, 1, 0, -1};
