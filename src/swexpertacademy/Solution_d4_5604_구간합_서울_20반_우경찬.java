@@ -1,4 +1,4 @@
-package a0402;
+package swexpertacademy;
 
 import java.util.*;
 import java.io.*;
