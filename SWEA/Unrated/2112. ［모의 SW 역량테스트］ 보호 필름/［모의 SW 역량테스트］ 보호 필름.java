@@ -6,7 +6,7 @@ public class Solution {
 	static int D, W, K, film[][], tempFilm[][], ANS;
 
 	public static void main(String[] args) throws Exception {
-		//System.setIn(new FileInputStream("res/input_d9_2112.txt"));
+//		System.setIn(new FileInputStream("res/input_d9_2112.txt"));
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
 		StringBuilder sb = new StringBuilder();
@@ -48,6 +48,7 @@ public class Solution {
 		for (int i = start; i < D; i++) {
 			dropRow[cnt] = i;
 			select(cnt + 1, i + 1, total, dropRow);
+			if (ANS != -1) return;
 		}
 	}
 
