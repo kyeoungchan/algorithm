@@ -25,10 +25,6 @@ public class Main {
 			Node other = (Node) obj;
 			return l == other.l && p == other.p;
 		}
-//		@Override
-//		public int compare(Node o1, Node o2) {
-//			return o1.l == o2.l ? o1.p-o2.p : o1.l - o2.l;
-//		}
 		@Override
 		public int compareTo(Node o) {
 			return l-o.l == 0 ? p - o.p : l - o.l; 
@@ -41,18 +37,14 @@ public class Main {
 		StringTokenizer st;
 		StringBuilder sb = new StringBuilder();
 		int N = Integer.parseInt(br.readLine());
-		HashMap<Node, Boolean> solved = new HashMap<>();
+		TreeMap<Node, Integer> recommendList = new TreeMap<>();
 		HashMap<Integer, Node> index = new HashMap<>();
-		PriorityQueue<Node> pqHard = new PriorityQueue<>(((Node n1, Node n2) -> n2.l-n1.l == 0 ? n2.p-n1.p : n2.l-n1.l));
-		PriorityQueue<Node> pqEasy = new PriorityQueue<>();
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine(), " ");
 			int p = Integer.parseInt(st.nextToken());
 			int l = Integer.parseInt(st.nextToken());
 			Node n = new Node(p, l);
-			pqHard.offer(n);
-			pqEasy.offer(n);
-			solved.put(n, false);
+			recommendList.put(n, p);
 			index.put(p, n);
 		}
 		
@@ -64,30 +56,17 @@ public class Main {
 				int p = Integer.parseInt(st.nextToken());
 				int l = Integer.parseInt(st.nextToken());
 				Node n = new Node(p, l);
-				solved.put(n, false);
-				pqHard.offer(n);
-				pqEasy.offer(n);
+				recommendList.put(n, p);
 				index.put(p, n);
 			} else if (op.equals("recommend")) {
 				int select = Integer.parseInt(st.nextToken());
-				if (select == 1) {
-					Node rec = pqHard.poll();
-					while (solved.get(rec)) {
-						rec = pqHard.poll();
-					}
-					pqHard.offer(rec);
-					sb.append(rec.p).append("\n");
-				} else {
-					Node rec = pqEasy.poll();
-					while (solved.get(rec)) {
-						rec = pqEasy.poll();
-					}
-					pqEasy.offer(rec);
-					sb.append(rec.p).append("\n");
-				}
+				Node rec;
+				if (select == 1) rec = recommendList.lastKey();
+				else rec = recommendList.firstKey();
+				sb.append(rec.p).append("\n");
 			} else {
 				int p = Integer.parseInt(st.nextToken());
-				solved.put(index.get(p), true);
+				recommendList.remove(index.get(p));
 			}
 		}
 		System.out.println(sb.toString());
