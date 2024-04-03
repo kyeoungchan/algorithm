@@ -55,6 +55,7 @@ public class Solution_d9_2112_보호필름 {
 		for (int i = start; i < D; i++) {
 			dropRow[cnt] = i;
 			select(cnt + 1, i + 1, total, dropRow);
+			if (ANS != -1) return;
 		}
 	}
 
