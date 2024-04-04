@@ -31,13 +31,16 @@ public class Solution_bj_9466_텀프로젝트 {
             st = new StringTokenizer(br.readLine(), " ");
             answer = N;
             for (int i = 1; i < N + 1; i++) {
+                // want: 같은 팀을 하고 싶은 학생의 번호
                 want[i] = Integer.parseInt(st.nextToken());
                 if (want[i] == i) {
+                    // 만약 자기 스스로를 지목했다면 이미 팀결성이 완료됐으므로 해결처리를 해준다.
                     done[i] = true;
                     answer--;
                 }
             }
             for (int i = 1; i < N + 1; i++) {
+                // 이미 해결된 학생은 건너뛴다.
                 if (done[i]) continue;
                 dfs(i, want);
             }
@@ -48,16 +51,22 @@ public class Solution_bj_9466_텀프로젝트 {
     }
 
     static void dfs(int studentNumber, int[] want) {
+        // 이미 해결된 학생은 건너뛴다.
         if (done[studentNumber]) {
             return;
         }
+        // 해결되진 않았지만 방문한 학생이 걸린다면 해결완료 처리를 해주고, 팀 구성원이므로 answer를 1 감소
         if (visited[studentNumber]) {
             done[studentNumber] = true;
             answer--;
         }
+        // 방문했든 방문하지 않았든 방문처리해주고
         visited[studentNumber] = true;
+        // 이미 방문했더라면 2순회, 처음 방문이라면 1순회
         dfs(want[studentNumber], want);
+        // 여기까지 왔다는 것은 2순회까지 끝났다는 뜻이다.
         done[studentNumber] = true;
+        // 다른 노드에서 또 이 노드로 지목할 수도 있으므로 방문처리는 초기화시켜줘야 한다.
         visited[studentNumber] = false;
     }
 
