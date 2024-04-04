@@ -1,10 +1,6 @@
 import java.util.*;
 import java.io.*;
 
-/**
- * 높이로 접근하려고 했는데, 그러기에는 배열을 전부 잘라야하므로 시간초과가 뜰 것 같다.
- * 한 번 정렬을 하고, 인덱스로 접근하는 방식이 더 효율적일듯하다.
- */
 public class Main {
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
