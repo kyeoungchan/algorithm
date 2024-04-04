@@ -23,7 +23,7 @@ public class Solution_bj_1167_트리의지름 {
             int s = Integer.parseInt(st.nextToken()); // 번호
             while (true) {
                 int to = Integer.parseInt(st.nextToken());
-                if (to == -1) { // -1이 입력되면 to는 -2
+                if (to == -1) {
                     break;
                 }
                 int cost = Integer.parseInt(st.nextToken());
@@ -49,7 +49,6 @@ public class Solution_bj_1167_트리의지름 {
     }
 
     static void dfs(int x, int len) {
-//        System.out.println("x:"+x+" len:"+len);
         if (len > max) {
             max = len;
             node = x;
@@ -62,7 +61,6 @@ public class Solution_bj_1167_트리의지름 {
             int cost = n[1];
 
             if (!visited[v]) {
-                visited[v] = true;
                 dfs(v, cost + len);
             }
         }
