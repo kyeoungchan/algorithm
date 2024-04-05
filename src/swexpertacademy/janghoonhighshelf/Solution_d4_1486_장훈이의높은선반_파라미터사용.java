@@ -1,9 +1,7 @@
-package swexpertacademy;
+package swexpertacademy.janghoonhighshelf;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 /**
  * 선반 하나 높이: B
@@ -38,31 +36,28 @@ public class Solution_d4_1486_장훈이의높은선반_파라미터사용 {
 			}
 			
 			minH = Integer.MAX_VALUE;
-			for (int cnt = 1; cnt < N + 1; cnt++) {
-				int[] pick = new int[cnt];
-				comb(0, 0, cnt, 0);
-			}
+			comb(0, 0);
 			sb.append("#").append(tc).append(" ").append(minH - B).append("\n");
 		}
 		System.out.println(sb.toString());
 		br.close();
 	}
 	
-	static void comb(int cnt, int start, int total, int sum) {
-		if (sum > B) return;
-		if (cnt == total) {
-			if (sum >= B) {
-				// 다 돌았을 때 B를 초과한다면 그때 업데이트 해준다.
-				minH = Math.min(minH, sum);
-			}
+	static void comb(int cnt, int sum) {
+		if (sum >= B) {
+			// N명까지 도달했든 안 했든 B를 초과하는 순간 바로 minH를 업데이트해준다.
+			minH = Math.min(minH, sum);
 			return;
 		}
-		
-		for (int i = start; i < N; i++) {
-			int newSum = sum + H[i];
-			comb(cnt + 1, i + 1, total, newSum);
+		// N명까지 도달해도 B를 초과하지 못했다는 뜻이므로 그냥 끝낸다.
+		if (cnt == N) {
+			return;
 		}
-		
+
+		// cnt번째 직원을 포함해서 계산할 때
+		comb(cnt + 1, sum + H[cnt]);
+		// cnt번째 직원을 빼고 계산할 때
+		comb(cnt + 1, sum);
 	}
 
 }
