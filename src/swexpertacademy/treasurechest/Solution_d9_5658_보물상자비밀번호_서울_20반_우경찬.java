@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.treasurechest;
 
 import java.util.*;
 import java.io.*;
