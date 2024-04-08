@@ -8,7 +8,7 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 	static int N, si, sj, endIdx;
 	static int[] di = {-1, 1, 0, 0}, dj = {0, 0, -1, 1};
 	static int[][] grid, numToGrid, gridToNum;
-	static long[] bombCnt;
+	static int[] bombCnt;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -19,6 +19,7 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 		int M = Integer.parseInt(st.nextToken()); // 상어가 마법을 부린 횟수
 		setGrids();
 		grid = new int[N][N];
+		// 구슬이 위치한 가장 큰 격자 번호를 endIdx로 관리
 		endIdx = 0;
 		for (int r = 0; r < N; r++) {
 			st = new StringTokenizer(br.readLine(), " ");
@@ -27,7 +28,7 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 				if (grid[r][c] != 0 && gridToNum[r][c] > endIdx) endIdx = gridToNum[r][c]; 
 			}
 		}
-		bombCnt = new long[4]; // 1~3까지 각각 폭발 횟수 카운트
+		bombCnt = new int[4]; // 1~3까지 각각 폭발 횟수 카운트
 		for (int i = 0; i < M; i++) {
 			st = new StringTokenizer(br.readLine(), " ");
 			int d = Integer.parseInt(st.nextToken()) - 1; // 0, 1, 2, 3
@@ -38,7 +39,7 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 			} while (bomb());
 			changeBeads();
 		}
-		long result = 0;
+		int result = 0;
 		for (int i = 1; i < 4; i++) {
 			result += i * bombCnt[i];
 		}
@@ -47,8 +48,9 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 	}
 	
 	static void changeBeads() {
-//		System.out.println("change!");
+		// 만약 endIdx가 0이라면 구슬이 존재하지 않는 상황이므로 아무런 카운트를 시도하지 않는다.
 		if (endIdx == 0) return;
+
 		int[][] newGrid = new int[N][N];
 		int newEndIdx = 0;
 		int cnt = 1;
@@ -63,6 +65,7 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 				cnt = 1;
 			}
 		}
+		// endIdx가 0이라면 여기에서 구슬 변화를 일으킨다. 따라서 endIdx가 0이면 위에서 바로 탈출시켰다.
 		if (newEndIdx < N * N - 1) {
 			updateBead(++newEndIdx, cnt, newGrid);
 			if (newEndIdx < N * N - 1)
@@ -74,7 +77,9 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 	}
 
 	static boolean bomb() {
+		// 불필요한 연산을 줄이기 위해 구슬이 없으면 바로 탈출시켰다.
 		if (endIdx == 0) return false;
+
 		int cnt = 1;
 		boolean bombed = false;
 		for (int num = 1; num < endIdx; num++) {
@@ -99,6 +104,7 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 			}
 		}
 //		debug();
+		// 폭발했으면 다시 구슬을 움직여야하므로 boolean return 타입으로 폭발여부를 알려준다.
 		return bombed;
 	}
 	
@@ -138,9 +144,11 @@ public class Solution_bj_21611_마법사상어와블리자드 {
 			}
 		}
 		// 마지막 번호 업데이트
+		// 여기에서 많은 에러가 나왔다...
 		if (!q.isEmpty()) {
 			int[] empty = q.poll();
 			int firstEmptyNum = gridToNum[empty[0]][empty[1]];
+			// 마지막 번호는 0에서 아직 채워지지 않은 포지션 번호의 바로 앞 번호가 된다.
 			endIdx = firstEmptyNum - 1;
 		}
 //		debug();
