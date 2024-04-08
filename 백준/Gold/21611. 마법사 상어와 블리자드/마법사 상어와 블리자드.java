@@ -6,7 +6,7 @@ public class Main {
 	static int N, si, sj, endIdx;
 	static int[] di = {-1, 1, 0, 0}, dj = {0, 0, -1, 1};
 	static int[][] grid, numToGrid, gridToNum;
-	static long[] bombCnt;
+	static int[] bombCnt;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -17,6 +17,7 @@ public class Main {
 		int M = Integer.parseInt(st.nextToken()); // 상어가 마법을 부린 횟수
 		setGrids();
 		grid = new int[N][N];
+		// 구슬이 위치한 가장 큰 격자 번호를 endIdx로 관리
 		endIdx = 0;
 		for (int r = 0; r < N; r++) {
 			st = new StringTokenizer(br.readLine(), " ");
@@ -25,7 +26,7 @@ public class Main {
 				if (grid[r][c] != 0 && gridToNum[r][c] > endIdx) endIdx = gridToNum[r][c]; 
 			}
 		}
-		bombCnt = new long[4]; // 1~3까지 각각 폭발 횟수 카운트
+		bombCnt = new int[4]; // 1~3까지 각각 폭발 횟수 카운트
 		for (int i = 0; i < M; i++) {
 			st = new StringTokenizer(br.readLine(), " ");
 			int d = Integer.parseInt(st.nextToken()) - 1; // 0, 1, 2, 3
@@ -36,7 +37,7 @@ public class Main {
 			} while (bomb());
 			changeBeads();
 		}
-		long result = 0;
+		int result = 0;
 		for (int i = 1; i < 4; i++) {
 			result += i * bombCnt[i];
 		}
