@@ -151,6 +151,5 @@ public class Solution_bj_12611_마법사상어와블리자드2 {
             j += dj[curD];
             grid[i][j] = number;
         }
-        beads[0] = -1;
     }
 }
