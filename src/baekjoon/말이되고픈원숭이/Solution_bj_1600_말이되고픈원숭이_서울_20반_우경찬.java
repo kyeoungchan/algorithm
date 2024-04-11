@@ -1,4 +1,4 @@
-package baekjoon;
+package baekjoon.말이되고픈원숭이;
 
 import java.util.*;
 import java.io.*;

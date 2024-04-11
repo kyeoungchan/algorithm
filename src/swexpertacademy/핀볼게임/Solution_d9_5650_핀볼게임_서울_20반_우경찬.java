@@ -1,4 +1,4 @@
-package swexpertacademy.pinballgame;
+package swexpertacademy.핀볼게임;
 
 import java.util.*;
 import java.io.*;
