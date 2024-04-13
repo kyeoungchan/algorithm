@@ -53,7 +53,6 @@ public class Solution_ct_루돌프의반란 {
 	static final int INF = 10_000;
 	static int N, P, C, D, rr, rc, map[][], santas[];
 	static int[] dri = {-1, -1, 0, 1, 1, 1, 0, -1}, drj = {0, 1, 1, 1, 0, -1, -1, -1}, dsi = {-1, 0, 1, 0}, dsj = {0, 1, 0, -1};
-	static boolean[] loosed;
 	static int[] sleeping, scores;
 
 
@@ -70,7 +69,6 @@ public class Solution_ct_루돌프의반란 {
 		rr = Integer.parseInt(st.nextToken()) - 1;
 		rc = Integer.parseInt(st.nextToken()) - 1;
 		santas = new int[P + 1];
-		loosed = new boolean[P + 1];
 		sleeping = new int[P + 1];
 		scores = new int[P + 1];
 		map = new int[N][N];
@@ -101,28 +99,16 @@ public class Solution_ct_루돌프의반란 {
 
 	static void updateSleeping() {
 		for (int s = 1; s < P + 1; s++) {
-			if (loosed[s]) continue;
-			if (sleeping[s] > 0) sleeping[s]--;
+			if (sleeping[s] == -1) continue;
+			else if (sleeping[s] > 0) sleeping[s]--;
 		}
-//		System.out.println("updateSleeping");
-//		System.out.println(Arrays.toString(sleeping));
-//		System.out.println();
 	}
 
 	static void rudolphMove() {
-//		System.out.println("rudolphMove start");
-//		for (int i = 0; i < N; i++) {
-//			for (int j = 0; j < N; j++) {
-//				System.out.print(map[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println("rr = " + rr);
-//		System.out.println("rc = " + rc);
 		int minDist = INF;
 		int target = 0;
 		for (int s = 1; s < P + 1; s++) {
-			if (loosed[s]) continue;
+			if (sleeping[s] == -1) continue;
 			int sr = santas[s] / N;
 			int sc = santas[s] % N;
 			int dist = getDistance(sr, sc, rr, rc);
@@ -139,28 +125,14 @@ public class Solution_ct_루돌프의반란 {
 				}
 			}
 		}
-//		System.out.println("final target");
-//		System.out.println("target = " + target);
-//		System.out.println("minDist = " + minDist);
 		int sr = santas[target] / N;
 		int sc = santas[target] % N;
 		int d = getDirection(sr, sc);
-//		System.out.println("d = " + d);
 		if (minDist == 2 || minDist == 1) {
 			kick(target, sr, sc, d);
 		}
 		rr += dri[d];
 		rc += drj[d];
-//		System.out.println("after rudolph moved");
-//		for (int i = 0; i < N; i++) {
-//			for (int j = 0; j < N; j++) {
-//				System.out.print(map[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println("rr = " + rr);
-//		System.out.println("rc = " + rc);
-//		System.out.println();
 	}
 
 	static int getDirection(int sr, int sc) {
@@ -186,29 +158,12 @@ public class Solution_ct_루돌프의반란 {
 		int nsi = sr + dsi[d] * D;
 		int nsj = sc + dsj[d] * D;
 		scores[santa] += D;
-//		System.out.println("before Kicked");
-//		for (int i = 0; i < N; i++) {
-//			for (int j = 0; j < N; j++) {
-//				System.out.print(map[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println("sr = " + sr);
-//		System.out.println("sc = " + sc);
-//		System.out.println("d = " + d);
-//		System.out.println("D = " + D);
-//		System.out.println("nsi = " + nsi);
-//		System.out.println("nsj = " + nsj);
-//		System.out.println("map[nsi][nsj] = " + map[nsi][nsj]);
 
 		if (nsi < 0 || nsi > N - 1 || nsj < 0 || nsj > N - 1) {
 			// 탈락한 경우
-			loosed[santa] = true;
-			santas[santa] = -1;
 			sleeping[santa] = -1;
 		} else if (map[nsi][nsj] != 0) {
 			// 자리에 다른 산타가 있다면
-//			System.out.println("met another santa!");
 			int a = santa;
 			boolean wentOut = false;
 			while (map[nsi][nsj] != 0) {
@@ -219,8 +174,7 @@ public class Solution_ct_루돌프의반란 {
 				nsi += dsi[d];
 				nsj += dsj[d];
 				if (nsi < 0 || nsi > N - 1 || nsj < 0 || nsj > N - 1) {
-					loosed[b] = true;
-					santas[b] = -1;
+					sleeping[b] = -1;
 					wentOut = true;
 					break;
 				}
@@ -235,37 +189,16 @@ public class Solution_ct_루돌프의반란 {
 			map[nsi][nsj] = santa;
 			santas[santa] = nsi * N + nsj;
 		}
-		if (!loosed[santa]) sleeping[santa] = 2;
-//		System.out.println("after Kicked");
-//		for (int i = 0; i < N; i++) {
-//			for (int j = 0; j < N; j++) {
-//				System.out.print(map[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println();
+		if (sleeping[santa] != -1) sleeping[santa] = 2;
 	}
 
 	static void kick(int santa, int sr, int sc, int d) {
-//		System.out.println("before Kick");
-//		for (int i = 0; i < N; i++) {
-//			for (int j = 0; j < N; j++) {
-//				System.out.print(map[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println("sr = " + sr);
-//		System.out.println("sc = " + sc);
-//		System.out.println("d = " + d);
-//		System.out.println("C = " + C);
 		int nsi = sr + dri[d] * C;
 		int nsj = sc + drj[d] * C;
 		map[sr][sc] = 0;
 		if (nsi < 0 || nsi > N - 1 || nsj < 0 || nsj > N - 1) {
 			// 탈락한 경우
-			loosed[santa] = true;
 			sleeping[santa] = -1;
-			santas[santa] = -1; // 디버깅을 위한 세팅
 		} else if (map[nsi][nsj] != 0) {
 			// 자리에 다른 산타가 있다면
 			int a = santa;
@@ -278,8 +211,7 @@ public class Solution_ct_루돌프의반란 {
 				nsi += dri[d];
 				nsj += drj[d];
 				if (nsi < 0 || nsi > N - 1 || nsj < 0 || nsj > N - 1) {
-					loosed[b] = true;
-					santas[b] = -1;
+					sleeping[b] = -1;
 					wentOut = true;
 					break;
 				}
@@ -294,17 +226,9 @@ public class Solution_ct_루돌프의반란 {
 			map[nsi][nsj] = santa;
 			santas[santa] = nsi * N + nsj;
 		}
-		if (!loosed[santa])
+		if (sleeping[santa] != -1)
 			sleeping[santa] = 2;
 		scores[santa] += C;
-//		System.out.println("after Kick");
-//		for (int i = 0; i < N; i++) {
-//			for (int j = 0; j < N; j++) {
-//				System.out.print(map[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println();
 	}
 
 	static int getDistance(int r1, int c1, int r2, int c2) {
@@ -312,21 +236,11 @@ public class Solution_ct_루돌프의반란 {
 	}
 
 	static void santasMove() {
-//		System.out.println("santasMove start!");
 		boolean metRudolph, canMove;
 		int minDist, finalD;
 		for (int s = 1; s < P + 1; s++) {
 			// 탈락했거나 기절한 산타는 움직이지 않는다.
-			if (loosed[s] || sleeping[s] != 0) continue;
-//			System.out.println(s + " santa Move start!");
-//			System.out.println("beforeMoving");
-//			for (int i = 0; i < N; i++) {
-//				for (int j = 0; j < N; j++) {
-//					System.out.print(map[i][j] + " ");
-//				}
-//				System.out.println();
-//			}
-//			System.out.println();
+			if (sleeping[s] != 0) continue;
 			int sr = santas[s] / N;
 			int sc = santas[s] % N;
 
@@ -357,7 +271,6 @@ public class Solution_ct_루돌프의반란 {
 			}
 			if (!canMove) {
 				// 한 번도 움직인 적 없으면 움직이지 않고 다음 산타
-//				System.out.println("cannot Move!");
 				continue;
 			}
 
@@ -366,30 +279,17 @@ public class Solution_ct_루돌프의반란 {
 			int nc = sc + dsj[finalD];
 			map[nr][nc] = s;
 			santas[s] = nr * N + nc;
-//			System.out.println("after Move without kicking");
-//			for (int i = 0; i < N; i++) {
-//				for (int j = 0; j < N; j++) {
-//					System.out.print(map[i][j] + " ");
-//				}
-//				System.out.println();
-//			}
-//			System.out.println();
 		}
-//		System.out.println("santas moving End!");
 	}
 
 	static boolean giveScores() {
 		// 모든 산타가 탈락했다면 게임 종료를 하기 위해 false 반환
-//		System.out.println("giveScores Start!");
 		boolean alive = false;
 		for (int s = 1; s < P + 1; s++) {
-			if (loosed[s]) continue;
+			if (sleeping[s] == -1) continue;
 			scores[s]++;
 			alive = true;
 		}
-//		System.out.println(Arrays.toString(scores));
 		return alive;
 	}
-
-
 }
