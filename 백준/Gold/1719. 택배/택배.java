@@ -11,9 +11,12 @@ public class Main {
 		StringBuilder sb = new StringBuilder();
 		int n = Integer.parseInt(st.nextToken());
 		int m = Integer.parseInt(st.nextToken());
-		int[] dist = new int[n + 1];
-		int[] node = new int[n + 1];
+		int[][] dist = new int[n + 1][n + 1];
+		int[][] node = new int[n + 1][n + 1];
 		int[][] g = new int[n+1][n+1];
+		
+		for (int i = 1; i < n + 1; i++)
+			Arrays.fill(dist[i], INF);
 		
 		for (int i = 0; i < m; i++) {
 			st = new StringTokenizer(br.readLine(), " ");
@@ -22,34 +25,30 @@ public class Main {
 			int time = Integer.parseInt(st.nextToken());
 			g[a][b] = time;
 			g[b][a] = time;
+			dist[a][b] = time;
+			dist[b][a] = time;
+			node[a][b] = b;
+			node[b][a] = a;
 		}
 		
-		PriorityQueue<int[]> pq;
-		for (int start = 1; start < n + 1; start++) {
-			Arrays.fill(dist, INF);
-			pq = new PriorityQueue<>((o1,o2)->Integer.compare(o1[1], o2[1]));
-			dist[start] = 0;
-			pq.offer(new int[] {start, 0});
-			while(!pq.isEmpty()) {
-				int[] cur = pq.poll();
-				int minVertex = cur[0];
-				int min = cur[1];
-				if (dist[minVertex] < min) continue;
-				
-				for (int i = 1; i < n + 1; i++) {
-					if (g[minVertex][i] != 0 && dist[i] > min + g[minVertex][i]) {
-						dist[i] = min + g[minVertex][i];
-						pq.offer(new int[] {i, dist[i]});
-						if (minVertex == start) node[i] = i;
-						else {
-							node[i] = node[minVertex];
-						}
+		for (int k = 1; k < n + 1; k++) {
+			for (int i = 1; i < n + 1; i++) {
+				if (i == k) continue;
+				for (int j =1; j < n + 1; j++) {
+					if (i==j) continue;
+					int usingK = dist[i][k] + dist[k][j];
+					if (dist[i][j] > usingK) {
+						dist[i][j] = usingK;
+						node[i][j] = node[i][k];
 					}
 				}
 			}
-			for (int i = 1; i < n + 1; i++) {
-				if (i == start) sb.append('-');
-				else sb.append(node[i]);
+		}
+		
+		for (int i = 1; i < n + 1; i++) {
+			for (int j = 1; j < n + 1; j++) {
+				if (i == j) sb.append('-');
+				else sb.append(node[i][j]);
 				sb.append(" ");
 			}
 			sb.append("\n");
