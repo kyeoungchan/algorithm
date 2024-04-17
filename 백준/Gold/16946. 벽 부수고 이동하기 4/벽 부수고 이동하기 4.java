@@ -1,6 +1,15 @@
 import java.util.*;
 import java.io.*;
 
+/**
+ * NxM 행렬로 표현되는 맵. 0은 이동 가능, 1은 이동 불가능한 벽
+ * 한 칸에서 다른 칸으로 이동하려면, 두 칸이 인접해야한다. 상하좌우 이동 얘기인듯
+ * 벽의 위치에서 이동할 수 있는 칸의 개수를 세어본다? 자기 자신을 포함해서 인접한 0의 개수를 세는듯
+ * 그러면 일단 원래 map에서 인접한 0의 개수를 카운트하는 맵을 만들자.
+ * 이차원 배열을 하나 더 만들어서 해당 자리에 idx를 적어두고, 그 idx는 0의 개수를 갖는 이차원 배열을 또 만들자.
+ * 0번 인덱스는 0개를 카운트한다.(벽의 자리)
+ * 벽을 허무는 순간 자기 자신 + 1, 그리고 각 인접한 idx들의 값을 더한 값이다.
+ */
 public class Main {
     public static void main(String[] args) throws Exception{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -50,7 +59,7 @@ public class Main {
         }
 //        debug(N, M, idxMap, cntForIdx);
 
-        boolean[] checked;
+        boolean[] checked = new boolean[cntForIdx.size()];
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < M; j++) {
@@ -58,7 +67,7 @@ public class Main {
                     sb.append(0);
                     continue;
                 }
-                checked = new boolean[cntForIdx.size()];
+//                checked = new boolean[cntForIdx.size()];
                 int cnt = 1; // 자기자신
                 for (int d = 0; d < 4; d++) {
                     int ni = i + di[d];
@@ -67,6 +76,13 @@ public class Main {
                     checked[map[ni][nj]] = true;
                     cnt += cntForIdx.get(map[ni][nj]);
                     cnt %= 10;
+                }
+
+                for (int d = 0; d < 4; d++) {
+                    int ni = i + di[d];
+                    int nj = j + dj[d];
+                    if (ni < 0 || ni > N - 1 || nj < 0 || nj > M - 1 || !checked[map[ni][nj]]) continue;
+                    checked[map[ni][nj]] = false;
                 }
                 sb.append(cnt);
             }
