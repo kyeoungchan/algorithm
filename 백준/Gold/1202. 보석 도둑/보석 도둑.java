@@ -29,15 +29,15 @@ public class Main {
 		int N = Integer.parseInt(st.nextToken());
 		int K = Integer.parseInt(st.nextToken());
 		PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
-		Jewerly[] js = new Jewerly[N];
+		ArrayList<Jewerly> js = new ArrayList<>();
 		int[] knapsacks = new int[K];
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine(), " ");
 			int w = Integer.parseInt(st.nextToken());
 			int v = Integer.parseInt(st.nextToken());
-			js[i] = new Jewerly(v, w);
+			js.add(new Jewerly(v, w));
 		}
-		Arrays.sort(js);
+		Collections.sort(js);
 		
 		for (int i = 0; i < K; i++) {
 			knapsacks[i] = Integer.parseInt(br.readLine());
@@ -47,8 +47,8 @@ public class Main {
 		int jsIdx = 0;
 		long answer = 0L;
 		for (int w: knapsacks) {
-			while (jsIdx < N && js[jsIdx].weight <= w) {
-				pq.offer(js[jsIdx++].value);
+			while (jsIdx < N && js.get(jsIdx).weight <= w) {
+				pq.offer(js.get(jsIdx++).value);
 			}
 			
 			if (!pq.isEmpty()) {
