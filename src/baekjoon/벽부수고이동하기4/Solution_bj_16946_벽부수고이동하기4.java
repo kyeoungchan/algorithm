@@ -61,7 +61,7 @@ public class Solution_bj_16946_벽부수고이동하기4 {
         }
 //        debug(N, M, idxMap, cntForIdx);
 
-        boolean[] checked;
+        boolean[] checked = new boolean[cntForIdx.size()];
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < M; j++) {
@@ -69,7 +69,7 @@ public class Solution_bj_16946_벽부수고이동하기4 {
                     sb.append(0);
                     continue;
                 }
-                checked = new boolean[cntForIdx.size()];
+//                checked = new boolean[cntForIdx.size()];
                 int cnt = 1; // 자기자신
                 for (int d = 0; d < 4; d++) {
                     int ni = i + di[d];
@@ -78,6 +78,13 @@ public class Solution_bj_16946_벽부수고이동하기4 {
                     checked[map[ni][nj]] = true;
                     cnt += cntForIdx.get(map[ni][nj]);
                     cnt %= 10;
+                }
+
+                for (int d = 0; d < 4; d++) {
+                    int ni = i + di[d];
+                    int nj = j + dj[d];
+                    if (ni < 0 || ni > N - 1 || nj < 0 || nj > M - 1 || !checked[map[ni][nj]]) continue;
+                    checked[map[ni][nj]] = false;
                 }
                 sb.append(cnt);
             }
