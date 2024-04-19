@@ -49,6 +49,7 @@ public class Solution_bj_13424_비밀모임 {
 
             int K = Integer.parseInt(br.readLine());
             st = new StringTokenizer(br.readLine(), " ");
+            // 각각 친구들마다의 최소 거리를 저장하기 위한 이차원배열
             int[][] dist = new int[K][N + 1];
             int[] friends = new int[K];
             for (int i = 0; i < K; i++) {
@@ -58,6 +59,7 @@ public class Solution_bj_13424_비밀모임 {
 
             PriorityQueue<Node> pq = new PriorityQueue<>();
             for (int f = 0; f < K; f++) {
+                // 각 친구마다 출발지를 기준으로 다익스트라 시작
                 dist[f][friends[f]] = 0;
                 pq.offer(new Node(friends[f], 0));
                 while (!pq.isEmpty()) {
@@ -75,6 +77,7 @@ public class Solution_bj_13424_비밀모임 {
             }
             int minSum = INF;
             int answer = N + 2;
+            // 각 친구마다의 거리들 중 최소의 위치 구하기
             for (int i = 1; i < N + 1; i++) {
                 int sum = 0;
                 for (int f = 0; f < K; f++) {

@@ -1,4 +1,4 @@
-package baekjoon;
+package baekjoon.구간합구하기;
 
 import java.util.*;
 import java.io.*;

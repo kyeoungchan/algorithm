@@ -32,6 +32,7 @@ public class Solution_bj_1238_파티 {
             edges[a].add(new int[]{b, cost});
         }
 
+        // X까지 가는데 걸린 최소시간들 업데이트
         PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1[1], o2[1]));
         pq.offer(new int[]{X, 0});
         dist[X] = 0;
@@ -50,6 +51,7 @@ public class Solution_bj_1238_파티 {
             }
         }
 
+        // X에서 각각 원래 위치로 돌아가는 데 걸린 시간들 업데이트
         int max = 0;
         int[] toDist = new int[N + 1];
         for (int i = 1; i < N + 1; i++) {
@@ -73,6 +75,7 @@ public class Solution_bj_1238_파티 {
                     }
                 }
             }
+            // 왕복 시간으로 업데이트, 그리고 최댓값 업데이트
             dist[i] += toDist[X];
             if (dist[i] > max) max = dist[i];
         }
