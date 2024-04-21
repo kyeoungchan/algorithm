@@ -77,22 +77,12 @@ public class Solution_bj_4920_테트리스게임 {
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 1, i + 1, 1, 2);
         }
-        for (int j = 0; j < N - 2; j++) {
-            temp = grid[0][j] + grid[0][j + 1] + grid[1][j + 1] + grid[1][j + 2];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 0, j + 1, 0, 1, j + 2, 1, 1);
-        }
 
         // 90도 회전
         for (int i = 0; i < N - 2; i++) {
             temp = grid[i][1] + grid[i + 1][0] + grid[i + 1][1] + grid[i + 2][0];
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 1, 1, i + 1, 0, 1, i + 2, 0, 0);
-        }
-        for (int j = 0; j < N - 1; j++) {
-            temp = grid[1][j] + grid[2][j] + grid[0][j + 1] + grid[1][j + 1];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 1, 2, j + 1, 0, 1);
         }
 
         // 2번째 모양은 180도 회전과 회전시키지 않을 때와 모양이 같다.
@@ -105,22 +95,12 @@ public class Solution_bj_4920_테트리스게임 {
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 2, i + 1, 2, 2);
         }
-        for (int j = 0; j < N - 2; j++) {
-            temp = grid[0][j] + grid[0][j + 1] + grid[0][j + 2] + grid[1][j + 2];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 0, j + 1, 0, 0, j + 2, 0, 1);
-        }
 
         // 90도 회전
         for (int i = 0; i < N - 2; i++) {
             temp = grid[i][1] + grid[i + 1][1] + grid[i + 2][0] + grid[i + 2][1];
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 1, 1, i + 1, 1, 1, i + 2, 0, 1);
-        }
-        for (int j = 0; j < N - 1; j++) {
-            temp = grid[2][j] + grid[0][j + 1] + grid[1][j + 1] + grid[2][j + 1];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 2, 2, j + 1, 0, 2);
         }
 
         // 180도 회전
@@ -129,22 +109,12 @@ public class Solution_bj_4920_테트리스게임 {
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 0, i + 1, 0, 2);
         }
-        for (int j = 0; j < N - 2; j++) {
-            temp = grid[0][j] + grid[1][j] + grid[1][j + 1] + grid[1][j + 2];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 1, j + 1, 1, 1, j + 2, 1, 1);
-        }
 
         // 270도 회전
         for (int i = 0; i < N - 2; i++) {
             temp = grid[i][0] + grid[i][1] + grid[i + 1][0] + grid[i + 2][0];
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 1, i + 1, 0, 0, i + 2, 0, 0);
-        }
-        for (int j = 0; j < N - 1; j++) {
-            temp = grid[0][j] + grid[1][j] + grid[2][j] + grid[0][j + 1];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 2, j + 1, 0, 0);
         }
     }
 
@@ -155,22 +125,12 @@ public class Solution_bj_4920_테트리스게임 {
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 2, i + 1, 1, 1);
         }
-        for (int j = 0; j < N - 2; j++) {
-            temp = grid[0][j] + grid[0][j + 1] + grid[1][j + 1] + grid[0][j + 2];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 0, j + 1, 0, 1, j + 2, 0, 0);
-        }
 
         // 90도 회전
         for (int i = 0; i < N - 2; i++) {
             temp = grid[i][1] + grid[i + 1][0] + grid[i + 1][1] + grid[i + 2][1];
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 1, 1, i + 1, 0, 1, i + 2, 1, 1);
-        }
-        for (int j = 0; j < N - 1; j++) {
-            temp = grid[1][j] + grid[0][j + 1] + grid[1][j + 1] + grid[2][j + 1];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 1, 1, j + 1, 0, 2);
         }
 
         // 180도 회전
@@ -179,22 +139,12 @@ public class Solution_bj_4920_테트리스게임 {
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 1, 1, i + 1, 0, 2);
         }
-        for (int j = 0; j < N - 2; j++) {
-            temp = grid[1][j] + grid[0][j + 1] + grid[1][j + 1] + grid[1][j + 2];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 1, 1, j + 1, 0, 1, j + 2, 1, 1);
-        }
 
         // 270도 회전
         for (int i = 0; i < N - 2; i++) {
             temp = grid[i][0] + grid[i + 1][0] + grid[i + 1][1] + grid[i + 2][0];
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 0, i + 1, 0, 1, i + 2, 0, 0);
-        }
-        for (int j = 0; j < N - 1; j++) {
-            temp = grid[0][j] + grid[1][j] + grid[2][j] + grid[1][j + 1];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 2, j + 1, 1, 1);
         }
     }
 
@@ -205,11 +155,6 @@ public class Solution_bj_4920_테트리스게임 {
             temp = grid[i][0] + grid[i][1] + grid[i + 1][0] + grid[i + 1][1];
             max = Math.max(max, temp);
             slidingWindowR(temp, i, 0, 1, i + 1, 0, 1);
-        }
-        for (int j = 0; j < N - 1; j++) {
-            temp = grid[0][j] + grid[1][j] + grid[0][j + 1] + grid[1][j + 1];
-            max = Math.max(max, temp);
-            slidingWindowH(temp, j, 0, 1, j + 1, 0, 1);
         }
     }
 
@@ -263,32 +208,6 @@ public class Solution_bj_4920_테트리스게임 {
             hS++;
             hE++;
             temp += grid[hE][r];
-            max = Math.max(max, temp);
-        }
-    }
-
-    static void slidingWindowH(int temp, int r1, int h1S, int h1E, int r2, int h2S, int h2E) {
-        while (h1E < N - 1 && h2E < N - 1) {
-            temp -= (grid[h1S][r1] + grid[h2S][r2]);
-            h1S++;
-            h1E++;
-            h2S++;
-            h2E++;
-            temp += (grid[h1E][r1] + grid[h2E][r2]);
-            max = Math.max(max, temp);
-        }
-    }
-
-    static void slidingWindowH(int temp, int r1, int h1S, int h1E, int r2, int h2S, int h2E, int r3, int h3S, int h3E) {
-        while (h1E < N - 1 && h2E < N - 1 && h3E < N - 1) {
-            temp -= (grid[h1S][r1] + grid[h2S][r2] + grid[h3S][r3]);
-            h1S++;
-            h1E++;
-            h2S++;
-            h2E++;
-            h3S++;
-            h3E++;
-            temp += (grid[h1E][r1] + grid[h2E][r2] + grid[h3E][r3]);
             max = Math.max(max, temp);
         }
     }

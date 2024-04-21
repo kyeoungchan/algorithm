@@ -1,7 +1,8 @@
 # 테트리스 게임
 https://www.acmicpc.net/problem/4920
+---
 입력
-```text
+```text임
 4 
 70  2  1 7
  7  1 30 6 
