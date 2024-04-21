@@ -3,6 +3,16 @@ import java.util.*;
 
 public class Solution {
 
+    static class Pos {
+        int r;
+        int c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+
     static int[] di = {-1, 0, 1, 0}, dj = {0, 1, 0, -1};
 
     public static void main(String[] args) throws Exception {
@@ -28,8 +38,8 @@ public class Solution {
                 }
             }
 
-            ArrayDeque<int[]> pq = new ArrayDeque<>();
-            pq.offer(new int[]{R, C});
+            ArrayDeque<Pos> pq = new ArrayDeque<>();
+            pq.offer(new Pos(R, C));
             boolean[][] v = new boolean[N][M];
             v[R][C] = true;
 
@@ -39,19 +49,17 @@ public class Solution {
             for (int time = 0; time < L - 1; time++) {
                 int pqSize = pq.size();
                 for (int i = 0; i < pqSize; i++) {
-                    int[] cur = pq.poll();
-                    int ci = cur[0];
-                    int cj = cur[1];
+                    Pos cur = pq.poll();
                     for (int d = 0; d < 4; d++) {
-                        if (!canGo(map[ci][cj], d)) continue;
-                        int ni = ci + di[d];
-                        int nj = cj + dj[d];
+                        if (!canGo(map[cur.r][cur.c], d)) continue;
+                        int ni = cur.r + di[d];
+                        int nj = cur.c + dj[d];
                         if (ni < 0 || ni > N - 1 || nj < 0 || nj > M - 1 || v[ni][nj]) continue;
                         int reverseD = (d + 2) % 4;
                         // 현재 가고자하는 위치가 갈 수 있는지 판별하려면 그 위치에서 반대방향으로 출발할 수 있는지 판별하면 된다.
                         if (!canGo(map[ni][nj], reverseD)) continue;
                         v[ni][nj] = true;
-                        pq.offer(new int[]{ni, nj});
+                        pq.offer(new Pos(ni, nj));
                     }
                     // 현재 위치도 있을 수 있으므로 큐에 다시 넣어준다.
                     // 만약 계속 움직이기만 하는 조건이라면 다시 안 넣어주는 게 맞다.
