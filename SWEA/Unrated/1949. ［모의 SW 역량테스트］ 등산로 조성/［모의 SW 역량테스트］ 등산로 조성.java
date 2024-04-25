@@ -16,7 +16,7 @@ import java.util.*;
 public class Solution {
 
 
-    static int N, K, maxHeight, answer;
+    static int N, K, answer;
     static int[] di = {-1, 0, 1, 0}, dj = {0, 1, 0, -1};
     static int[][] map;
     static boolean[][] v;
@@ -32,8 +32,7 @@ public class Solution {
             N = Integer.parseInt(st.nextToken());
             K = Integer.parseInt(st.nextToken());
             map = new int[N][N];
-            maxHeight = 0;
-            int maxCnt = 0;
+            int maxHeight = 0;
             for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
                 for (int j = 0; j < N; j++) {
@@ -42,33 +41,19 @@ public class Solution {
                     // 가장 높은 봉우리는 최대 5개다.
                     if (map[i][j] > maxHeight) {
                         maxHeight = map[i][j];
-                        maxCnt = 1;
-                    } else if (map[i][j] == maxHeight) {
-                        maxCnt++;
                     }
                 }
             }
-            int[] maxPeeks = new int[maxCnt];
-            maxCnt = 0;
-            end: for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    if (maxHeight == map[i][j]) {
-                        maxPeeks[maxCnt++] = i * N + j;
-                    }
-                    if (maxCnt == maxPeeks.length) {
-                        break end;
-                    }
-                }
-            }
-
             answer = 0;
             v = new boolean[N][N];
-            for (int pos : maxPeeks) {
-                int r = pos / N;
-                int c = pos % N;
-                v[r][c] = true;
-                dfs(r, c, false, 1);
-                v[r][c] = false;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (maxHeight == map[i][j]) {
+                        v[i][j] = true;
+                        dfs(i, j, false, 1);
+                        v[i][j] = false;
+                    }
+                }
             }
             sb.append("#").append(tc).append(" ").append(answer).append("\n");
         }
@@ -77,6 +62,7 @@ public class Solution {
     }
 
     static void dfs(int r, int c, boolean hasCut, int len) {
+        if (len + map[r][c] < answer) return;
         boolean moved = false;
         for (int d = 0; d < 4; d++) {
             int ni = r + di[d];
