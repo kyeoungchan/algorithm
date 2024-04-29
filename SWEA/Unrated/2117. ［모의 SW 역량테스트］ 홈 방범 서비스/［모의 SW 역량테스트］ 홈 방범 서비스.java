@@ -45,6 +45,7 @@ public class Solution {
 
                 if (totalBenefit >= 0) {
                     answer = Math.max(answer, maxHouseCnt);
+                    break;
                 }
             }
             sb.append("#").append(tc).append(" ").append(answer).append("\n");
