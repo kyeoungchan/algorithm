@@ -5,7 +5,7 @@ public class Solution {
 
     static int N, answer;
     static int[] di = {1, 1, -1, -1}, dj = {1, -1, -1, 1};
-    static int[][] map, debugMap;
+    static int[][] map;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -66,14 +66,11 @@ public class Solution {
         desserts.add(map[startI][startJ]);
         int i = startI;
         int j = startJ;
-        debugMap = new int[N][N];
-        debugMap[startI][startJ] = 1;
         for (int d = 0; d < 4; d++) {
             if (d % 2 == 0) {
                 for (int k = 0; k < a; k++) {
                     i += di[d];
                     j += dj[d];
-                    debugMap[i][j] = 1;
                     if (desserts.contains(map[i][j])) return;
                     desserts.add(map[i][j]);
                 }
@@ -81,7 +78,6 @@ public class Solution {
                 for (int k = 0; k < b; k++) {
                     i += di[d];
                     j += dj[d];
-                    debugMap[i][j] = 1;
                     if (i == startI && j == startJ) break;
                     if (desserts.contains(map[i][j])) return;
                     desserts.add(map[i][j]);
@@ -91,14 +87,4 @@ public class Solution {
         answer = Math.max(desserts.size(), answer);
     }
 
-    static void debug(List<Integer> temp) {
-        System.out.println(temp);
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                System.out.print(debugMap[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
 }
