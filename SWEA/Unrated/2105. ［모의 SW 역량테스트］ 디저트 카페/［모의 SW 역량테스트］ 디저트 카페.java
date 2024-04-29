@@ -63,7 +63,7 @@ public class Solution {
 
     static void go(int startI, int startJ, int a, int b) {
         List<Integer> desserts = new ArrayList<>();
-        desserts.add(map[startI][startJ]);
+//        desserts.add(map[startI][startJ]);
         int i = startI;
         int j = startJ;
         for (int d = 0; d < 4; d++) {
@@ -78,7 +78,7 @@ public class Solution {
                 for (int k = 0; k < b; k++) {
                     i += di[d];
                     j += dj[d];
-                    if (i == startI && j == startJ) break;
+//                    if (i == startI && j == startJ) break;
                     if (desserts.contains(map[i][j])) return;
                     desserts.add(map[i][j]);
                 }
