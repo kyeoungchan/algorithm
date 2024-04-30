@@ -1,9 +1,9 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Solution {
 
-    static int N, maxConnected, minLen, totalProcessors;
+    static int N, maxConnected, minLen;
     static int[] di = {-1, 0, 1, 0}, dj = {0, 1, 0, -1};
     static int[][] board;
     static List<int[]> processors;
@@ -21,81 +21,67 @@ public class Solution {
                 st = new StringTokenizer(br.readLine(), " ");
                 for (int j = 0; j < N; j++) {
                     board[i][j] = Integer.parseInt(st.nextToken());
+                    // 가장자리에 있는 프로세서는 생략한다.
                     if (i == 0 || i == N - 1 || j == 0 || j == N - 1) continue;
+                    // 프로세서 좌표 정보를 리스트에 저장해준다.
                     if (board[i][j] == 1) processors.add(new int[]{i, j});
                 }
             }
 
-            totalProcessors = processors.size();
-
             maxConnected = 0;
-
-            // check again!
-            minLen = N * N;
-            goCheck(0, maxConnected, 0);
+            minLen = 0;
+            checkProcessor(0, maxConnected, minLen);
             sb.append("#").append(tc).append(" ").append(minLen).append("\n");
         }
-        System.out.println(sb.toString());
+        System.out.print(sb.toString());
         br.close();
     }
 
-    static void goCheck(int cnt, int connected, int len) {
-        if (cnt == totalProcessors) {
+    static void checkProcessor(int cnt, int connected, int len) {
+        if (cnt == processors.size()) {
             if (connected > maxConnected) {
                 maxConnected = connected;
                 minLen = len;
-            } else if (connected == maxConnected && len < minLen) {
+            } else if (connected == maxConnected && minLen > len) {
                 minLen = len;
             }
-//            debug();
             return;
         }
 
-        if (totalProcessors - cnt < maxConnected - connected) {
-            // 현재까지 연결된 프로세서에서 남은 프로세서들을 다 연결해도 이미 max로 찍힌 연결 수만큼 도달할 수 없다면 포기한다.
-            return;
-        }
+        // 현재 연결한 것에서 나머지 모든 프로세서들을 연결해도 maxConnected에 도달할 수 없다면 의미없으므로 가지치기
+        if (processors.size() - cnt + connected < maxConnected) return;
 
-        int[] cur = processors.get(cnt);
-        int i = cur[0];
-        int j = cur[1];
+        int r = processors.get(cnt)[0];
+        int c = processors.get(cnt)[1];
+
         for (int d = 0; d < 4; d++) {
-            if (canGo(i, j, d)) {
-                int addLen = setStatus(i, j, d, 2);
-                goCheck(cnt + 1, connected + 1, len + addLen);
-                setStatus(i, j, d, -2);
+            int nr = r + di[d];
+            int nc = c + dj[d];
+            int add = 0;
+            boolean isConnected = true;
+            while (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+                if (board[nr][nc] == 1) {
+                    isConnected = false;
+                    break;
+                }
+                add++;
+                board[nr][nc] = 1;
+                nr += di[d];
+                nc += dj[d];
+            }
+
+            if (isConnected) {
+                checkProcessor(cnt + 1, connected + 1, len + add);
+            }
+
+            nr = r + di[d];
+            nc = c + dj[d];
+            for (int i = 0; i < add; i++) {
+                board[nr][nc] = 0;
+                nr += di[d];
+                nc += dj[d];
             }
         }
-        goCheck(cnt + 1, connected, len);
-    }
-
-    static int setStatus(int i, int j, int d, int status) {
-        int len = 0;
-        while (i > 0 && i < N - 1 && j > 0 && j < N - 1) {
-            i += di[d];
-            j += dj[d];
-            board[i][j] += status;
-            len++;
-        }
-        return len;
-    }
-
-    static boolean canGo(int i, int j, int d) {
-        while (i > 0 && i < N - 1 && j > 0 && j < N - 1) {
-            i += di[d];
-            j += dj[d];
-            if (board[i][j] != 0) return false;
-        }
-        return true;
-    }
-
-    static void debug() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                System.out.print(board[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
+        checkProcessor(cnt + 1, connected, len);
     }
 }
