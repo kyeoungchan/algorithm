@@ -1,20 +1,21 @@
-package swexpertacademy.protectfilm;
+package swexpertacademy.보호필름;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 /**
- * 메모리:28,000kb, 시간:314ms
+ * 메모리:31,304kb, 시간:319ms
  */
-public class Solution_2112_보호필름_연민호_최적화_반환값을활용한재귀종료 {
-
+public class Solution_2112_보호필름_연민호_최적화_전역변수활용한재귀종료 {
 	static int D, W;	//행, 열
 	static int K;	//합격 기준
 	static int[][] film = new int[13][20];	//필름 정보
 	
 	static int[] A = new int[20];	//A투입 시 참조할 배열
 	static int[] B = {1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1};	//B투입 시 참조할 배열
+	
+	static boolean flag;	//합격 기준 K를 만족하는 경우를 찾으면 true
 	
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -41,9 +42,11 @@ public class Solution_2112_보호필름_연민호_최적화_반환값을활용�
 				continue;
 			}
 			
+			flag=false;	//초기화
 			int useCnt;	//약품 투입을 사용한 횟수
 			for(useCnt=0; useCnt<=K-1; useCnt++) {	
-				if( combination(0, 0, useCnt) ) break;
+				combination(0, 0, useCnt);
+				if(flag) break;
 			}
 			sb.append(useCnt).append("\n");
 		}
@@ -56,11 +59,12 @@ public class Solution_2112_보호필름_연민호_최적화_반환값을활용�
 	 * @param start 다음 약품투입을 고려할 행의 시작 인덱스
 	 * @param useCnt 약품투입할 행의 수
 	 */
-	private static boolean combination(int cnt, int start, int useCnt) {
+	private static void combination(int cnt, int start, int useCnt) {
 		if(cnt==useCnt) {	//useCnt개수만큼의 행에 대한 약품 투입 완료
-			if(!isValid()) return false;	//합격기준 만족X
+			if(!isValid()) return;	//합격기준 만족X
 			
-			return true;	//합격 기준 만족시 true반환
+			flag = true;	//합격 기준 만족하므로 true
+			return;
 		}
 		
 		for(int r=start; r<D; r++) {
@@ -73,21 +77,22 @@ public class Solution_2112_보호필름_연민호_최적화_반환값을활용�
 			try {
 				//1.r행에 A투입
 				film[r] = A;
-				if(combination(cnt+1, r+1, useCnt)) return true;	
+				combination(cnt+1, r+1, useCnt);
+				if(flag) return;
 				/*
-				 * 재귀 함수 호출의 결과가 true라면 합격기준을 만족한 경우를 찾았으므로 
-				 * 더 이상 탐색하지 않고 true리턴 
+				 * 재귀 함수 호출의 후, flag가 true라면 합격기준을 만족한 경우를 찾았으므로 
+				 * 더 이상 탐색하지 않고 리턴
 				 */
 				
 				//2.r행에 B투입
 				film[r] = B;
-				if(combination(cnt+1, r+1, useCnt)) return true;
+				combination(cnt+1, r+1, useCnt);
+				if(flag) return;
 				
 			} finally {
 				film[r] = temp;		//r행의 원본 배열 되돌리기
 			}
 		}
-		return false;
 	}
 
 	/**
