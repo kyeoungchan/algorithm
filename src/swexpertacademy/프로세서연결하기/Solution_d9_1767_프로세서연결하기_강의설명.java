@@ -1,4 +1,4 @@
-package swexpertacademy.processorconnecting;
+package swexpertacademy.프로세서연결하기;
 
 import java.util.*;
 import java.io.*;
