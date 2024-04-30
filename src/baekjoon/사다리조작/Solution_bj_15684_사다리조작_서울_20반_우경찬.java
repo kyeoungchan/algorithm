@@ -1,4 +1,4 @@
-package baekjoon.laddermaipulate;
+package baekjoon.사다리조작;
 
 import java.util.*;
 import java.io.*;
