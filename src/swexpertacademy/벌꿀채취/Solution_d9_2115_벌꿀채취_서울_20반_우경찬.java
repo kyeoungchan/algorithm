@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.벌꿀채취;
 
 import java.util.*;
 import java.io.*;
