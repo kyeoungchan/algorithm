@@ -1,4 +1,4 @@
-package swexpertacademy.brickbroking;
+package swexpertacademy.벽돌깨기;
 
 import java.util.*;
 import java.io.*;
