@@ -90,6 +90,7 @@ public class Solution {
     }
 
     static void getMaxSubHoney(int[] temp, int idx, int sum, int value) {
+        if (sum > C) return; // 가지치기
         // 부분집합!
         if (idx == M) {
             if (sum <= C) {
