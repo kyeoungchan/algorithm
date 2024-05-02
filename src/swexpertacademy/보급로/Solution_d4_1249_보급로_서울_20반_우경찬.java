@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.보급로;
 
 import java.util.*;
 import java.io.*;
