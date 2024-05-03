@@ -1,14 +1,7 @@
 package swexpertacademy.미생물격리;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-// Solution_d9_2382_미생물격리_서울_20반_우경찬이 더 성능이 좋습니다.
-
+import java.io.*;
+import java.util.*;
 
 /**
  * K개의 미생물 군집
@@ -105,6 +98,7 @@ public class Solution_d9_2382_미생물격리4 {
                     }
                 }
                 for (int id = 1; id < microscopes.size(); id++) {
+                    if (merged[id]) continue;
                     Microscope m = microscopes.get(id);
                     m.preCnt = m.cnt;
                 }
