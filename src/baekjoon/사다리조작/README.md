@@ -16,7 +16,7 @@ https://www.acmicpc.net/problem/15684
 ```
 출력2
 ```text
-0
+1
 ```
 입력3
 ```text
