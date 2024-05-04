@@ -1,4 +1,4 @@
-package swexpertacademy.microbeisolation;
+package swexpertacademy.미생물격리;
 
 import java.io.*;
 import java.util.*;

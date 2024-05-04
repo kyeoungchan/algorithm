@@ -1,4 +1,4 @@
-package swexpertacademy.lunchtime;
+package swexpertacademy.점심식사시간;
 
 import java.util.*;
 import java.io.*;
