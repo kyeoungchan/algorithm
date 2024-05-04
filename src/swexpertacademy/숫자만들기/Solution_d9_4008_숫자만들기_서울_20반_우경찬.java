@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.숫자만들기;
 
 import java.util.*;
 import java.io.*;
