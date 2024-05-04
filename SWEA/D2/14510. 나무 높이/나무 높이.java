@@ -1,94 +1,66 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
-/**
- * 2가 남은 상황일 때 홀수번째 날이면 하루 기다리고 2를 채우는 게 1채우고 이틀 기다리고 1채우는 거보다 빠르다. -> 이틀
- * 3이 남은 상황일 때는 홀수번째든, 짝수번째든 그냥 채워진다. -> 이틀
- * 4가 남은 상황일 때는 홀수번째면 1 2 1로 바로 채워지고, 짝수번째면 2 - 0 - 2로 채워야한다. 즉, 2가 남은 상황에 처하게된다.
- * 5가 남은 상황에서는 홀수번째면 1 2 0 2 / 0 2 1 2로, 짝수번째면 2 1 2
- * 6 -> 홀수 1 2 1 2. 짝수 2 1 2 1
- * 7 -> 홀수 1 2 1 2 1 짝수 2 1 2 1 0 2
- */
 public class Solution {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+        StringBuilder sb = new StringBuilder();
+        int T = Integer.parseInt(br.readLine());
+        for (int tc = 1; tc < T + 1; tc++) {
+            int N = Integer.parseInt(br.readLine());
+            int[] trees = new int[N];
+            st = new StringTokenizer(br.readLine(), " ");
+            int maxH = 0;
+            for (int i = 0; i < N; i++) {
+                trees[i] = Integer.parseInt(st.nextToken());
+                maxH = Math.max(maxH, trees[i]);
+            }
+            int odd = 0;
+            int even = 0;
+            for (int i = 0; i < N; i++) {
+                int temp = maxH - trees[i];
+                // odd 날에 물을 주는 날짜의 횟수
+                odd += temp % 2;
+                // even 날에 물을 주는 날짜의 횟수
+                even += temp / 2;
+            }
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		StringBuilder sb = new StringBuilder();
-		int T = Integer.parseInt(br.readLine());
-		for (int tc = 1; tc < T + 1; tc++) {
-			int N = Integer.parseInt(br.readLine());
-			int[] trees = new int[N];
-			int day = 0;
-			int maxH = 0;
-			st = new StringTokenizer(br.readLine(), " ");
-			for (int i = 0; i < N; i++) {
-				trees[i] = Integer.parseInt(st.nextToken());
-				if (trees[i] > maxH) maxH = trees[i];
-			}
-			PriorityQueue<Integer> evenPq = new PriorityQueue<>(Comparator.reverseOrder());
-			PriorityQueue<Integer> oddPq = new PriorityQueue<>(Comparator.reverseOrder());
-			for (int i = 0; i < N; i++) {
-				if (trees[i] == maxH) continue;
-				int sub = maxH - trees[i];
-				if (sub % 2 == 0) evenPq.offer(sub);
-				else oddPq.offer(sub);
-			}
-			
-			/*
-			 * 0이 되면 pq에 담지 않는다.
-			 * 홀수날인 경우
-			 * - 기본적으로 홀수의 pq를 사용한다.
-			 * - 홀수 pq가 비었을 경우
-			 * 	- 짝수 pq의 사이즈가 1이고 남은 숫자가 2면 하루 기다린다.
-			 * 	- 그 외에는 그냥 짝수 pq에서 꺼내서 쓴다.
-			 * 짝수날인 경우
-			 * - 기본적으로 짝수의 pq를 사용한다.
-			 * - 짝수 pq가 비엇을 경우
-			 * 	- 홀수 pq에서 1만 꺼낼 수 있는 경우 하루 기다린다.
-			 * 	- 그 외에는 홀수 pq에서 꺼내서 사용한다.
-			 */
-			while (!evenPq.isEmpty() || !oddPq.isEmpty()) {
-				day++;
-				int growth;
-				if (day % 2 == 0) growth = 2;
-				else growth = 1;
-				
-				if (growth == 1) {
-					// 홀수날인 경우
-					if (!oddPq.isEmpty()) {
-						int cur = oddPq.poll();
-						int result = cur - growth;
-						if (result != 0) evenPq.offer(result);
-					} else if (evenPq.size() == 1 && evenPq.peek() == 2) {
-						continue;
-					}
-					else {
-						int cur = evenPq.poll();
-						int result = cur - growth;
-						// 짝수 - 1이 0이 될 리가 없다.
-						oddPq.offer(result);
-					}
-				} else {
-					// 짝수날인 경우
-					if (!evenPq.isEmpty()) {
-						int cur = evenPq.poll();
-						int result = cur - growth;
-						if (result != 0) evenPq.offer(result);
-					} else if (oddPq.peek() == 1) {
-						continue;
-					} else {
-						int cur = oddPq.poll();
-						int result = cur - growth;
-						// 홀수 - 2가 0이 될 리가 없다.
-						oddPq.offer(result);
-					}
-				}
-			}
-			sb.append("#").append(tc).append(" ").append(day).append("\n");
-		}
-		System.out.println(sb.toString());
-		br.close();
-	}
+            while (odd + 2 <= even) {
+                // 4만큼 차이가 난다면, even날이 2가 생기는데, x, 2, x 4로 물을 주는 것 보다는 홀수의 날 이틀로 바꾸어 1, 2, 3으로 물을 주는 것이 더 빠르다.
+                // 단, 홀수 날 이틀이 빈다는 전제 하다.
+                even--;
+                odd += 2;
+            }
 
+            /*
+            1 -> even0, odd 1. 1
+            2 -> even 1, odd 0. x, 1
+            3 -> even 1, odd 1. 1, 2
+            4 -> even 2, odd 0 -> even 1, odd 2. 1, 2, 3
+            5 -> even 2, odd 1. 1, 2, x, 4
+            6 -> even 3, odd 0 -> even 2, odd 2. 1, 2, 3, 4
+            7 -> even 3, odd 1 -> even 2, odd 3. 1, 2, 3, 4, 5
+            8 -> even 4, odd 0 -> even 3, odd 2. 1, 2, 3, 4, x, 6
+            9 -> even 4, odd 1 -> even 3, odd 3. 1, 2, 3, 4, 5, 6
+            */
+            int result;
+            if (even > odd) {
+                // 위의 반복문으로 인해 even이 odd보다 1만큼 많은 정도가 된 상황이다.
+                // 1일부터 시작되기 때문에 홀수 날짜 하루가 비게 된다.
+                result = odd + even + 1;
+            } else if (even == odd) {
+                result = odd + even;
+            } else {
+                // 예를 들어 1, 2, 3, x, 5, x, 7, x, 9이렇게 물을 준다고 치자.
+                // odd = 5, even = 1인 상황이다.
+                // odd + even + (x의 개수만큼의 even만큼 날짜를 채움 4) => 이렇게 하면 홀짝홀짝이 합쳐져서 10일이 된다.
+                // 그러므로 마지막으로 1만큼 빼주어서 9가 되어야 한다.
+                result = odd + even + (odd - even) - 1;
+            }
+            sb.append("#").append(tc).append(" ").append(result).append("\n");
+        }
+        System.out.print(sb.toString());
+        br.close();
+    }
 }
