@@ -54,7 +54,7 @@ public class Solution {
         }
 
     }
-    
+
     static class User {
         int r;
         int c;
@@ -73,7 +73,7 @@ public class Solution {
         }
     }
 
-    static int M, userAVol, userBVol, maxThisTime, userAVolThisTime, userBVolThisTime;
+    static int M, /*userAVol, userBVol,*/ maxThisTime, /*userAVolThisTime, userBVolThisTime,*/ totalMaxTime;
     static int[] di = {0, -1, 0, 1, 0}, dj = {0, 0, 1, 0, -1}, userATrace, userBTrace;
     static int[][] map;
     static List<BatteryCharger> bcs;
@@ -120,10 +120,12 @@ public class Solution {
                 int performance = Integer.parseInt(st.nextToken());
                 bcs.add(new BatteryCharger(r, c, range, performance));
             }
-            userAVol = 0;
-            userBVol = 0;
+//            userAVol = 0;
+//            userBVol = 0;
+            totalMaxTime = 0;
             simulate();
-            sb.append("#").append(tc).append(" ").append(userAVol + userBVol).append("\n");
+//            sb.append("#").append(tc).append(" ").append(userAVol + userBVol).append("\n");
+            sb.append("#").append(tc).append(" ").append(totalMaxTime).append("\n");
         }
         System.out.print(sb.toString());
         br.close();
@@ -131,12 +133,13 @@ public class Solution {
 
     static void simulate() {
         maxThisTime = 0;
-        userAVolThisTime = 0;
-        userBVolThisTime = 0;
+//        userAVolThisTime = 0;
+//        userBVolThisTime = 0;
         // 움직이기 전에 충전받기
         selectBatteryCharger(0);
-        userAVol += userAVolThisTime;
-        userBVol += userBVolThisTime;
+//        userAVol += userAVolThisTime;
+//        userBVol += userBVolThisTime;
+        totalMaxTime += maxThisTime;
 //        debug(0);
         for (int time = 0; time < M; time++) {
             // 사용자는 1초에 한 칸씩 움직인다.
@@ -144,11 +147,12 @@ public class Solution {
             userB.move(userBTrace[time]);
 
             maxThisTime = 0;
-            userAVolThisTime = 0;
-            userBVolThisTime = 0;
+//            userAVolThisTime = 0;
+//            userBVolThisTime = 0;
             selectBatteryCharger(0);
-            userAVol += userAVolThisTime;
-            userBVol += userBVolThisTime;
+//            userAVol += userAVolThisTime;
+//            userBVol += userBVolThisTime;
+            totalMaxTime += maxThisTime;
 //            debug(time + 1);
         }
     }
@@ -158,9 +162,10 @@ public class Solution {
         if (cnt == 2) {
             if (maxThisTime < userA.chargeVol + userB.chargeVol) {
                 // 디버깅을 위해서 userA와 userB를 따로 기록해두자.
-                userAVolThisTime = userA.chargeVol;
-                userBVolThisTime = userB.chargeVol;
-                maxThisTime = userAVolThisTime + userBVolThisTime;
+//                userAVolThisTime = userA.chargeVol;
+//                userBVolThisTime = userB.chargeVol;
+//                maxThisTime = userAVolThisTime + userBVolThisTime;
+                maxThisTime = userA.chargeVol + userB.chargeVol;
             }
             return;
         }
