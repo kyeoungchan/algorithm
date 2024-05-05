@@ -75,7 +75,7 @@ public class Solution_d9_5648_원자소멸시뮬레이션 {
                 // 다음 N개의 줄에는 원자들의 x 위치, y 위치, 이동 방향, 보유 에너지 K가 주어진다.
                 st = new StringTokenizer(br.readLine(), " ");
                 int x = (Integer.parseInt(st.nextToken()) + 1000) * 2;
-                int y = (-Integer.parseInt(st.nextToken()) + 1000) * 2;
+                int y = (-Integer.parseInt(st.nextToken()) + 1000) * 2; // y좌표는 위로 올라갈수록 커지는 좌표이므로 익숙한 좌표로 변환하기 위해서는 음수로 바꿔주고 변환해야한다.
                 int d = Integer.parseInt(st.nextToken());
                 int k = Integer.parseInt(st.nextToken());
                 atoms.add(new Atom(y, x, d, k));
