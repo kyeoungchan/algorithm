@@ -35,3 +35,6 @@ https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AWX
         }
     }
     ```
+---
+4. 두 번째 성능 좋은 방법으로 재풀이 결과 x와 y를 곱하기 2를 해줘야하는 것은 여전했다.
+   - 달빛여우 문제처럼 /2를 해줘야하는 문제는 그냥 좌표에 곱하기 2를 해준다는 생각으로 접근하자.
