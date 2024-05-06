@@ -1,11 +1,11 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Solution {
 
-    static int N, answer;
+    static int N, maxKind;
     static int[] di = {1, 1, -1, -1}, dj = {1, -1, -1, 1};
-    static int[][] map;
+    static int[][] cafes;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -14,47 +14,36 @@ public class Solution {
         int T = Integer.parseInt(br.readLine());
         for (int tc = 1; tc < T + 1; tc++) {
             N = Integer.parseInt(br.readLine());
-            map = new int[N][N];
+            cafes = new int[N][N];
             for (int i = 0; i < N; i++) {
-                st = new StringTokenizer(br.readLine(), " ");
+                st = new StringTokenizer(br.readLine());
                 for (int j = 0; j < N; j++) {
-                    map[i][j] = Integer.parseInt(st.nextToken());
+                    cafes[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
-
-            answer = -1;
-            // 나는 시계방향으로 돌릴 것이다.
-            // 처음 출발 지점은 밑에서 세 번째까지밖에 못 간다.
+            maxKind = 0;
             for (int i = 0; i < N - 2; i++) {
                 for (int j = 1; j < N - 1; j++) {
-                    searchCafe(i, j);
+                    checkPath(i, j);
                 }
             }
-            sb.append("#").append(tc).append(" ").append(answer).append("\n");
-
+            if (maxKind == 0) maxKind--;
+            sb.append("#").append(tc).append(" ").append(maxKind).append("\n");
         }
-        System.out.println(sb.toString());
+        System.out.print(sb.toString());
         br.close();
     }
 
-    /*
-    0 0 0 0
-    0 0 0 0
-    0 0 0 0
-    0 0 0 0
-     */
-    static void searchCafe(int startI, int startJ) {
-        // 평행사변형 중에서 1, 2번 꼭짓점의 가로(세로) 길이는 a, 2,3번 꼭짓점의 세로(가로)의 길이는 b
-        // startJ + x <= N - 1
+    static void checkPath(int startI, int startJ) {
         // startI + x <= N - 2
-        int maxA = Math.min(N - startJ - 1, N - 2 - startI);
-
+        // startJ + x <= N - 1
+        int maxA = Math.min(N - 2 - startI, N - 1 - startJ);
         for (int a = 1; a <= maxA; a++) {
-            int sndI = startI + di[0] * a;
-            int sndJ = startJ + dj[0] * a;
-            // sndI + x <= N - 1
-            // sndJ - x >= a
-            int maxB = Math.min(N - sndI - 1, sndJ - a);
+            int secondI = startI + di[0] * a;
+            int secondJ = startJ + dj[0] * a;
+            // secondI + b <= N - 1
+            // secondJ - b >= a
+            int maxB = Math.min(N - 1 - secondI, secondJ - a);
             for (int b = 1; b <= maxB; b++) {
                 go(startI, startJ, a, b);
             }
@@ -63,28 +52,43 @@ public class Solution {
 
     static void go(int startI, int startJ, int a, int b) {
         List<Integer> desserts = new ArrayList<>();
-//        desserts.add(map[startI][startJ]);
-        int i = startI;
-        int j = startJ;
+        int r = startI;
+        int c = startJ;
         for (int d = 0; d < 4; d++) {
             if (d % 2 == 0) {
-                for (int k = 0; k < a; k++) {
-                    i += di[d];
-                    j += dj[d];
-                    if (desserts.contains(map[i][j])) return;
-                    desserts.add(map[i][j]);
+                for (int i = 0; i < a; i++) {
+                    r += di[d];
+                    c += dj[d];
+                    if (desserts.contains(cafes[r][c])) return;
+                    desserts.add(cafes[r][c]);
+//                    debug(r, c, d);
                 }
             } else {
-                for (int k = 0; k < b; k++) {
-                    i += di[d];
-                    j += dj[d];
-//                    if (i == startI && j == startJ) break;
-                    if (desserts.contains(map[i][j])) return;
-                    desserts.add(map[i][j]);
+                for (int i = 0; i < b; i++) {
+                    r += di[d];
+                    c += dj[d];
+                    if (desserts.contains(cafes[r][c])) return;
+                    desserts.add(cafes[r][c]);
+//                    debug(r, c, d);
                 }
             }
         }
-        answer = Math.max(desserts.size(), answer);
+        maxKind = Math.max(maxKind, desserts.size());
     }
 
+    static void debug(int r, int c, int d) {
+        System.out.println("d = " + d);
+        System.out.println("di[d] = " + di[d]);
+        System.out.println("dj[d] = " + dj[d]);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (i == r && j == c)
+                    System.out.print("[" + cafes[i][j] + "]");
+                else
+                    System.out.print(" " + cafes[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
 }
