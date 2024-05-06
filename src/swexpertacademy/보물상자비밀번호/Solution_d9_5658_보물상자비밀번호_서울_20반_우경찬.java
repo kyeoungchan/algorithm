@@ -1,4 +1,4 @@
-package swexpertacademy.treasurechest;
+package swexpertacademy.보물상자비밀번호;
 
 import java.util.*;
 import java.io.*;
