@@ -77,7 +77,7 @@ public class Solution_d9_5644_무선충전 {
 
     static int M, userAVol, userBVol, maxThisTime, userAVolThisTime, userBVolThisTime;
     static int[] di = {0, -1, 0, 1, 0}, dj = {0, 0, 1, 0, -1}, userATrace, userBTrace;
-    static int[][] map;
+//    static int[][] map;
     static List<BatteryCharger> bcs;
     static User userA, userB;
 
@@ -90,7 +90,10 @@ public class Solution_d9_5644_무선충전 {
         for (int tc = 1; tc < T + 1; tc++) {
             // 지도의 크기: 10 x 10
             // 1,1 ~ 10,10으로 범위가 주어진다.
-            map = new int[11][11];
+
+            // map을 사용하지 않았다.
+//            map = new int[11][11];
+
             st = new StringTokenizer(br.readLine(), " ");
             M = Integer.parseInt(st.nextToken());
             // 인덱스 초일 때 취해야할 액션!
