@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.무선충전;
 
 import java.util.*;
 import java.io.*;
