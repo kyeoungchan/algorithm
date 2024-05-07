@@ -111,6 +111,7 @@ public class Solution {
             for (Event event : events) {
                 event.extinguish();
             }
+            events.clear();
         }
     }
 
