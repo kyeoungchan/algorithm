@@ -66,9 +66,9 @@ public class Solution {
         }
         // 현재 지정한 개수의 약품을 다 투여할 방법이 없는 상태라면 가지치기
         // 왜냐하면 이미 해당 경우의 수는 이전에 다 해봤을 것이므로!
-        if (totalMedicine - cnt > D - start) return;
+//        if (totalMedicine - cnt > D - start) return;
 
-        for (int i = start; i < D; i++) {
+        for (int i = start; i < D - totalMedicine + cnt + 1; i++) {
             int[] temp = film[i];
             film[i] = a; // A약품 투여
             dropMedicine(cnt + 1, totalMedicine, i + 1);
