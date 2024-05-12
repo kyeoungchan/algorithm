@@ -1,48 +1,46 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    private static final int SQUARE_LENGTH = 100;
-    private static final BufferedReader br = new BufferedReader(new InputStreamReader(System.in), 1 << 13);
-    private static StringBuilder sb = new StringBuilder();
-
     public static void main(String[] args) throws Exception {
+        final int boardSize = 100;
+        final int oneSizeLen = 10;
+        int[][] board = new int[boardSize][boardSize];
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
-        int[][] arr = new int[SQUARE_LENGTH + 1][SQUARE_LENGTH + 1];
-        for (int[] row : arr)    // -무한대로 초기화
-            Arrays.fill(row, -10001);
-        while (n-- > 0) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int r = Integer.parseInt(st.nextToken());
+        StringTokenizer st;
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
             int c = Integer.parseInt(st.nextToken());
-            for (int i = r; i < r + 10; i++) {
-                for (int j = c; j < c + 10; j++) {
-                    arr[i][j] = 1;
+            int r = Integer.parseInt(st.nextToken());
+            for (int dr = 0; dr < oneSizeLen; dr++) {
+                for (int dc = 0; dc < oneSizeLen; dc++) {
+                    board[r + dr][c + dc] = 1;
                 }
             }
         }
 
-        int[][] prefixSum = new int[SQUARE_LENGTH + 1][SQUARE_LENGTH + 1];
-        for (int i = 1; i <= SQUARE_LENGTH; i++) {    // 2차원 prefix sum
-            for (int j = 1; j <= SQUARE_LENGTH; j++) {
-                prefixSum[i][j] = arr[i][j] + prefixSum[i - 1][j] + prefixSum[i][j - 1] - prefixSum[i - 1][j - 1];
+        for (int i = 1; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                // 1인 경우에는 위에 누적된 높이를 더해줘서 자신의 높이를 메모한다.
+                if (board[i][j] == 1) board[i][j] += board[i - 1][j];
             }
         }
 
-        int answer = 0;
-        for (int i = 1; i <= SQUARE_LENGTH; i++) {
-            for (int j = 1; j <= SQUARE_LENGTH; j++) {    // (i,j)는 직사각형의 좌측 상단
-                for (int ib = i + 1; ib <= SQUARE_LENGTH; ib++) {
-                    for (int jb = j + 1; jb <= SQUARE_LENGTH; jb++) {    // (ib,jb)는 직사각형의 우측 하단
-                        int area = prefixSum[ib][jb] - prefixSum[i - 1][jb] - prefixSum[ib][j - 1] + prefixSum[i - 1][j - 1];
-                        if (area < 0) break;    // j<jb이고 jb는 항상 증가하므로 한번이라도 음수라면 그 뒤로 전부 음수이므로 무시한다.
-                        answer = Math.max(area, answer);
-                    }
+        int maxSpace = 0;
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                if (board[i][j] == 0) continue;
+                int minHeight = boardSize;
+                for (int k = j; k < boardSize && board[i][k] != 0; k++) {
+                    minHeight = Math.min(minHeight, board[i][k]);
+                    int rowLen = k - j + 1;
+                    maxSpace = Math.max(maxSpace, minHeight * rowLen);
                 }
             }
         }
-        System.out.println(answer);
+
+        System.out.println(maxSpace);
+        br.close();
     }
 }
