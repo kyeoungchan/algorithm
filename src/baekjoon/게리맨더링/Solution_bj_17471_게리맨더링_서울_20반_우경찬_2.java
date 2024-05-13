@@ -1,4 +1,4 @@
-package baekjoon.gerrymandering;
+package baekjoon.게리맨더링;
 
 import java.util.*;
 import java.io.*;
