@@ -104,11 +104,12 @@ public class Solution_bj_1445_일요일의아침데이트 {
             for (int d = 0; d < 4; d++) {
                 int nr = r + dr[d];
                 int nc = c + dc[d];
-                if (nr < 0 || nr > N - 1 || nc < 0 || nc > M - 1) continue;
+                if (nr < 0 || nr > N - 1 || nc < 0 || nc > M - 1 || map[nr][nc] == 'S') continue;
                 DateCourse add = new DateCourse(nr, nc, cur.garbagePassing, cur.garbageAdj);
 
-                if (map[nr][nc] == 'S') continue;
-                else if (map[nr][nc] == 'F') {
+                /*if (map[nr][nc] == 'S') continue;
+                else */
+                if (map[nr][nc] == 'F') {
                     // F: 꽃이 있는 위치
                     if (dist[nr][nc][0] < add.garbagePassing) continue;
                     if (dist[nr][nc][0] == add.garbagePassing && dist[nr][nc][1] <= add.garbageAdj) continue;
@@ -124,6 +125,7 @@ public class Solution_bj_1445_일요일의아침데이트 {
                     add.garbagePassing++;
                     pq.offer(add);
                 } else {
+                    if (dist[nr][nc][0] < add.garbagePassing) continue;
                     // 만약 어떤 칸이 비어있는데, 인접한 칸에 쓰레기가 있으면 쓰레기 옆을 지나는 것!!!!
                     if (map[r][c] == 'g') {
                         // 이미 쓰레기를 지나왔다면 인접에 더해준다.
@@ -132,7 +134,6 @@ public class Solution_bj_1445_일요일의아침데이트 {
                         // 그 외에는 주변에 쓰레기가 있는지 탐색한다.
                         add.judgeGarbageAdj(d);
                     }
-                    if (dist[nr][nc][0] < add.garbagePassing) continue;
                     if (dist[nr][nc][0] == add.garbagePassing && dist[nr][nc][1] <= add.garbageAdj) continue;
                     dist[nr][nc][0] = add.garbagePassing;
                     dist[nr][nc][1] = add.garbageAdj;
