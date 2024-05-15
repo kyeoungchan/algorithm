@@ -1,92 +1,107 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
+/**
+ * 학생들의 번호: 1~N => 아무나 서로 인터넷 선이 연결되어있지 않다.
+ * 각 선의 비용은 서로 다르다.
+ * 나머지 컴퓨터는 연결되거나 안 돼도 된다.
+ * 나머지 인터넷 선에 대해서는 남은 것 중 제일 가격이 비싼 것에 대해서만 가격을 받는다.
+ */
 public class Main {
-    //다익스트라 BFS탐색에서 PriorityQueue에 사용되는 클래스
-    static class cable implements Comparable<cable>{
-        int next, value;
-        public cable(int next, int value) {
+
+    static class Node implements Comparable<Node> {
+        int vertex;
+        int cost;
+        Node next;
+
+        public Node(int vertex, int cost) {
+            this.vertex = vertex;
+            this.cost = cost;
+        }
+
+        public Node(int vertex, int cost, Node next) {
+            this.vertex = vertex;
+            this.cost = cost;
             this.next = next;
-            this.value = value;
         }
 
         @Override
-        public int compareTo(cable o) {
-            return this.value - o.value;
+        public int compareTo(Node o) {
+            return Integer.compare(cost, o.cost);
         }
     }
-    static int N,P,K;
-    static ArrayList<ArrayList<cable>> line = new ArrayList<>();	//그래프 저장 리스트
-    static int[] dis;		//지불 비용보다 큰 인터넷 선 연결되는 횟수 저장하는 배열
-    public static void main(String[] args) throws IOException{
+
+    static int N, P, K, INF = 1_000_000;
+    static Node[] infoes;
+
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        //입력값 처리하는 BufferedReader
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        //결과값 출력하는 BufferedWriter
-        StringTokenizer st = new StringTokenizer(br.readLine()," ");
-        N = Integer.parseInt(st.nextToken());
-        P = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
-        dis = new int[N+1];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken()); // 목표 컴퓨터
+        P = Integer.parseInt(st.nextToken()); // 케이블선의 개수
+        K = Integer.parseInt(st.nextToken()); // 공짜로 제공하는 케이블선의 개수
 
-        for(int i=0;i<=N;i++)
-            line.add(new ArrayList<>());
+        infoes = new Node[N + 1];
 
-        int end = Integer.MIN_VALUE;
-        int start = 0;
-        //그래프 정보 저장 및 지불 비용 최대값 구하기
-        for(int i=0;i<P;i++){
-            st = new StringTokenizer(br.readLine()," ");
-            int cur = Integer.parseInt(st.nextToken());
-            int next = Integer.parseInt(st.nextToken());
-            int value = Integer.parseInt(st.nextToken());
-            end = Math.max(end,value);
-            line.get(cur).add(new cable(next,value));
-            line.get(next).add(new cable(cur,value));
+        // 다음 P개의 줄에는 케이블이 연결하는 두 컴퓨터 번호와 그 가격이 차례로 들어온다.
+        // 가격은 1 이상 1,000,000 이하
+        for (int i = 0; i < P; i++) {
+            // P개의 쌍만 서로 연결할 수 있다.
+            st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
+            infoes[a] = new Node(b, cost, infoes[a]);
+            infoes[b] = new Node(a, cost, infoes[b]);
         }
 
-        int answer = Integer.MIN_VALUE;
-        //이분 탐색으로 중간값(지불 비용)기준 BFS탐색
-        while(start<=end){
-            int mid = (start + end)/2;
-            if(bfs(mid)){
-                answer = mid;
-                end = mid-1;
-            }else
-                start = mid+1;
-        }
-        //이분 탐색 후 만족하는 지불 비용값이 없는 경우
-        if(answer == Integer.MIN_VALUE)
-            bw.write("-1");
-        else		//지불 비용 존재시 최소값
-            bw.write(answer + "");
-        bw.flush();		//결과 출력
-        bw.close();
+        int answer = parametricSearch();
+
+
+        System.out.println(answer);
         br.close();
     }
-    //다익스트라 BFS 탐색으로 지불 비용에 만족하도록 1 -> N이 가능하는지 확인하는 함수
-    static boolean bfs(int mid){
-        PriorityQueue<cable> pq = new PriorityQueue<>();
-        pq.add(new cable(1, 0));
-        Arrays.fill(dis,Integer.MAX_VALUE);
-        dis[1] = 0;
-        while(!pq.isEmpty()){
-            cable cur = pq.poll();
-            int curNode = cur.next;
-            int value = cur.value;
-            if(dis[curNode] < value)
-                continue;
-            for(cable next : line.get(curNode)){
-                int nextValue = value;
-                if(next.value > mid)
-                    nextValue++;
-                if(nextValue < dis[next.next]){
-                    dis[next.next] = nextValue;
-                    pq.add(new cable(next.next,nextValue));
+
+    static int parametricSearch() {
+        // 가격은 1 이상 1,000,000 이하
+        int start = 0;
+        int end = INF;
+        int answer = -1;
+        while (start <= end) {
+            int mid = start + (end - start) / 2;
+            if (dijkstra(mid)) {
+                // 조건에 만족하면 end를 계속 왼쪽으로 옮긴다.
+                // end가 start보다 왼쪽으로 가야 끝나므로 정답을 메모
+                end = mid - 1;
+                answer = mid;
+            } else {
+                start = mid + 1;
+            }
+        }
+        // 연결할 수 없는 경우라면 start가 계속 오른쪽으로 옮겨졌으므로 answer는 그대로 -1
+        return answer;
+    }
+
+    static boolean dijkstra(int mid) {
+        int[] dist = new int[N + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        pq.offer(new Node(1, 0));
+        dist[1] = 0;
+
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
+            if (dist[cur.vertex] < cur.cost) continue;
+
+            for (Node next = infoes[cur.vertex]; next != null; next = next.next) {
+                int curCnt = cur.cost;
+                if (next.cost > mid) curCnt++;
+                if (dist[next.vertex] > curCnt) {
+                    dist[next.vertex] = curCnt;
+                    pq.offer(new Node(next.vertex, curCnt));
                 }
             }
         }
-        //K번 이하로 지불 비용보다 큰 인터넷 선 확인
-        return dis[N]<=K;
+        return dist[N] <= K;
     }
 }
