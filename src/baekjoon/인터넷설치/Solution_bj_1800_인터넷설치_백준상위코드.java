@@ -1,10 +1,8 @@
 package baekjoon.인터넷설치;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
@@ -12,7 +10,6 @@ import java.util.StringTokenizer;
 // 출처: 제출번호 30218792
 public class Solution_bj_1800_인터넷설치_백준상위코드 {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
     static StringTokenizer st;
 
     static class Node implements Comparable<Node> {
@@ -94,6 +91,7 @@ public class Solution_bj_1800_인터넷설치_백준상위코드 {
             for (Node next=list[node.n]; next != null; next = next.next) {
                 int temp = node.weight;
                 if (mid < next.weight) temp++;
+                // mid 가격보다 비싼 개수를 메모
 
                 if (dist[next.n] > temp) {
                     dist[next.n] = temp;
@@ -101,6 +99,7 @@ public class Solution_bj_1800_인터넷설치_백준상위코드 {
                 }
             }
         }
+        // 만약 mid 가격보다 비싼 랜선들이 K개보다 초과라면, K개만큼 공짜를 받고도 mid 가격으로 지불할 수 없게 된다.
         return dist[N] <= K;
     }
 }
