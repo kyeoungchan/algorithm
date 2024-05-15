@@ -13,62 +13,28 @@ public class Solution_bj_1800_인터넷설치 {
 
     static class Node implements Comparable<Node> {
         int vertex;
-        int finalCost;
-        int cnt;
-        PriorityQueue<Integer> freePq = new PriorityQueue<>(); // 공짜로 받을 비용들을 저장하는 PQ => 최소 힙
-//        PriorityQueue<Integer> costPq = new PriorityQueue<>(Collections.reverseOrder()); // 위의 PQ를 통해 K개 이상 연결했을 경우 가장 가격이 낮은 초과된 비용들을 뽑아내고, 그 중에서 제일 비싼 비용이 최종 가격이다. => 최대힙
+        int cost;
+        Node next;
 
-        public Node(int vertex) {
+        public Node(int vertex, int cost) {
             this.vertex = vertex;
-            this.finalCost = -1;
+            this.cost = cost;
         }
 
-        public void copy(Node node) {
-            this.finalCost = node.finalCost;
-            this.cnt = node.cnt;
-            this.freePq.addAll(node.freePq);
-//            this.costPq.addAll(node.costPq);
-        }
-
-        public void add(int cost) {
-//            if (vertex == v) return; // 자신에서 자신으로 가는 경우는 제외
-            cnt++;
-            freePq.offer(cost);
-            // K개의 인터넷 선에 대해서는 공짜로 연결해준다. => 1번은 제외하고 K개!
-            if (cnt > K) {
-                // 넣었을 때 K개 이상이라면 공짜로 할당된 비용에서는 최소 비용으로 뽑아낸다.
-//                int minCost = freePq.poll();
-//                costPq.offer(minCost);
-                // 원장 선생님이 내게 되는 최소의 값을 구하라.
-//                finalCost = costPq.peek();
-                int idx = 0;
-                for (Integer i : freePq) {
-                    idx++;
-                    if (idx == cnt - K) {
-                        finalCost = i;
-                    }
-                }
-            }
+        public Node(int vertex, int cost, Node next) {
+            this.vertex = vertex;
+            this.cost = cost;
+            this.next = next;
         }
 
         @Override
         public int compareTo(Node o) {
-            return Integer.compare(finalCost, o.finalCost);
-        }
-
-        @Override
-        public String toString() {
-            return "Node{" +
-                    "vertex=" + vertex +
-                    ", finalCost=" + finalCost +
-                    ", cnt=" + cnt +
-                    ", freePq=" + freePq +
-                    '}';
+            return Integer.compare(cost, o.cost);
         }
     }
 
-    static int N, P, K;
-    static List<int[]>[] infoes;
+    static int N, P, K, INF = 1_000_000;
+    static Node[] infoes;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -77,12 +43,8 @@ public class Solution_bj_1800_인터넷설치 {
         P = Integer.parseInt(st.nextToken()); // 케이블선의 개수
         K = Integer.parseInt(st.nextToken()); // 공짜로 제공하는 케이블선의 개수
 
-        int[] dist = new int[N + 1];
-        infoes = new List[N + 1];
-        for (int i = 1; i <= N; i++) {
-            infoes[i] = new ArrayList<>();
-            dist[i] = Integer.MAX_VALUE;
-        }
+        infoes = new Node[N + 1];
+
         // 다음 P개의 줄에는 케이블이 연결하는 두 컴퓨터 번호와 그 가격이 차례로 들어온다.
         // 가격은 1 이상 1,000,000 이하
         for (int i = 0; i < P; i++) {
@@ -91,45 +53,57 @@ public class Solution_bj_1800_인터넷설치 {
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
             int cost = Integer.parseInt(st.nextToken());
-            infoes[a].add(new int[] {b, cost});
-            infoes[b].add(new int[] {a, cost});
+            infoes[a] = new Node(b, cost, infoes[a]);
+            infoes[b] = new Node(a, cost, infoes[b]);
         }
 
-        int answer = -1;
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        // 1번: 인터넷 서버와 바로 연결되어 있어 인터넷이 가능하다.
-        pq.offer(new Node(1));
-        dist[1] = 0;
-        while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-            if (cur.vertex == N) {
-                // N번 컴퓨터가 인터넷에 연결하는 것이 목표!
-                answer = cur.finalCost != 1 ? cur.finalCost : 0;
-                break;
-            }
+        int answer = parametricSearch();
 
-            if (dist[cur.vertex] < cur.finalCost) continue;
 
-            for (int[] info : infoes[cur.vertex]) {
-//                int newCnt = cur.cnt + 1;
-                int newV = info[0];
-                int nextCost = info[1];
-                Node newNode = new Node(newV);
-                newNode.copy(cur);
-                newNode.add(nextCost);
-                int finalCost = cur.finalCost;
-                if (finalCost != -1) {
-                    // K개를 초과해서 연결했으므로 가격을 메모해야하는 경우
-                    if (dist[newV] > finalCost)
-                        dist[newV] = finalCost;
-                    else
-                        continue;
-                }
-
-                pq.offer(newNode);
-            }
-        }
         System.out.println(answer);
         br.close();
+    }
+
+    static int parametricSearch() {
+        // 가격은 1 이상 1,000,000 이하
+        int start = 0;
+        int end = INF;
+        int answer = -1;
+        while (start <= end) {
+            int mid = start + (end - start) / 2;
+            if (dijkstra(mid)) {
+                // 조건에 만족하면 end를 계속 왼쪽으로 옮긴다.
+                // end가 start보다 왼쪽으로 가야 끝나므로 정답을 메모
+                end = mid - 1;
+                answer = mid;
+            } else {
+                start = mid + 1;
+            }
+        }
+        // 연결할 수 없는 경우라면 start가 계속 오른쪽으로 옮겨졌으므로 answer는 그대로 -1
+        return answer;
+    }
+
+    static boolean dijkstra(int mid) {
+        int[] dist = new int[N + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        pq.offer(new Node(1, 0));
+        dist[1] = 0;
+
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
+            if (dist[cur.vertex] < cur.cost) continue;
+
+            for (Node next = infoes[cur.vertex]; next != null; next = next.next) {
+                int curCnt = cur.cost;
+                if (next.cost > mid) curCnt++;
+                if (dist[next.vertex] > curCnt) {
+                    dist[next.vertex] = curCnt;
+                    pq.offer(new Node(next.vertex, curCnt));
+                }
+            }
+        }
+        return dist[N] <= K;
     }
 }
