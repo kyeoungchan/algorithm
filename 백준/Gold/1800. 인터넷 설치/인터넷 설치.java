@@ -1,104 +1,103 @@
 import java.io.*;
 import java.util.*;
 
-/**
- * 학생들의 번호: 1~N => 아무나 서로 인터넷 선이 연결되어있지 않다.
- * 각 선의 비용은 서로 다르다.
- * 나머지 컴퓨터는 연결되거나 안 돼도 된다.
- * 나머지 인터넷 선에 대해서는 남은 것 중 제일 가격이 비싼 것에 대해서만 가격을 받는다.
- */
 public class Main {
 
-    static class Node implements Comparable<Node> {
-        int vertex;
-        int cost;
-        Node next;
+    static class Host implements Comparable<Host> {
+        int number, cost;
+        Host next;
 
-        public Node(int vertex, int cost) {
-            this.vertex = vertex;
+        public Host(int number, int cost) {
+            this.number = number;
             this.cost = cost;
         }
 
-        public Node(int vertex, int cost, Node next) {
-            this.vertex = vertex;
+        public Host(int number, int cost, Host next) {
+            this.number = number;
             this.cost = cost;
             this.next = next;
         }
 
         @Override
-        public int compareTo(Node o) {
+        public int compareTo(Host o) {
             return Integer.compare(cost, o.cost);
+        }
+
+        @Override
+        public String toString() {
+            return "Host{" +
+                    "number=" + number +
+                    ", cost=" + cost +
+                    ", next=" + next +
+                    '}';
         }
     }
 
-    static int N, P, K, INF = 1_000_000;
-    static Node[] infoes;
+    static int N, K;
+    static Host[] hosts;
 
     public static void main(String[] args) throws Exception {
+        // 학생들의 번호가 1부터 N까지 붙여져 있다
+        // P(P<=10,000)개의 쌍만이 서로 이어 질수 있으며 서로 선을 연결하는데 가격이 다르다.
+        // 1번은 다행히 인터넷 서버와 바로 연결되어 있어 인터넷이 가능
+        // 우리의 목표는 N번 컴퓨터가 인터넷에 연결하는 것
+        // K개의 인터넷 선에 대해서는 공짜로 연결
+        // 나머지 인터넷 선에 대해서는 남은 것 중 제일 가격이 비싼 것에 대해서만 가격을 받기로 하였다.
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken()); // 목표 컴퓨터
-        P = Integer.parseInt(st.nextToken()); // 케이블선의 개수
-        K = Integer.parseInt(st.nextToken()); // 공짜로 제공하는 케이블선의 개수
+        N = Integer.parseInt(st.nextToken());
+        int P = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
 
-        infoes = new Node[N + 1];
+        hosts = new Host[N + 1];
 
-        // 다음 P개의 줄에는 케이블이 연결하는 두 컴퓨터 번호와 그 가격이 차례로 들어온다.
-        // 가격은 1 이상 1,000,000 이하
         for (int i = 0; i < P; i++) {
-            // P개의 쌍만 서로 연결할 수 있다.
             st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
             int cost = Integer.parseInt(st.nextToken());
-            infoes[a] = new Node(b, cost, infoes[a]);
-            infoes[b] = new Node(a, cost, infoes[b]);
+            hosts[a] = new Host(b, cost, hosts[a]);
+            hosts[b] = new Host(a, cost, hosts[b]);
         }
 
-        int answer = parametricSearch();
-
-
+        int answer = binarySearch();
         System.out.println(answer);
         br.close();
     }
 
-    static int parametricSearch() {
-        // 가격은 1 이상 1,000,000 이하
-        int start = 0;
-        int end = INF;
+    static int binarySearch() {
         int answer = -1;
+        int start = 0;
+        // 가격은 1 이상 1,000,000 이하
+        int end = 1_000_000;
         while (start <= end) {
             int mid = start + (end - start) / 2;
-            if (dijkstra(mid)) {
-                // 조건에 만족하면 end를 계속 왼쪽으로 옮긴다.
-                // end가 start보다 왼쪽으로 가야 끝나므로 정답을 메모
-                end = mid - 1;
+            if (canConnectN(mid)) {
                 answer = mid;
+                end = mid - 1;
             } else {
                 start = mid + 1;
             }
         }
-        // 연결할 수 없는 경우라면 start가 계속 오른쪽으로 옮겨졌으므로 answer는 그대로 -1
+
         return answer;
     }
 
-    static boolean dijkstra(int mid) {
+    static boolean canConnectN(int mid) {
         int[] dist = new int[N + 1];
         Arrays.fill(dist, Integer.MAX_VALUE);
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        pq.offer(new Node(1, 0));
         dist[1] = 0;
-
+        PriorityQueue<Host> pq = new PriorityQueue<>();
+        pq.offer(new Host(1, 0));
         while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-            if (dist[cur.vertex] < cur.cost) continue;
-
-            for (Node next = infoes[cur.vertex]; next != null; next = next.next) {
-                int curCnt = cur.cost;
-                if (next.cost > mid) curCnt++;
-                if (dist[next.vertex] > curCnt) {
-                    dist[next.vertex] = curCnt;
-                    pq.offer(new Node(next.vertex, curCnt));
+            Host cur = pq.poll();
+            if (dist[cur.number] < cur.cost) continue;
+            for (Host next = hosts[cur.number]; next != null; next = next.next) {
+                int cnt = cur.cost;
+                if (next.cost > mid) cnt++;
+                if (dist[next.number] > cnt) {
+                    dist[next.number] = cnt;
+                    pq.offer(new Host(next.number, dist[next.number]));
                 }
             }
         }
