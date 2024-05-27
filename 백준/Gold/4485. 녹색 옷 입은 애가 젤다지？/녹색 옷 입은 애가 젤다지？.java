@@ -50,6 +50,9 @@ public class Main {
                 int cc = cur.c;
                 int cost = cur.cost;
                 if (dist[cr][cc] < cost) continue;
+                if (cr == N - 1 && cc == N - 1) {
+                    break;
+                }
 
                 for (int d = 0; d < 4; d++) {
                     int nr = cr + dr[d];
