@@ -1,74 +1,95 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class Main {
-    static class Node implements Comparable<Node>{
-        int r, c, cost;
 
-        public Node(int r, int c, int cost) {
-            this.r = r;
-            this.c = c;
-            this.cost = cost;
-        }
+	static int N, min;
+	static int[][] map;
+	static int[] dr = { -1, 0, 1, 0 };
+	static int[] dc = { 0, 1, 0, -1 };
 
-        @Override
-        public int compareTo(Node o) {
-            return Integer.compare(this.cost, o.cost);
-        }
-    }
+	static class Weight implements Comparable<Weight> {
+		int r, c, w;
 
-    static int[] dr = {-1, 0, 1, 0}, dc = {0, 1, 0, -1};
+		public Weight(int r, int c, int w) {
+			super();
+			this.r = r;
+			this.c = c;
+			this.w = w;
+		}
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-        StringBuilder sb = new StringBuilder();
+		@Override
+		public int compareTo(Weight o) {
+			// TODO Auto-generated method stub
+			return Integer.compare(this.w, o.w);
+		}
 
-        int tc = 0;
-        while(true) {
-            tc++;
-            int N = Integer.parseInt(br.readLine());
-            if (N == 0) break;
-            int[][] map = new int[N][N];
-            for (int i = 0; i < N; i++) {
-                st = new StringTokenizer(br.readLine());
-                for (int j = 0; j < N; j++) {
-                    map[i][j] = Integer.parseInt(st.nextToken());
-                }
-            }
-            int[][] dist = new int[N][N];
-            for (int i = 0; i < N; i++) {
-                Arrays.fill(dist[i], Integer.MAX_VALUE);
-            }
+	}
 
-            PriorityQueue<Node> pq = new PriorityQueue<>();
-            dist[0][0] = map[0][0];
-            pq.offer(new Node(0, 0, dist[0][0]));
-            while (!pq.isEmpty()) {
-                Node cur = pq.poll();
-                int cr = cur.r;
-                int cc = cur.c;
-                int cost = cur.cost;
-                if (dist[cr][cc] < cost) continue;
-                if (cr == N - 1 && cc == N - 1) {
-                    break;
-                }
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int tc = 0;
+		while (true) {
+			tc++;
+			N = Integer.parseInt(br.readLine());
+			if (N == 0) {
+				break;
+			}
+			min = Integer.MAX_VALUE;
+			map = new int[N][N];
+			for (int i = 0; i < N; i++) {
+				String line = br.readLine();
+				for (int j = 0, idx = 0; j < N; j++, idx += 2) {
+					map[i][j] = line.charAt(idx)-'0';
+				}
+			}
+			int[][] minWeight = new int[N][N];
+			for (int i = 0; i < N; i++) {
+				Arrays.fill(minWeight[i], Integer.MAX_VALUE);
+			}
+			minWeight[0][0] = map[0][0];
+			boolean[][] visited = new boolean[N][N];
 
-                for (int d = 0; d < 4; d++) {
-                    int nr = cr + dr[d];
-                    int nc = cc + dc[d];
-                    if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1) continue;
-                    if (dist[nr][nc] > cost + map[nr][nc]) {
-                        dist[nr][nc] = cost + map[nr][nc];
-                        pq.offer(new Node(nr, nc, dist[nr][nc]));
-                    }
-                }
-            }
+			Queue<Weight> queue = new PriorityQueue<Weight>();
+			queue.offer(new Weight(0, 0, map[0][0]));
+			x: while (!queue.isEmpty()) {
+				int size = queue.size();
 
-            sb.append("Problem ").append(tc).append(": ").append(dist[N - 1][N - 1]).append("\n");
-        }
+				for (int k = 0; k < size; k++) {
 
-        System.out.println(sb.toString());
-        br.close();
-    }
+					Weight pos = queue.poll();
+
+					int r = pos.r;
+					int c = pos.c;
+					if (r == (N - 1) && c == (N - 1)) {
+						break x;
+					}
+					if (visited[r][c])
+						continue;
+					visited[r][c] = true;
+
+					for (int i = 0; i < 4; i++) {
+						int nr = r + dr[i];
+						int nc = c + dc[i];
+						if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+							if (!visited[nr][nc] && (minWeight[nr][nc] > minWeight[r][c] + map[nr][nc])) {
+								minWeight[nr][nc] = minWeight[r][c] + map[nr][nc];
+								queue.offer(new Weight(nr, nc, minWeight[nr][nc]));
+							}
+						}
+					}
+				}
+			}
+			sb.append("Problem ").append(tc).append(": ").append(minWeight[N - 1][N - 1]).append("\n");
+
+		}
+
+		System.out.println(sb);
+	}
+
 }
