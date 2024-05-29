@@ -1,4 +1,4 @@
-package baekjoon;
+package baekjoon.이동하기;
 
 import java.util.*;
 import java.io.*;
