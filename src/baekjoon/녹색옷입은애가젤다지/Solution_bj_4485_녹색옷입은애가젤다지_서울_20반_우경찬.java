@@ -1,4 +1,4 @@
-package baekjoon;
+package baekjoon.녹색옷입은애가젤다지;
 
 import java.util.*;
 import java.io.*;
