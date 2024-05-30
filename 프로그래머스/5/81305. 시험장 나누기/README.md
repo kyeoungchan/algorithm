@@ -1,10 +1,10 @@
 # [level 5] 시험장 나누기 - 81305 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/81305?language=java) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/81305) 
 
 ### 성능 요약
 
-메모리: 56.8 MB, 시간: 13.81 ms
+메모리: 56.7 MB, 시간: 12.71 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 05월 29일 21:17:35
+2024년 05월 30일 15:24:40
 
 ### 문제 설명
 
