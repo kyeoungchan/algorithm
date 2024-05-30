@@ -33,6 +33,7 @@ public class Solution_pg_시험장나누기 {
             }
         }
 
+        // 가장 큰 그룹의 인원을 최소화
         while (start <= end) {
             int mid = start + (end - start) / 2;
             // mid 인원수를 최대로 하는 그룹으로 나눴을 때 k개 이하의 그룹이 생성이 가능하지 못하다면
