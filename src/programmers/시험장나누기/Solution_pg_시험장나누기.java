@@ -1,109 +1,88 @@
 package programmers.시험장나누기;
 
 import java.util.*;
-import java.io.*;
 
 public class Solution_pg_시험장나누기 {
-    public static void main(String[] args) throws Exception {
-        System.out.println(new Solution().solution(3, new int[] {12, 30, 1, 8, 8, 6, 20, 7, 5, 10, 4, 1}, new int[][] {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {8, 5}, {2, 10}, {3, 0}, {6, 1}, {11, -1}, {7, 4}, {-1, -1}, {-1, -1}}));
-    }
-}
 
-// 시험장이 n개 있다면, 시험장의 고유 번호는 0부터 n-1까지 부여됩니다.
-class Solution {
+    int n, root, cutCnt;
+    int[] parents;
 
+    // 시험장이 n개 있다면, 시험장의 고유 번호는 0부터 n-1까지 부여됩니다.
     public int solution(int k, int[] num, int[][] links) {
         int answer = 0;
-        int[] sum = new int[num.length];
-        Arrays.fill(sum, -1);
-        int root = -1;
-        int max = 0; // 1 ≤ k ≤ 10,000
-
-        for (int i = 0; i < num.length; i++) {
-            if (sum[i] == -1)
-                getSum(i, sum, num, links);
-            if (sum[i] > max) {
-                max = sum[i];
-                root = i;
-            }
-        }
+        // 각 노드들의 부모를 가리키는 배열
+        n = num.length;
+        parents = new int[n];
+        Arrays.fill(parents, -1);
 
         int start = 0;
         int end = 0;
-        for (int n : num) {
-            end += n;
+        for (int i = 0; i < n; i++) {
+            int left = links[i][0];
+            if (left != -1) parents[left] = i;
+            int right = links[i][1];
+            if (right != -1) parents[right] = i;
+            start = Math.max(start, num[i]);
+            end += num[i];
         }
 
+        for (int i = 0; i < n; i++) {
+            if (parents[i] == -1) {
+                root = i;
+                break;
+            }
+        }
+
+        // 가장 큰 그룹의 인원을 최소화
         while (start <= end) {
             int mid = start + (end - start) / 2;
-            if (!canDivide(mid, root, k, sum, links)) {
+            // mid 인원수를 최대로 하는 그룹으로 나눴을 때 k개 이하의 그룹이 생성이 가능하지 못하다면
+/*
+            if (!canDivide(mid, k, num, links)) {
                 start = mid + 1;
             } else {
+//                answer = mid;
                 end = mid - 1;
             }
-            System.out.println();
-        }
-        answer = start;
-        return answer;
-    }
-
-    private void getSum(int idx, int[] sum, int[] num, int[][] links) {
-
-        if (sum[idx] != -1) {
-            return;
-        }
-        sum[idx] = num[idx];
-
-        if (links[idx][0] != -1) {
-            getSum(links[idx][0], sum, num, links);
-            sum[idx] += sum[links[idx][0]];
-        }
-        if (links[idx][1] != -1) {
-            getSum(links[idx][1], sum, num, links);
-            sum[idx] += sum[links[idx][1]];
-        }
-    }
-
-    static int groupCnt;
-    // 인원이 가장 많은 그룹의 인원이 최소화되도록
-    // mid 인원수보다 적거나 같은 인원수대로 그룹화를 했을 때 k개보다 그룹화가 적거나 같게 가능한지 판별한다.
-    private boolean canDivide(int mid, int root, int k, int[] sum, int[][] links) {
-        if (sum[root] <= mid) return true;
-
-        int[] tempSum = new int[sum.length];
-        for (int i = 0; i < sum.length; i++) {
-            tempSum[i] = sum[i];
-        }
-        groupCnt = k - 1;
-        return kEnough(mid, root, tempSum, links);
-    }
-
-    private boolean kEnough(int mid, int idx, int[] sum, int[][] links) {
-        if (groupCnt <= 0) return false;
-        if (sum[idx] <= mid) {
-            groupCnt--;
-            return true;
-        }
-
-        int left = links[idx][0];
-        int right = links[idx][1];
-        if (left == -1 && right == -1) {
-            return false;
-        } else if (right == -1) {
-            // 오른쪽 자식만 더 없는 경우
-            boolean leftResult = kEnough(mid, left, sum, links);
-            if (leftResult) {
-                sum[idx] -= sum[left];
+*/
+            if (canDivide(mid, k, num, links)) {
+                end = mid - 1;
+            } else {
+                start = mid + 1;
             }
-            return leftResult;
-        } else if (left == -1) {
-            // 왼쪽 자식만 더 없는 경우
-            boolean rightResult = kEnough(mid, right, sum, links);
-            if (rightResult)
-                sum[idx] -= sum[right];
-            return rightResult;
-        } else {
-            return false;
+            // 위에서 주석을 해제하고 start를 반환하든, end 위에 answer를 주석 처리하든 다 정답이다.
         }
+        return start;
+    }
+
+    private boolean canDivide(int mid, int k, int[] num, int[][] links) {
+        cutCnt = 0;
+        divide(mid, root, num, links);
+        return cutCnt <= k - 1;
+    }
+
+    // 현재노드에서 자식 노드를 자른다고 생각하자.
+    private int divide(int mid, int idx, int[] num, int[][] links) {
+        int left = 0, right = 0;
+        int leftIdx = links[idx][0];
+        int rightIdx = links[idx][1];
+        if (leftIdx != -1) left = divide(mid, leftIdx, num, links);
+        if (rightIdx != -1) right = divide(mid, rightIdx, num, links);
+
+        // 어느쪽도 안 잘라도 되는 경우
+        if (num[idx] + left + right <= mid) {
+            return num[idx] + left + right;
+        }
+
+        // 한 쪽만 자르면 해결되는 경우
+        if (num[idx] + Math.min(left, right) <= mid) {
+            cutCnt++;
+            return num[idx] + Math.min(left, right);
+        }
+
+        // 양 쪽 다 잘라야하는 경우
+        cutCnt += 2;
+        return num[idx];
     }
 }
+
