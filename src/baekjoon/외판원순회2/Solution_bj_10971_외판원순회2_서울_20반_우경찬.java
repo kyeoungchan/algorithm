@@ -1,4 +1,4 @@
-package baekjoon.travelsalesmanproblem2;
+package baekjoon.외판원순회2;
 
 import java.util.*;
 import java.io.*;
