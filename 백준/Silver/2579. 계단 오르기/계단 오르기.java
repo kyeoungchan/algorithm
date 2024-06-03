@@ -1,30 +1,34 @@
 import java.io.*;
 import java.util.*;
 
-/**
- * 계단에는 점수가 있다.
- * 다음 계단이나, 다다음 계단으로 오를 수 있다.
- * 마지막 도착 계단은 반드시 밟아야한다.
- * 점수의 최댓값을 구하는 프로그램
- */
 public class Main {
+
+    static int[] memo, stairScores;
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int stairCnt = Integer.parseInt(br.readLine());
-        int[] stairScores = new int[stairCnt + 1];
-        for (int i = 1; i < stairCnt + 1; i++)
+        memo = new int[stairCnt + 1];
+        stairScores = new int[stairCnt + 1];
+        for (int i = 1; i < stairCnt + 1; i++) {
             stairScores[i] = Integer.parseInt(br.readLine());
-
-        // 한칸 건너뛰고의 점수 누적과, 연속으로 2칸 갔을 때의 점수 누적
-        int[][] dp = new int[stairCnt + 1][2];
-        dp[1][0] = stairScores[1];
-
-        for (int i = 2; i < stairCnt + 1; i++) {
-            dp[i][0] = stairScores[i] + Math.max(dp[i - 2][0], dp[i - 2][1]);
-            // 연속된 3개의 계단을 모두 밟을 수는 없다.
-            dp[i][1] = stairScores[i] + dp[i - 1][0];
+            memo[i] = -1;
         }
-        System.out.println(Math.max(dp[stairCnt][0], dp[stairCnt][1]));
+
+        memo[1] = stairScores[1];
+        if (stairCnt > 1)
+            memo[2] = stairScores[1] + stairScores[2];
+        System.out.println(dp(stairCnt));
         br.close();
+    }
+
+    static int dp(int cnt) {
+        if (memo[cnt] != -1) return memo[cnt];
+        // 3단계 전까지 올라온 최대 점수 + 한 단계 전의 개별 점수와 2단계 전까지 올라온 최대점수 중 최댓값과 현재의 점수를 더한값을 메모한다.
+        // 한 단계 전의 최대점수(memo[cnt - 1])을 사용하지 않는 이유는 한 단계 전은 연속으로 온 상황인지, 아닌지 여부에 따라서 점수를 사용할 수도 못 할수도 있기 때문이다.
+        // 하지만 3단계 전에서 1단계 전으로 두칸 움직인 경우에는 3계단 연속 규칙으로부터 자유롭다.
+        // 마찬가지로 2단계 전도 3연속 규칙으로부터 자유롭다.
+        memo[cnt] = Math.max(dp(cnt - 3) + stairScores[cnt - 1], dp(cnt - 2)) + stairScores[cnt];
+        return memo[cnt];
     }
 }
