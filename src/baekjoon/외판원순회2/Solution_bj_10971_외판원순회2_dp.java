@@ -8,7 +8,7 @@ import java.io.*;
  * 한 도시에서 출발해 n개의 도시를 거쳐 다시 원래의 도시로 돌아온다.
  * 가장 적은 비용을 들이려고 한다.
  */
-public class Solution_bj_10971_외판원순회2 {
+public class Solution_bj_10971_외판원순회2_dp {
     static final int INF = 987654321;
     static int N;
     static int[][] W, costs;
