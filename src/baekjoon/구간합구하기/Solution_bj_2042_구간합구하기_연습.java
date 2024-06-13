@@ -5,8 +5,6 @@ import java.util.*;
 
 public class Solution_bj_2042_구간합구하기_연습 {
 
-    static long[] tree, arr;
-
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
@@ -14,12 +12,12 @@ public class Solution_bj_2042_구간합구하기_연습 {
         int N = Integer.parseInt(st.nextToken());
         int M = Integer.parseInt(st.nextToken());
         int K = Integer.parseInt(st.nextToken());
-        arr = new long[N];
+        long[] arr = new long[N];
         int h = (int) Math.ceil(Math.log(N) / Math.log(2));
         // 1 + 2 + 4 + 8 = 15
         // 1 + 2 + 4 = 7
         int treeSize = 1 << (h + 1);
-        tree = new long[treeSize];
+        long[] tree = new long[treeSize];
 
         for (int i = 0; i < N; i++) {
             arr[i] = Long.parseLong(br.readLine());
