@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
-import java.util.*;
 
 /**
  * 병사들은 각각 고유번호, 소속팀, 평판 점수를 가지고 있다.
@@ -102,115 +101,121 @@ public class Solution_pro_13072_병사관리 {
 }
 
 class UserSolution {
-
-    static class Soldier implements Comparable<Soldier> {
-        int mId, mTeam, mScore;
-
-        public Soldier(int mId, int mTeam, int mScore) {
-            this.mId = mId;
-            this.mTeam = mTeam;
-            this.mScore = mScore;
-        }
-
-        public void setScore(int mScore) {
-            this.mScore = mScore;
-        }
-
-        public int getScore() {
-            return mScore;
-        }
-
-        public int getId() {
-            return mId;
-        }
-
-        @Override
-        public int compareTo(Soldier o) {
-            return mScore == o.getScore() ? Integer.compare(o.mId, mId) : Integer.compare(o.mScore, mScore);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Soldier)) return false;
-            Soldier soldier = (Soldier) o;
-            return mId == soldier.mId && mTeam == soldier.mTeam && mScore == soldier.mScore;
-        }
+    static class Soldier {
+        int id;
+        int version;
+        Soldier next;
     }
 
-    ArrayList<Soldier>[] teams;
-    // mID로 Soldier 조회를 위한 Map
-    Map<Integer, Soldier> idSoldierMap;
-    // mID로 mTeam 조회 위한 Map
-    Map<Integer, Integer> idTeamMap;
+    static class Team {
+        Soldier[] head = new Soldier[6];
+        Soldier[] tail = new Soldier[6];
+    }
 
-    // 테스트 케이스의 시작 시 고용된 병사는 없다.
+    // 각 병사들을 담는 배열
+    Soldier[] soldiers = new Soldier[200_026];
+    // soldiers 배열 포인터
+    int idx;
+    // 병사들의 버전을 관리하는 배열
+    int[] versions = new int[100_001];
+    // 병사들의 팀번호를 저장하는 배열
+    int[] teamNumbers = new int[100_001];
+    // 1~5번팀마다 1~5점의 병사 집단들을 관리하는데, 각 점수마다 병사 집단의 head와 tail만 담고 있다.
+    Team[] teams = new Team[6];
+
     public void init() {
-        teams = new ArrayList[6];
-        for (int i = 1; i < 6; i++) {
-            teams[i] = new ArrayList<>();
+        idx = 0;
+        for (int i = 0; i < 200_026; i++) {
+            // 각 테케마다 일일이 다 새로 만들 필요는 없으므로 if문 사용
+            if (soldiers[i] == null) soldiers[i] = new Soldier();
         }
-        idTeamMap = new HashMap<>();
-        idSoldierMap = new HashMap<>();
+
+        for (int i = 1; i < 6; i++) {
+            // 1~5번팀
+            teams[i] = new Team();
+            for (int j = 1; j < 6; j++) {
+                // 각 팀의 점수마다 초기는 id가 0인 Soldier 노드가 들어가있다.
+                teams[i].tail[j] = teams[i].head[j] = getNewSoldier(0, null);
+            }
+        }
+
+        for (int i = 0; i <= 100_000; i++) {
+            versions[i] = 0;
+            teamNumbers[i] = 0;
+        }
     }
 
-    /**
-     * 병사 고용
-     */
+    private Soldier getNewSoldier(int id, Soldier next) {
+        Soldier soldier = soldiers[idx++];
+        soldier.id = id;
+        soldier.next = next;
+        soldier.version = ++versions[id];
+        return soldier;
+    }
+
     public void hire(int mID, int mTeam, int mScore) {
-        Soldier soldier = new Soldier(mID, mTeam, mScore);
-
-        teams[mTeam].add(soldier);
-        idTeamMap.put(mID, mTeam);
-        idSoldierMap.put(mID, soldier);
+        Soldier newSoldier = getNewSoldier(mID, null);
+        teams[mTeam].tail[mScore].next = newSoldier;
+        teams[mTeam].tail[mScore] = newSoldier;
+        teamNumbers[mID] = mTeam;
     }
 
-    /**
-     * 병사 해고
-     */
     public void fire(int mID) {
-        int mTeam = idTeamMap.get(mID);
-        Soldier soldier = idSoldierMap.get(mID);
-
-        teams[mTeam].remove(soldier);
-        idTeamMap.remove(mID);
-        idSoldierMap.remove(mID);
+        versions[mID] = -1;
     }
 
-    /**
-     * 병사의 평판 점수 변경
-     */
     public void updateSoldier(int mID, int mScore) {
-        Soldier soldier = idSoldierMap.get(mID);
-        soldier.setScore(mScore);
+        hire(mID, teamNumbers[mID], mScore);
     }
 
-    /**
-     * 특정 팀에 속한 병사들의 평판 점수를 일괄 변경
-     */
     public void updateTeam(int mTeam, int mChangeScore) {
-        for (Soldier soldier : teams[mTeam]) {
-            int sum = soldier.getScore() + mChangeScore;
-            if (sum > 5) soldier.setScore(5);
-            else if (sum < 1) soldier.setScore(1);
-            else soldier.setScore(sum);
+        if (mChangeScore < 0) {
+            // 바뀌는 점수가 음수라면 팀의 이동이 5점 -> 1점 방향으로 이동한다.
+            // 따라서 2점부터 5점까지 점수 순서대로 병사들을 업데이트해주면 된다.
+            // 1점은 이미 더이상 내려갈 곳이 없으므로 관리 안해줘도 된다.
+            for (int originScore = 2; originScore < 6; originScore++) {
+                int newScore = originScore + mChangeScore;
+                newScore = newScore < 1 ? 1 : (newScore > 5 ? 5 : newScore);
+                if (originScore == newScore) continue;
+
+                // 비어있는 점수대면 넘어간다. 다시 한 번 강조하지만 head[]는 null이 항상 아니다.
+                if (teams[mTeam].head[originScore].next == null) continue;
+                teams[mTeam].tail[newScore].next = teams[mTeam].head[originScore].next;
+                teams[mTeam].tail[newScore] = teams[mTeam].tail[originScore];
+
+                teams[mTeam].head[originScore].next = null;
+                teams[mTeam].tail[originScore] = teams[mTeam].head[originScore];
+            }
+        } else if (mChangeScore > 0) {
+            for (int originScore = 4; originScore > 0; originScore--) {
+                int newScore = originScore + mChangeScore;
+                newScore = newScore < 1 ? 1 : (newScore > 5 ? 5 : newScore);
+                if (originScore == newScore) continue;
+
+                if (teams[mTeam].head[originScore].next == null) continue;
+                teams[mTeam].tail[newScore].next = teams[mTeam].head[originScore].next;
+                teams[mTeam].tail[newScore] = teams[mTeam].tail[originScore];
+
+                teams[mTeam].head[originScore].next = null;
+                teams[mTeam].tail[originScore] = teams[mTeam].head[originScore];
+            }
         }
     }
 
-    /**
-     * 특정 팀 안에서 가장 평판 점수가 높은 병사를 검색
-     */
     public int bestSoldier(int mTeam) {
-        ArrayList<Soldier> team = teams[mTeam];
-        Collections.sort(team);
-        return team.get(0).getId();
-    }
+        for (int score = 5; score > 0; score--) {
+            Soldier soldier = teams[mTeam].head[score].next;
+            if (soldier == null) continue;
 
-    private void debug() {
-        for (int i = 1; i < 6; i++) {
-            System.out.println("teams" + i);
-            System.out.println(teams[i]);
+            int resultId = 0;
+            while (soldier != null) {
+                if (soldier.version == versions[soldier.id]) {
+                    resultId = Math.max(resultId, soldier.id);
+                }
+                soldier = soldier.next;
+            }
+            if (resultId != 0) return resultId;
         }
-        System.out.println();
+        return 0;
     }
 }
