@@ -24,7 +24,9 @@ https://www.acmicpc.net/problem/2042
 ![segmenttree.png](segmenttree.png)
 ![segmentindextree.png](segmentindextree.png)
 출처: ![백준](https://book.acmicpc.net/ds/segment-tree)
-1. N개의 숫자에 대한 세그먼트 트리는 0~N-1 인덱스로 나눠서 봤을 때 높이가 logN/log2가 된다.
+1. N개의 숫자에 대한 세그먼트 트리는 0~N-1 인덱스로 나눠서 봤을 때 높이가 Math.ceil(logN/log2)가 된다.
+    - logN / log2의 올림수가 된다! 
+    - 그리고 나무의 높이는 루트 노드를 제외한 높이(달리 표현할 방법이 없다.)를 보면 된다.
 2. 높이가 h인 트리에 대한 배열은 2^(h+1)의 길이로서 표현이 가능하다.
 3. `init()`
    - 세그먼트 트리를 세팅할 때는 start와 end가 같아질 때까지 좌우 자식 노드로 탐색해가면서 같아지는 순간 해당 인덱스(start 혹은 end)의 값을 트리에 넣어준다.
