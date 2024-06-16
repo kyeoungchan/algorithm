@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 /**
  * 병사들은 각각 고유번호, 소속팀, 평판 점수를 가지고 있다.
  */
-public class Solution_pro_13072_병사관리 {
+public class Solution_pro_13072_병사관리2 {
     private final static int CMD_INIT = 1;
     private final static int CMD_HIRE = 2;
     private final static int CMD_FIRE = 3;
@@ -16,7 +16,7 @@ public class Solution_pro_13072_병사관리 {
     private final static int CMD_UPDATE_TEAM = 5;
     private final static int CMD_BEST_SOLDIER = 6;
 
-    private final static UserSolution usersolution = new UserSolution();
+    private final static UserSolution2 usersolution = new UserSolution2();
 
     private static boolean run(BufferedReader br) throws Exception {
         StringTokenizer st;
@@ -100,63 +100,69 @@ public class Solution_pro_13072_병사관리 {
     }
 }
 
-class UserSolution {
+class UserSolution2 {
+
     static class Soldier {
-        int id;
-        int version;
+        int id, version;
         Soldier next;
+
+        public void setStatus(int id, int version, Soldier next) {
+            this.id = id;
+            this.version = version;
+            this.next = next;
+        }
     }
 
     static class Team {
+        // 각 팀마다 1~5점 병사들
         Soldier[] head = new Soldier[6];
         Soldier[] tail = new Soldier[6];
     }
 
-    // 각 병사들을 담는 배열
     Soldier[] soldiers = new Soldier[200_026];
-    // soldiers 배열 포인터
-    int idx;
-    // 병사들의 버전을 관리하는 배열
     int[] versions = new int[100_001];
-    // 병사들의 팀번호를 저장하는 배열
     int[] teamNumbers = new int[100_001];
-    // 1~5번팀마다 1~5점의 병사 집단들을 관리하는데, 각 점수마다 병사 집단의 head와 tail만 담고 있다.
+
+    // 1~5번팀
     Team[] teams = new Team[6];
+
+    int idx;
 
     public void init() {
         idx = 0;
-        for (int i = 0; i < 200_026; i++) {
-            // 각 테케마다 일일이 다 새로 만들 필요는 없으므로 if문 사용
-            if (soldiers[i] == null) soldiers[i] = new Soldier();
-        }
+        for (int i = 0; i < 200_026; i++)
+            if(soldiers[i] == null) soldiers[i] = new Soldier();
 
         for (int i = 1; i < 6; i++) {
-            // 1~5번팀
             teams[i] = new Team();
             for (int j = 1; j < 6; j++) {
-                // 각 팀의 점수마다 초기는 id가 0인 Soldier 노드가 들어가있다.
-                teams[i].tail[j] = teams[i].head[j] = getNewSoldier(0, null);
+                teams[i].head[j] = getNewSoldier(0, null);
+                teams[i].tail[j] = teams[i].head[j];
             }
         }
 
-        for (int i = 0; i <= 100_000; i++) {
+        ///////////////
+/*
+        for (int i = 0; i < 100_001; i++) {
             versions[i] = 0;
             teamNumbers[i] = 0;
         }
+*/
+        ////////////////
     }
 
     private Soldier getNewSoldier(int id, Soldier next) {
-        Soldier soldier = soldiers[idx++];
-        soldier.id = id;
-        soldier.next = next;
-        soldier.version = ++versions[id];
-        return soldier;
+        Soldier resultSoldier = soldiers[idx++];
+        resultSoldier.setStatus(id, ++versions[id], next);
+        return resultSoldier;
     }
 
     public void hire(int mID, int mTeam, int mScore) {
-        Soldier newSoldier = getNewSoldier(mID, null);
-        teams[mTeam].tail[mScore].next = newSoldier;
-        teams[mTeam].tail[mScore] = newSoldier;
+        Soldier soldier = getNewSoldier(mID, null);
+        Team team = teams[mTeam];
+        team.tail[mScore].next = soldier;
+        team.tail[mScore] = soldier;
+
         teamNumbers[mID] = mTeam;
     }
 
@@ -169,52 +175,48 @@ class UserSolution {
     }
 
     public void updateTeam(int mTeam, int mChangeScore) {
+        Soldier[] head = teams[mTeam].head;
+        Soldier[] tail = teams[mTeam].tail;
         if (mChangeScore < 0) {
-            // 바뀌는 점수가 음수라면 팀의 이동이 5점 -> 1점 방향으로 이동한다.
-            // 따라서 2점부터 5점까지 점수 순서대로 병사들을 업데이트해주면 된다.
-            // 1점은 이미 더이상 내려갈 곳이 없으므로 관리 안해줘도 된다.
             for (int originScore = 2; originScore < 6; originScore++) {
-                int newScore = originScore + mChangeScore;
-                newScore = newScore < 1 ? 1 : (newScore > 5 ? 5 : newScore);
-                if (originScore == newScore) continue;
-
-                // 비어있는 점수대면 넘어간다. 다시 한 번 강조하지만 head[]는 null이 항상 아니다.
-                if (teams[mTeam].head[originScore].next == null) continue;
-                teams[mTeam].tail[newScore].next = teams[mTeam].head[originScore].next;
-                teams[mTeam].tail[newScore] = teams[mTeam].tail[originScore];
-
-                teams[mTeam].head[originScore].next = null;
-                teams[mTeam].tail[originScore] = teams[mTeam].head[originScore];
+                moveScoreInTeam(mChangeScore, head, tail, originScore);
             }
         } else if (mChangeScore > 0) {
             for (int originScore = 4; originScore > 0; originScore--) {
-                int newScore = originScore + mChangeScore;
-                newScore = newScore < 1 ? 1 : (newScore > 5 ? 5 : newScore);
-                if (originScore == newScore) continue;
-
-                if (teams[mTeam].head[originScore].next == null) continue;
-                teams[mTeam].tail[newScore].next = teams[mTeam].head[originScore].next;
-                teams[mTeam].tail[newScore] = teams[mTeam].tail[originScore];
-
-                teams[mTeam].head[originScore].next = null;
-                teams[mTeam].tail[originScore] = teams[mTeam].head[originScore];
+                moveScoreInTeam(mChangeScore, head, tail, originScore);
             }
         }
+        // mChangeScore가 0이면 아무런 변화도 일어나지 않는다.
+    }
+
+    private void moveScoreInTeam(int mChangeScore, Soldier[] head, Soldier[] tail, int originScore) {
+        if (head[originScore].next == null) return;
+
+        int newScore = originScore + mChangeScore;
+        newScore = newScore < 1 ? 1 : Math.min(newScore, 5);
+        if (newScore == originScore) return;
+
+        tail[newScore].next = head[originScore].next;
+        tail[newScore] = tail[originScore];
+        head[originScore].next = null;
+        tail[originScore] = head[originScore];
     }
 
     public int bestSoldier(int mTeam) {
+        Soldier[] head = teams[mTeam].head;
         for (int score = 5; score > 0; score--) {
-            Soldier soldier = teams[mTeam].head[score].next;
-            if (soldier == null) continue;
-
-            int resultId = 0;
+            if (head[score].next == null) continue;
+            int answer = 0;
+            Soldier soldier = head[score].next;
             while (soldier != null) {
-                if (soldier.version == versions[soldier.id]) {
-                    resultId = Math.max(resultId, soldier.id);
-                }
+                if (soldier.version == versions[soldier.id] && soldier.id > answer) answer = soldier.id;
                 soldier = soldier.next;
             }
-            if (resultId != 0) return resultId;
+            ///////////////////
+            if (answer != 0)
+                // 지워진 병사들만 있는 리스트가 있을 수 있으므로 answer가 0인지 확인을 해야한다.
+                //////////////////
+                return answer;
         }
         return 0;
     }

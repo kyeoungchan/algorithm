@@ -55,8 +55,7 @@ public class Solution_bj_2042_구간합구하기_연습 {
     static void update(long[] tree, long[] arr, int treeIdx, int start, int end, int targetIdx, long val) {
         if (targetIdx < start || targetIdx > end) return;
         if (start == end) {
-            arr[targetIdx] = val;
-            tree[treeIdx] = arr[start];
+            tree[treeIdx] = arr[targetIdx] = val;
             return;
         }
         int mid = start + (end - start) / 2;
