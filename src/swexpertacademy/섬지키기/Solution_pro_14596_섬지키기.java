@@ -1,7 +1,6 @@
 package swexpertacademy.섬지키기;
 
 import java.util.*;
-import java.io.*;
 
 /**
  * 격자 모양의 섬이 있다.
@@ -12,98 +11,159 @@ import java.io.*;
  */
 public class Solution_pro_14596_섬지키기 {
 
-    static class Event {
-        int r, c, d; // m개의 숫자 조합 중에서 가장 작은 애를 기준으로 위치와 방향.
-        // 예를 들어, 1, 2, 3의 조합을 아래방향으로 놓고, 1의 위치가 0,0이라면 => r=0,c=0,d=2
-        // d는 상우하좌. 제일 작은 애에서 어느방향으로 가야 구조물들로 향하는지 정보다.
+    int mapSize, hashSize = 9999;
+    int[] dr = {-1, 0, 1, 0}, dc = {0, 1, 0, -1};
+    int[][] map;
+    List<Structure>[] structures;
 
-        public Event(int r, int c, int d) {
+    static class Structure {
+        int r, c, d; // m개의 숫자 조합 중에서 가장 작은 애를 기준으로 위치와 방향.
+
+        public Structure(int r, int c, int d) {
             this.r = r;
             this.c = c;
             this.d = d;
         }
-    }
 
-    // 1~5의 길이마다의 최대 1875개의 조합 중 Event가 얼마나 들어갈 수 있는지
-    List<Event>[][] events;
-    int[] sizes = new int[]{0, 5, 15, 75, 1875};
+        @Override
+        public String toString() {
+            return "Structure{" +
+                    "r=" + r +
+                    ", c=" + c +
+                    ", d=" + d +
+                    '}';
+        }
+    }
 
     public void init(int N, int mMap[][]) {
-        events = new List[6][1875];
-        for (int i = 1; i < 6; i++) {
-            events[i] = new List[sizes[i]];
-            for (int j = 0; j < sizes[i]; j++) {
-                setEvents(N, mMap, i, j);
+        mapSize = N;
+        map = mMap;
+        structures = new List[hashSize + 1];
+        for (int i = 0; i < hashSize + 1; i++)
+            structures[i] = new ArrayList<>();
+
+        for (int len = 2; len < 6; len++) {
+            // 가로로 놓고자 할 때
+            for (int r = 0; r < N; r++) {
+                for (int c = 0; c < N - len + 1; c++) {
+                    int hash = 0;
+                    // 가야하는 위치: c~c+len-1
+                    for (int k = 0; k < len - 1; k++)
+                        hash = hash * 10 + (mMap[r][c + k + 1] - mMap[r][c + k] + 5);
+                    // 오른쪽으로 가는 방향으로 구조물 세우기 가능
+                    structures[hash].add(new Structure(r, c, 1));
+
+                    int reverseHash = 0;
+                    for (int k = 0; k < len - 1; k++)
+                        reverseHash = reverseHash * 10 + (mMap[r][c + len - 2 - k] - mMap[r][c + len - 1 - k] + 5);
+                    if (hash == reverseHash) continue;
+                    // 왼쪽으로 가는 방향으로 구조물 세우기 가능
+                    structures[reverseHash].add(new Structure(r, c + len - 1, 3));
+                }
+            }
+
+            // 세로로 놓고자 할 때
+            for (int r = 0; r < N - len + 1; r++) {
+                for (int c = 0; c < N; c++) {
+                    int hash = 0;
+                    for (int k = 0; k < len - 1; k++)
+                        hash = hash * 10 + (mMap[r + k + 1][c] - mMap[r + k][c] + 5);
+                    // 아래쪽으로 가는 방향으로 구조물 세우기 가능
+                    structures[hash].add(new Structure(r, c, 2));
+
+                    int reverseHash = 0;
+                    for (int k = 0; k < len - 1; k++)
+                        reverseHash = reverseHash * 10 + (mMap[r + len - 2 - k][c] - mMap[r + len - 1 - k][c] + 5);
+                    if (hash == reverseHash) continue;
+
+                    // 위쪽으로 가는 방향으로 구조물 세우기 가능
+                    structures[reverseHash].add(new Structure(r + len - 1, c, 0));
+                }
             }
         }
     }
 
-    private void setEvents(int N, int[][] nMap, int mLen, int shapeNum) {
-        int[] structure = getStructure(mLen, shapeNum);
+    public int numberOfCandidate(int M, int mStructure[]) {
+        if (M == 1) return mapSize * mapSize;
+        int hash = 0;
+        for (int i = 0; i < M- 1; i++)
+            hash = 10 * hash + (mStructure[i] - mStructure[i + 1] + 5);
+        return structures[hash].size();
     }
 
-    private int[] getStructure(int mLen, int shapeNum) {
-        int[] structure = new int[mLen];
-        if (mLen == 1) {
-            // shapeNum은 0~4로 주어진다.
-            structure[0] = shapeNum + 1;
-            return structure;
+    public int maxArea(int M, int mStructure[], int mSeaLevel) {
+        int maxLandArea = -1;
+        if (M == 1) {
+            for (int i = 0; i < mapSize; i++) {
+                for (int j = 0; j < mapSize; j++) {
+                    map[i][j] += mStructure[0];
+                    maxLandArea = Math.max(maxLandArea, simulateFlood(mSeaLevel));
+                    map[i][j] -= mStructure[0];
+                }
+            }
         } else {
-            // 2 => 5+4+3+2+1. 3 => 25+20+15+10+5. 4 => 25*(5+4+3+2+1). 5 => 125*(5+4+3+2+1)
-            int mod = (int) Math.pow(5, (shapeNum - 2));
-            // 2=> 0~4, 5~8, 9~11, 12~13, 14
-            // 3=> 0~24, 25~44, 45~59, 60~69, 70~74
-            // 4=> 0~124, 125~224
-            int tempLen = mLen;
-            for (int i = 1; i < 6; i++) {
-                int tempMod = (mod * (6 - i));
-                if (tempLen / tempMod == 0) {
-                    structure[0] = i;
+            int hash = 0;
+            for (int i = 0; i < M - 1; i++)
+                hash = 10 * hash + (mStructure[i] - mStructure[i + 1] + 5);
+            for (Structure structure : structures[hash]) {
+                int startR = structure.r;
+                int startC = structure.c;
+                int d = structure.d;
+                for (int i = 0; i < M; i++)
+                    map[startR + dr[d] * i][startC + dc[d] * i] += mStructure[i];
+                maxLandArea = Math.max(maxLandArea, simulateFlood(mSeaLevel));
+                for (int i = 0; i < M; i++)
+                    map[startR + dr[d] * i][startC + dc[d] * i] -= mStructure[i];
+            }
+        }
+        return maxLandArea;
+    }
+
+    private int simulateFlood(int seaLevel) {
+        int restArea = mapSize * mapSize;
+        boolean[][] v = new boolean[mapSize][mapSize];
+        ArrayDeque<int[]> q = new ArrayDeque<>();
+        int r = mapSize - 1, c = 0;
+        for (int d = 0; d < 4; d++) {
+            while (true) {
+                r += dr[d];
+                c += dc[d];
+                if (r < 0 || r > mapSize - 1 || c < 0 || c > mapSize - 1) {
+                    r -= dr[d];
+                    c -= dc[d];
                     break;
                 }
-                tempLen -= tempMod;
+                v[r][c] = true;
+                if (map[r][c] < seaLevel) {
+                    restArea--;
+                    q.offer(new int[]{r, c});
+                }
             }
-            // 3=> 0~24, 0~19, 0~14
-            // (1,1), (1,2)...(5,5), (2,2), (2,3), ... ,(5,5)
-            // 4 => 0~124, 0~99
-
         }
-        return structure;
-    }
-    /**
-     * 여기가 시간초과가 제일 잘 나는 구간이다.
-     * 결국 init()을 잘해줘야하는데, M의 크기가 1~5다.
-     * 각 구조물의 높이도 1~5다.
-     * 오름차순으로만 보자. 중복 조합
-     * nHr = n+r-1 C r
-     * 1 -> 1 ~ 5
-     * 2 -> (1,1), (1,2), (1,3), (1,4), (1,5), (2,2), (2,3), (2,4), (2,5), (3,3), ... (5,5) 15개(5+4+3+2+1)
-     * 3 -> (1,1,1) (1,1,2), ... (1,1,5), (1,2,1), ... (1,2,5), (1,3,1), (1,3,2), (1,3,3), (1,3,4), ... (1,5,5)
-     * (1,?,?) => 25개.
-     * (2,1,2), (2,1,3), (2,1,4), (2,1,5), (2,2,2), (2,2,3),...,(2,2,5), (2,3,2),...(2,3,5), (2,4,2)...(2,4,5)
-     * (2,?,?) => 20개
-     * (3,1,3),(3,1,4),(3,1,5), (3,2,3),... =>15개
-     * (4,?,?) => 10개
-     * (5,?,?) => 5개
-     * 총 5 * (1+2+3+4+5) = 75개
-     * 4 -> (1,1,1,1),...,(1,1,1,5), (1,1,2,1)...(1,1,2,5),...,(1,1,5,5),(1,2,1,1),...,(1,5,5,5) => 125개
-     * (2,1,1,2),(2,1,1,3),..(2,1,1,5),(2,1,2,2),..,(2,1,2,5),...,(2,5,5,5) => 100개
-     * (5,1,1,5),(5,1,2,5),...,(5,1,5,5),(5,2,1,5),...,(5,5,5,5)
-     * 총 25(5+4+3+2+1)
-     * 5 -> 125*(5+4+3+2+1) = 1875
-     * 각 경우마다의 설치할 수 있는 경우를 클래스로 저장
-     * Event로 저장하자.
-     * init에서 한 번 각 경우마다의 Event를 배열에 저장한다.
-     */
-    public int numberOfCandidate(int M, int mStructure[]) {
-        return 0;
+
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            for (int d = 0; d < 4; d++) {
+                int nr = cur[0] + dr[d];
+                int nc = cur[1] + dc[d];
+                if (nr < 0 || nr > mapSize - 1 || nc < 0 || nc > mapSize - 1 || v[nr][nc]) continue;
+                v[nr][nc] = true;
+                if (map[nr][nc] < seaLevel) {
+                    restArea--;
+                    q.offer(new int[]{nr, nc});
+                }
+            }
+        }
+        return restArea;
     }
 
-    /**
-     * numberOfCandidate()의 메서드와 약간 비슷하지만, 각 경우마다 구조물을 세우고 바닷물을 직접 일으킨다.
-     * 각 바닷물들은 bfs로 땅을 뒤덮고, 그 결과 남아있는 지역의 최대 개수를 반환한다.
-     */
-    public int maxArea(int M, int mStructure[], int mSeaLevel) {
-        return 0;
+    private void printMap() {
+        for (int i = 0; i < mapSize; i++) {
+            for (int j = 0; j < mapSize; j++) {
+                System.out.print(map[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 }
