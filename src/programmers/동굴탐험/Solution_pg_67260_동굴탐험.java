@@ -19,7 +19,7 @@ import java.util.*;
  * 프로도가 규칙에 맞게 모든 방을 탐험할 수 있을지 return
  * n: 2~200_000
  */
-public class Solution_pg_동굴탐험 {
+public class Solution_pg_67260_동굴탐험 {
 
     /**
      * 비트마스킹으로 하기에는 n의 범위가 너무 크다. order.lenth도 n/2까지 간다고 하니..
@@ -74,13 +74,15 @@ public class Solution_pg_동굴탐험 {
                     q.offer(postNodes[next]);
                     cnt++;
                 }
+/*
                 if (cnt == n){
                     answer = true;
                     break end;
                 }
+*/
             }
         }
-        return answer;
+        return cnt == n;
     }
 
 }
