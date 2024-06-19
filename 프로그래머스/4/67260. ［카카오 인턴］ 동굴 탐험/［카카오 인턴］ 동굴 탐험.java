@@ -2,7 +2,7 @@ import java.util.*;
 
 class Solution {
     public boolean solution(int n, int[][] path, int[][] order) {
-                boolean answer = false;
+       boolean answer = false;
         List<Integer>[] g = new List[n];
         int[] preNodes = new int[n];
         int[] postNodes = new int[n];
@@ -46,13 +46,15 @@ class Solution {
                     q.offer(postNodes[next]);
                     cnt++;
                 }
+/*
                 if (cnt == n){
                     answer = true;
                     break end;
                 }
+*/
             }
         }
-        return answer;
+        return cnt == n;
 
     }
 }
