@@ -20,7 +20,7 @@ public class Main {
         int left = 1, right = k;
         while (left <= right) {
             int mid = left + (right - left) / 2;
-            long midIdx = getIdx(mid, N);
+            int midIdx = getIdx(mid, N);
             if (midIdx < k) {
                 left = mid + 1;
             } else {
@@ -31,8 +31,8 @@ public class Main {
         br.close();
     }
 
-    static long getIdx(int mid, int N) {
-        long result = 0;
+    static int getIdx(int mid, int N) {
+        int result = 0;
         for (int i = 1; i < N + 1; i++) {
             result += Math.min(mid / i, N);
         }
