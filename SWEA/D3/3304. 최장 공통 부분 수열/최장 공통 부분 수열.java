@@ -1,12 +1,12 @@
 import java.io.*;
 import java.util.*;
-
+ 
 /**
  * 0 1 1 1 1 1
  * 1 1 1 2 2 2
  */
 public class Solution {
-
+ 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
@@ -18,7 +18,7 @@ public class Solution {
             String b = "_" + st.nextToken();
             int aLength = a.length();
             int bLength = b.length();
-
+ 
             int[][] dp = new int[aLength][bLength];
             for (int i = 1; i < aLength; i++) {
                 char aChar = a.charAt(i);
