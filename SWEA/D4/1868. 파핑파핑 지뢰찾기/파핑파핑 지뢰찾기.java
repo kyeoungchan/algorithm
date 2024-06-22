@@ -1,18 +1,11 @@
 import java.io.*;
 import java.util.*;
 
-/**
- * 지뢰가 없는 칸이라면 꼭지점이 맞닿아있는 최대 8칸에 대해 몇 개의 지뢰가 있는지가 0~8 사이의 숫자로 표시된다.
- * 지뢰: *
- * 지뢰가 없는 칸: .
- * 클릭
- */
 public class Solution {
 
-    static int N, totalDot;
+    static int N, answer;
+    static int[] dr = {-1, -1, 0, 1, 1, 1, 0, -1}, dc = {0, 1, 1, 1, 0, -1, -1, -1};
     static char[][] board;
-    static boolean[][] open;
-    static int[] dr = new int[]{-1, -1, 0, 1, 1, 1, 0, -1}, dc = new int[]{0, 1, 1, 1, 0, -1, -1, -1};
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -21,50 +14,35 @@ public class Solution {
         for (int tc = 1; tc < T + 1; tc++) {
             N = Integer.parseInt(br.readLine());
             board = new char[N][N];
-            open = new boolean[N][N];
-            totalDot = 0;
             for (int i = 0; i < N; i++) {
                 String s = br.readLine();
-                for (int j = 0; j < N; j++) {
+                for (int j = 0; j < N; j++)
                     board[i][j] = s.charAt(j);
-                    if (board[i][j] == '.')
-                        totalDot++;
-                }
             }
 
-            int minClick = 0;
+            answer = 0;
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    if (unClicked(i, j) && isZero(i, j)) {
-                        minClick++;
+                    if (board[i][j] == '.' && isZero(i, j))
                         click(i, j);
-                    }
                 }
             }
 
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    if (unClicked(i, j)) {
-                        minClick++;
-                        click(i, j);
-                    }
+                    if (board[i][j] == '.') click(i, j);
                 }
             }
-            sb.append("#").append(tc).append(" ").append(minClick).append("\n");
+            sb.append("#").append(tc).append(" ").append(answer).append("\n");
         }
-        System.out.print(sb.toString());
+        System.out.println(sb.toString());
         br.close();
     }
 
-    static boolean unClicked(int i, int j) {
-        return board[i][j] == '.';
-    }
-
-    static boolean isZero(int i, int j) {
-        if (board[i][j] == '*') return false;
+    static boolean isZero(int r, int c) {
         for (int d = 0; d < 8; d++) {
-            int nr = i + dr[d];
-            int nc = j + dc[d];
+            int nr = r + dr[d];
+            int nc = c + dc[d];
             if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1) continue;
             if (board[nr][nc] == '*') return false;
         }
@@ -72,6 +50,8 @@ public class Solution {
     }
 
     static void click(int r, int c) {
+        // 빈칸일 때에만 이 메소드를 호출한다.
+        answer++;
         ArrayDeque<int[]> q = new ArrayDeque<>();
         q.offer(new int[]{r, c});
         board[r][c] = 'O';
@@ -81,12 +61,12 @@ public class Solution {
                 for (int d = 0; d < 8; d++) {
                     int nr = cur[0] + dr[d];
                     int nc = cur[1] + dc[d];
-                    if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1 || board[nr][nc] == 'O') continue;
+                    if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1) continue;
+                    if (board[nr][nc] == 'O') continue;
                     board[nr][nc] = 'O';
                     q.offer(new int[]{nr, nc});
                 }
             }
         }
     }
-
 }
