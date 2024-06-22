@@ -16,7 +16,7 @@ public class Solution {
             st = new StringTokenizer(br.readLine(), " ");
             int N = Integer.parseInt(st.nextToken());
             maxHeap.add(Integer.parseInt(st.nextToken()));
-            long sum = 0L;
+            int sum = 0;
             for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
                 int x = Integer.parseInt(st.nextToken());
@@ -28,8 +28,8 @@ public class Solution {
                     minHeap.add(maxHeap.poll());
                 }
                 sum += maxHeap.peek() % mod;
+                sum %= mod;
             }
-            sum %= mod;
             sb.append("#").append(tc).append(" ").append(sum).append("\n");
         }
         System.out.print(sb.toString());
