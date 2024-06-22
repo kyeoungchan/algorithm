@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Solution {
 
-    static int N, answer;
+    static int N;
     static int[] dr = {-1, -1, 0, 1, 1, 1, 0, -1}, dc = {0, 1, 1, 1, 0, -1, -1, -1};
     static char[][] board;
 
@@ -20,22 +20,26 @@ public class Solution {
                     board[i][j] = s.charAt(j);
             }
 
-            answer = 0;
+            int answer = 0;
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    if (board[i][j] == '.' && isZero(i, j))
+                    if (board[i][j] == '.' && isZero(i, j)) {
+                        answer++;
                         click(i, j);
+                    }
                 }
             }
 
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    if (board[i][j] == '.') click(i, j);
+                    if (board[i][j] == '.') {
+                        answer++;
+                    }
                 }
             }
             sb.append("#").append(tc).append(" ").append(answer).append("\n");
         }
-        System.out.println(sb.toString());
+        System.out.print(sb.toString());
         br.close();
     }
 
@@ -51,7 +55,6 @@ public class Solution {
 
     static void click(int r, int c) {
         // 빈칸일 때에만 이 메소드를 호출한다.
-        answer++;
         ArrayDeque<int[]> q = new ArrayDeque<>();
         q.offer(new int[]{r, c});
         board[r][c] = 'O';
