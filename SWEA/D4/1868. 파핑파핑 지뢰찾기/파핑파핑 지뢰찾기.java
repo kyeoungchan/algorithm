@@ -61,8 +61,7 @@ public class Solution {
                 for (int d = 0; d < 8; d++) {
                     int nr = cur[0] + dr[d];
                     int nc = cur[1] + dc[d];
-                    if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1) continue;
-                    if (board[nr][nc] == 'O') continue;
+                    if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1 || board[nr][nc] == 'O') continue;
                     board[nr][nc] = 'O';
                     q.offer(new int[]{nr, nc});
                 }
