@@ -1,4 +1,4 @@
-package programmers;
+package programmers.o123떨어뜨리기;
 
 import java.util.*;
 
@@ -7,7 +7,7 @@ public class Solution_pg_123떨어뜨리기 {
 
     static class Node {
         int number, childIdx, sum;
-        ArrayList<Integer> children;
+        List<Integer> children;
 
         public Node(int number) {
             this.number = number;
@@ -88,7 +88,7 @@ public class Solution_pg_123떨어뜨리기 {
         }
     }
 
-    void drop(ArrayList<Integer> candidate, int[] target) {
+    void drop(List<Integer> candidate, int[] target) {
         if (!answerList.isEmpty() && candidate.size() > answerList.size()) return;
 
         if (hasSucceed(target)) {
@@ -148,7 +148,7 @@ public class Solution_pg_123떨어뜨리기 {
         return true;
     }
 
-    void updateAnswerList(ArrayList<Integer> candidate) {
+    void updateAnswerList(List<Integer> candidate) {
         if (answerList.isEmpty()) {
             answerList.addAll(candidate);
             return;
