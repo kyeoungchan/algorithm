@@ -2,181 +2,172 @@ package programmers;
 
 import java.util.*;
 
-/*
-트리 리프 노드에 숫자를 쌓으려고 한다.
-부모가 자식 노드를 가리키는 단방향 간선
-루트 노드에 1,2,3 중 하나를 떨어뜨린다.
-숫자가 리프 노드에 도착한다면?
-- 숫자가 지나간 노드는 현재 길로 연결된 자식 노드 다음으로 번호가 큰 자식 노드로 향하는 길만 연결된다.
-- 현재 길이 가장 큰 노드라면 => 가장 작은 노드로 연결된다.
-- 간선이 하나라면 그 간선만 계속 연결된다.
-게임의 목표: 각각의 리프 노드에 쌓인 숫자의 합을 target에서 가리키는 값과 같게 만드는 것이다.
-*/
+
 public class Solution_pg_123떨어뜨리기 {
+
     static class Node {
-        int number, pathIdx, sum;
-        List<Integer> children;
+        int number, childIdx, sum;
+        ArrayList<Integer> children;
 
         public Node(int number) {
             this.number = number;
-            // pathIdx가 -1이면 리프노드
-            pathIdx = -1;
+            childIdx = -1;
             children = new ArrayList<>();
-            sum = 0;
         }
 
         public void addChild(int childNumber) {
-            if (isLeaf()) {
-                // - 초기에는 자식 노드 중 가장 번호가 작은 노드를 가리키는 간선을 길로 설정한다.
-                pathIdx = 0;
-            }
+            if (isLeaf()) childIdx++;
             children.add(childNumber);
         }
 
         public boolean isLeaf() {
-            return pathIdx == -1;
+            return childIdx == -1;
+        }
+
+        public void sortChildren() {
+            Collections.sort(children);
         }
 
         public int getChild() {
-            int child = children.get(pathIdx);
-            pathIdx = (pathIdx + 1) % children.size();
-            return child;
-        }
-
-        public void setPathIdx(int pathIdx) {
-            this.pathIdx = pathIdx;
+            // isLeaf()가 아닐 때만 호출되도록 메인 메서드에서 신경쓴다.
+            int childNumber = children.get(childIdx);
+            childIdx++;
+            childIdx %= children.size();
+            return childNumber;
         }
 
         @Override
         public String toString() {
-            return "number: "  + number + ", children" + children;
-        }
-    }
-
-    static class Candidate implements Comparable<Candidate> {
-        int number, listSize;
-
-        public Candidate(int number, List<Integer> list) {
-            this.number = number;
-            this.listSize = list.size();
-        }
-
-        @Override
-        public int compareTo(Candidate o) {
-            return listSize == o.listSize ? Integer.compare(number, o.number) : Integer.compare(listSize, o.listSize);
+            return "number: " + number + ", childIdx: " + childIdx + ", sum: " + sum + ", children: " + children;
         }
     }
 
     static Node[] nodes;
-    static List<Integer> leaves;
-    static boolean complete;
+    static List<Integer> leaves, answerList;
 
     public int[] solution(int[][] edges, int[] target) {
-        // target은 1번 노드는 0번 인덱스로 접근해야한다.
-        nodes = new Node[target.length + 1];
-        setNodes(edges);
         int[] answer = {};
-        List<Integer> candidate1 = new ArrayList<>();
-        complete = false;
-        drop(1, target, candidate1);
-        List<Integer> candidate2 = new ArrayList<>();
-        complete = false;
-        drop(2, target, candidate2);
-        List<Integer> candidate3 = new ArrayList<>();
-        complete = false;
-        drop(1, target, candidate3);
-
-        PriorityQueue<Candidate> pq = new PriorityQueue<>();
-        if (candidate1.isEmpty()) pq.offer(new Candidate(1, candidate1));
-        if (candidate2.isEmpty()) pq.offer(new Candidate(2, candidate2));
-        if (candidate3.isEmpty()) pq.offer(new Candidate(3, candidate3));
-
-        if (pq.isEmpty()) answer = new int[]{-1};
+        setNodes(edges, target);
+        answerList = new ArrayList<>();
+        ArrayList<Integer> candidate = new ArrayList<>();
+        drop(candidate, target);
+        if (answerList.isEmpty()) answer = new int[]{-1};
         else {
-            List<Integer> answerList = pq.poll().list;
             answer = new int[answerList.size()];
-            for (int i = 0; i < answer.length; i++) answer[i] = answerList.get(i);
+            for (int i = 0; i < answerList.size(); i++)
+                answer[i] = answerList.get(i);
         }
         return answer;
     }
 
-    void setNodes(int[][] edges) {
-        for (int i = 0; i < edges.length; i++) {
-            int parent = edges[i][0];
+    void setNodes(int[][] edges, int[] target) {
+        // target은 1번부터 taget.length번까지의 노드 번호에 대해서 관리하므로 nodes는 사이즈+1로 생성
+        nodes = new Node[target.length + 1];
+        for (int[] edge : edges) {
+            // edges[i]는 [부모 노드 번호, 자식 노드 번호] 형태로, 단방향으로 연결된 두 노드를 나타냅니다.
+            int parent = edge[0];
             if (nodes[parent] == null) nodes[parent] = new Node(parent);
-            int child = edges[i][1];
+            int child = edge[1];
             if (nodes[child] == null) nodes[child] = new Node(child);
             nodes[parent].addChild(child);
         }
-
         leaves = new ArrayList<>();
 
         for (int i = 1; i < nodes.length; i++) {
-            Node cur = nodes[i];
-            if (cur.isLeaf()) {
-                leaves.add(cur.number);
+            if (nodes[i] == null) {
+                nodes[i] = new Node(i);
+                leaves.add(i);
+                // 무조건 리프노드다. 위에 edges를 탐색하면서 초기화하지 않았으므로
                 continue;
             }
-            Collections.sort(cur.children);
-        }
 
+            // 리프노드면 leaves에 추가
+            if (nodes[i].isLeaf()) leaves.add(i);
+                // 아니라면 자식 노드들을 오름차순 정렬
+            else nodes[i].sortChildren();
+        }
     }
 
-    void drop(int number, int[] target, List<Integer> candidate) {
-        Node cur = nodes[1];
-        Map<Integer, Integer> nodeOriginalIdx = new HashMap<>();
-        // 리프노드까지 내려가기
-        while (!cur.isLeaf()) {
-            nodeOriginalIdx.put(cur.number, cur.pathIdx);
-            cur = nodes[cur.getChild()];
-        }
-        System.out.println("number: " + number + ", leaf: " + cur.number);
-        System.out.println("leaf.sum: " + (cur.sum + number) + ", target: " + target[cur.number-1]);
-        System.out.println();
-        if (cur.sum + number > target[cur.number - 1]) {
-            // 숫자 범위를 초과해서 가망이 없는 경우
-            for (int nodeNumber: nodeOriginalIdx.keySet()) {
-                nodes[nodeNumber].setPathIdx(nodeOriginalIdx.get(nodeNumber));
-            }
+    void drop(ArrayList<Integer> candidate, int[] target) {
+        if (!answerList.isEmpty() && candidate.size() > answerList.size()) return;
+
+        if (hasSucceed(target)) {
+            updateAnswerList(candidate);
             return;
         }
-        boolean hasCompleteLocal = false;
-        cur.sum += number;
-        candidate.add(number);
-        if (cur.sum == target[cur.number - 1]) {
-            hasCompleteLocal = true;
-            for (int leaf: leaves) {
-                if (nodes[leaf].sum != target[leaf - 1]) {
-                    hasCompleteLocal = false;
-                    break;
-                }
-            }
-            if (hasCompleteLocal) {
-                complete = true;
-                return;
-            }
+
+        Map<Integer, Integer> previousIdx = new HashMap<>();
+        Node cur = nodes[1];
+        while (!cur.isLeaf()) {
+            previousIdx.put(cur.number, cur.childIdx);
+            int next = cur.getChild();
+            cur = nodes[next];
         }
 
-        PriorityQueue<Candidate> pq = new PriorityQueue<>();
-        drop(1, target, candidate);
-        if (complete) {
-            pq.offer(new Candidate(1, candidate));
-            complete = false;
+        // 이미 어떤 숫자도 넣을 수 없는 상황이라면 재귀호출 자체를 포기한다.
+        int targetNumber = target[cur.number - 1];
+
+        // 3 -> 2 -> 1 순서대로 넣어봤을 때를 가정한다.
+
+        if (cur.sum + 3 <= targetNumber) {
+            int lastIdx = candidate.size();
+            cur.sum += 3;
+            candidate.add(3);
+            drop(candidate, target);
+            cur.sum -= 3;
+            candidate.remove(lastIdx);
         }
 
-        drop(2, target, candidate);
-        if (complete) {
-            pq.offer(new Candidate(2, candidate));
-            complete = false;
+        if (cur.sum + 2 <= targetNumber) {
+            int lastIdx = candidate.size();
+            cur.sum += 2;
+            candidate.add(2);
+            drop(candidate, target);
+            cur.sum -= 2;
+            candidate.remove(lastIdx);
         }
-        if (drop(3, target) || drop(2, target) || drop(1, target)) {
-            return true;
+
+        if (cur.sum + 1 <= targetNumber) {
+            int lastIdx = candidate.size();
+            cur.sum += 1;
+            candidate.add(1);
+            drop(candidate, target);
+            cur.sum -= 1;
+            candidate.remove(lastIdx);
         }
-        for (int nodeNumber: nodeOriginalIdx.keySet()) {
-            nodes[nodeNumber].setPathIdx(nodeOriginalIdx.get(nodeNumber));
+
+        for (int pathNumber : previousIdx.keySet()) {
+            nodes[pathNumber].childIdx = previousIdx.get(pathNumber);
         }
-        cur.sum -= number;
-        numbers.remove(numbers.size() - 1);
-        return false;
+    }
+
+    boolean hasSucceed(int[] target) {
+        for (int leaf : leaves) {
+            if (nodes[leaf].sum != target[leaf - 1]) return false;
+        }
+        return true;
+    }
+
+    void updateAnswerList(ArrayList<Integer> candidate) {
+        if (answerList.isEmpty()) {
+            answerList.addAll(candidate);
+            return;
+        }
+        // 일단 candidate가 빈 리스트로 올 리는 없도록 가정한다.
+        if (answerList.size() > candidate.size()) {
+            answerList.clear();
+            answerList.addAll(candidate);
+        } else if (answerList.size() == candidate.size()) {
+            for (int i = 0; i < answerList.size(); i++) {
+                if (answerList.get(i) == candidate.get(i)) continue;
+                    // 같은 숫자들이라면 넘어간다.
+                else if (answerList.get(i) > candidate.get(i)) break;
+                    // 이미 지정된 answerList에서 큰 애가 먼저 나왔다면 업데이트 필요
+                else return;
+                // 후보 리스트에서 큰 애가 먼저 나왔다면 업데이트할 필요 X
+            }
+            answerList.clear();
+            answerList.addAll(candidate);
+        }
     }
 }
