@@ -48,6 +48,7 @@ public class Solution_bj_1922_네트워크연결 {
             min += cur.cost;
 
             for (Host next: network[cur.number]) {
+                if (v[next.number]) continue;
                 pq.offer(next);
             }
         }
