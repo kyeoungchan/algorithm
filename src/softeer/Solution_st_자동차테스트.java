@@ -18,7 +18,7 @@ public class Solution_st_자동차테스트 {
         for (int i = 0; i < n; i++) {
             efficiencies[i] = Integer.parseInt(st.nextToken());
         }
-        bubbleSort(efficiencies, idxMap, 0, n-1);
+        mergeSort(efficiencies, idxMap, 0, n-1);
 //        System.out.println(Arrays.toString(efficiencies));
 //        for (int i = 0; i < 8; i++) {
 //            System.out.print(indexes[i] + " ");
@@ -40,7 +40,7 @@ public class Solution_st_자동차테스트 {
         br.close();
     }
 
-    static void bubbleSort(int[] arr, Map<Integer, Integer> idxMap, int startIdx, int endIdx) {
+    static void mergeSort(int[] arr, Map<Integer, Integer> idxMap, int startIdx, int endIdx) {
         if (startIdx == endIdx) {
             return;
         }
@@ -48,8 +48,8 @@ public class Solution_st_자동차테스트 {
         int mid = startIdx + (endIdx - startIdx) / 2;
         int leftIdx = startIdx;
         int rightIdx = mid + 1;
-        bubbleSort(arr, idxMap, startIdx, mid);
-        bubbleSort(arr, idxMap, rightIdx, endIdx);
+        mergeSort(arr, idxMap, startIdx, mid);
+        mergeSort(arr, idxMap, rightIdx, endIdx);
 
         int[] tempArr = new int[startIdx + endIdx + 1];
         int tempIdx = 0;
