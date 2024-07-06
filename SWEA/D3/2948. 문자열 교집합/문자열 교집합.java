@@ -33,7 +33,7 @@ public class Solution {
     static long hash(String str) {
         long result = 0;
         for (int i = str.length() - 1; i > -1; i--) {
-            result += (long) (int) Math.pow(26, i) * str.charAt(i);
+            result += (long) (Math.pow(26, i) * str.charAt(i));
         }
         return result;
     }
