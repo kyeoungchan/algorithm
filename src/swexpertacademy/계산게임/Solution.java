@@ -1,4 +1,4 @@
-package swexpertacademy.카드뒤집기;
+package swexpertacademy.계산게임;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -11,7 +11,8 @@ class Solution {
     private final static int CMD_UNDATE_ELEMENT	= 400;
     private final static int CMD_ELEMENT		= 500;
 
-    private final static Solution_pro_14613_리스트복사 usersolution = new Solution_pro_14613_리스트복사();
+//    private final static Solution_pro_14613_리스트복사 usersolution = new Solution_pro_14613_리스트복사();
+    private final static Solution_pro_14613_리스트복사2 usersolution = new Solution_pro_14613_리스트복사2();
 
     private static int mSeed;
     private static int pseudo_rand()
