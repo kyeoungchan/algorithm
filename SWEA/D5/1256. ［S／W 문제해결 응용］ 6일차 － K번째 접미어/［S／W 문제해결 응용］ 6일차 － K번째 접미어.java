@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Solution {
     public static void main(String[] args) throws Exception {
-//        System.setIn(new FileInputStream("res/input_d5_1256.txt"));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
         StringBuilder sb = new StringBuilder();
