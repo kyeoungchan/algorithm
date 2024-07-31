@@ -1,6 +1,6 @@
 package swexpertacademy.긴사다리게임;
 
-class UserSolution
+class Solution_pro_14614_긴사다리게임
 {
     public void init()
     {
