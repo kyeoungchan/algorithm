@@ -6,7 +6,8 @@ import java.util.StringTokenizer;
 
 class Solution {
     private static BufferedReader br;
-    private static Solution_pro_14611_계산게임 usersolution = new Solution_pro_14611_계산게임();
+//    private static Solution_pro_14611_계산게임 usersolution = new Solution_pro_14611_계산게임();
+    private static Solution_pro_14611_계산게임2 usersolution = new Solution_pro_14611_계산게임2();
 
     private final static int CMD_INIT = 100;
     private final static int CMD_PUT = 200;
@@ -55,10 +56,8 @@ class Solution {
                 if (ans == 1) {
                     for (int i = 0; i < MAX_RET_NUM; i++) {
                         ans_numbers[i] = Integer.parseInt(stdin.nextToken());
-                        if (ans_numbers[i] != ret_numbers[i]) {
-                            System.out.println("*********************************************");
+                        if (ans_numbers[i] != ret_numbers[i])
                             ok = false;
-                        }
                     }
                 }
             } else if (query == CMD_CHANGE) {
