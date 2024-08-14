@@ -1,4 +1,4 @@
-package swexpertacademy;
+package swexpertacademy.사탕가방;
 
 import java.util.*;
 import java.io.*;

@@ -22,7 +22,7 @@ public class Solution_pro_14611_계산게임2 {
     // row 정보: 조커의 값. col 정보: 찾고자하는 mNum
 
     /**
-     * 나열할 5장의 카드 정보가 주어진다.
+     * 나열할 5장의 카드 정보가 주어진다.q
      * @param mJoker   조커 값
      * @param mNumbers 5장의 카드 정보
      */
