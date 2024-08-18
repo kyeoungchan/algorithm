@@ -15,9 +15,33 @@ import java.util.*;
  */
 class Solution_pro_14614_긴사다리게임 {
 
-    private Map<>
+    static class Row implements Comparable<Row> {
+        int y;
+        boolean right;
+
+        public void setData(int y, boolean right) {
+            this.y = y;
+            this.right = right;
+        }
+
+        @Override
+        public int compareTo(Row o) {
+            return Integer.compare(y, o.y);
+        }
+    }
+
+    private TreeSet<Row>[] ts = new TreeSet[101];
+    private Row[] rows = new Row[201_001];
+    private int rowIdx;
+    private Map<Long, Integer> idxMap = new HashMap<>();
 
     public void init() {
+        if (ts[1] == null) {
+            for (int i = 1; i < 101; i++)
+                ts[i] = new TreeSet<>();
+        }
+        rowIdx = -1;
+        idxMap.clear();
     }
 
     /**
@@ -27,6 +51,24 @@ class Solution_pro_14614_긴사다리게임 {
      * 200_000번 호출
      */
     public void add(int mX, int mY) {
+        ts[mX].add(getRow(mY, true));
+        idxMap.put(getKey(mX, mY), rowIdx);
+        ts[mX + 1].add(getRow(mY, false));
+        idxMap.put(getKey(mX + 1, mY), rowIdx);
+    }
+
+    private Row getRow(int mY, boolean right) {
+        rowIdx++;
+        if (rows[rowIdx] == null)
+            rows[rowIdx] = new Row();
+        rows[rowIdx].setData(mY, right);
+        return rows[rowIdx];
+    }
+
+    private Long getKey(int mX, int mY) {
+        long res = (long) mY * 100 + mX;
+//        System.out.println("res = " + res);
+        return res;
     }
 
     /**
@@ -35,6 +77,19 @@ class Solution_pro_14614_긴사다리게임 {
      * 5_000번 호출
      */
     public void remove(int mX, int mY) {
+        long key = getKey(mX, mY);
+        int idx = idxMap.get(key);
+        Row target = rows[idx];
+        ts[mX].remove(target);
+        if (target.right) {
+            idx++;
+            mX++;
+        } else {
+            idx--;
+            mX--;
+        }
+        target = rows[idx];
+        ts[mX].remove(target);
     }
 
     /**
@@ -44,7 +99,22 @@ class Solution_pro_14614_긴사다리게임 {
      * 500번 호출
      */
     public int numberOfCross(int mID) {
-        return 0;
+        /* 1. 만약 ts[mID]가 비어있다면 mID 그대로 반환
+        * 2. ts[mID]가 있으면 ts[mID]에서 첫 번째로 나온 Row를 통해 y좌표와 좌우 정보를 받아서 다음 교차점을 찾는다.
+        * 3. 그 다음부터는 반복문을 통해 교차점보다 큰 애가 나올 때까지 찾으면서 가로줄의 개수를 카운트한다.*/
+        if (ts[mID].isEmpty()) return 0;
+        Row cur = ts[mID].first();
+        int result = 0;
+        int x = mID;
+        while (cur != null) {
+            result++;
+            if (cur.right)
+                x++;
+            else
+                x--;
+            cur = ts[x].higher(getRow(cur.y, cur.right));
+        }
+        return result;
     }
 
     /**
@@ -54,6 +124,12 @@ class Solution_pro_14614_긴사다리게임 {
      * 500번 호출
      */
     public int participant(int mX, int mY) {
-        return 0;
+        Row cur = ts[mX].lower(getRow(mY, true));
+        while (cur != null) {
+            if (cur.right) mX++;
+            else mX--;
+            cur = ts[mX].lower(getRow(cur.y, cur.right));
+        }
+        return mX;
     }
 }
