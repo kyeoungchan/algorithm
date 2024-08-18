@@ -19,6 +19,13 @@ class Solution_pro_14614_긴사다리게임 {
         int y;
         boolean right;
 
+        public Row() {
+        }
+
+        public Row(int y) {
+            this.y = y;
+        }
+
         public void setData(int y, boolean right) {
             this.y = y;
             this.right = right;
@@ -31,7 +38,7 @@ class Solution_pro_14614_긴사다리게임 {
     }
 
     private TreeSet<Row>[] ts = new TreeSet[101];
-    private Row[] rows = new Row[201_001];
+    private Row[] rows = new Row[400_001];
     private int rowIdx;
     private Map<Long, Integer> idxMap = new HashMap<>();
 
@@ -39,6 +46,9 @@ class Solution_pro_14614_긴사다리게임 {
         if (ts[1] == null) {
             for (int i = 1; i < 101; i++)
                 ts[i] = new TreeSet<>();
+        } else {
+            for (int i = 1; i < 101; i++)
+                ts[i].clear();
         }
         rowIdx = -1;
         idxMap.clear();
@@ -66,9 +76,7 @@ class Solution_pro_14614_긴사다리게임 {
     }
 
     private Long getKey(int mX, int mY) {
-        long res = (long) mY * 100 + mX;
-//        System.out.println("res = " + res);
-        return res;
+        return (long) mY * 100 + mX;
     }
 
     /**
@@ -112,7 +120,7 @@ class Solution_pro_14614_긴사다리게임 {
                 x++;
             else
                 x--;
-            cur = ts[x].higher(getRow(cur.y, cur.right));
+            cur = ts[x].higher(cur);
         }
         return result;
     }
@@ -124,11 +132,11 @@ class Solution_pro_14614_긴사다리게임 {
      * 500번 호출
      */
     public int participant(int mX, int mY) {
-        Row cur = ts[mX].lower(getRow(mY, true));
+        Row cur = ts[mX].lower(new Row(mY));
         while (cur != null) {
             if (cur.right) mX++;
             else mX--;
-            cur = ts[mX].lower(getRow(cur.y, cur.right));
+            cur = ts[mX].lower(cur);
         }
         return mX;
     }
