@@ -1,6 +1,7 @@
 package swexpertacademy.긴사다리게임;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
@@ -82,6 +83,7 @@ class Solution {
         int TC, MARK;
 
         //System.setIn(new java.io.FileInputStream("res/sample_input.txt"));
+        System.setIn(new FileInputStream("res/input_pro_14614.txt"));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
