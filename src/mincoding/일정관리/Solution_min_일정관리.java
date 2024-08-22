@@ -20,11 +20,13 @@ public class Solution_min_일정관리 {
             st = new StringTokenizer(br.readLine(), " ");
             int st2 = Integer.parseInt(st.nextToken());
             int en  = Integer.parseInt(st.nextToken());
+/*
             if (startTime.containsKey(st2) || startTime.containsKey(en)) continue;
             if (endTime.containsKey(st2) || endTime.containsKey(en)) continue;
-            Integer right = startTime.lowerKey(en);
+*/
+            Integer right = startTime.floorKey(en);
             if (right != null && right >= st2) continue;
-            Integer left = endTime.higherKey(st2);
+            Integer left = endTime.ceilingKey(st2);
             if (left != null && left <= en) continue;
 
             left = startTime.lowerKey(st2);
