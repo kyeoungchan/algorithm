@@ -30,7 +30,7 @@ public class Solution_pro_성적조회 {
         }
     }
 
-    private Student[] students = new Student[80_000]; // 각 함수는 8,000번 호출이므로 학생 수도 최대 8000명
+    private Student[] students = new Student[20_000]; // 각 함수는 8,000번 호출이므로 학생 수도 최대 8000명
     private int studentIdx;
     private Map<Integer, Integer> studentIdxMap = new HashMap<>();
     private TreeSet<Student>[][] ts = new TreeSet[3][2]; // 1~3학년, 남녀
