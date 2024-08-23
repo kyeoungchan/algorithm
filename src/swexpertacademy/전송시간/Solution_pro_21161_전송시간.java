@@ -38,7 +38,7 @@ public class Solution_pro_21161_전송시간 {
         }
     }
 
-    private final int MAX_NUMBER = 30_030;
+    private int MAX_NUMBER;
     private List<Node>[] graph;
 
     /**
@@ -49,6 +49,7 @@ public class Solution_pro_21161_전송시간 {
      * @param mTime  라인의 전송시간 30~1,000 범위
      */
     public void init(int N, int K, int mNodeA[], int mNodeB[], int mTime[]) {
+        MAX_NUMBER = N * 100 + 30;
         graph = new List[MAX_NUMBER + 1];
         for (int i = 1; i < 4; i++) {
             // 루트 노드는 무조건 있다.
