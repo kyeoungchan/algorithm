@@ -40,7 +40,6 @@ public class Solution_pro_21161_전송시간 {
 
     private final int MAX_NUMBER = 30_030;
     private List<Node>[] graph;
-    private int[] hashInfo;
 
     /**
      * @param N      소규모 그룹의 개수
@@ -55,28 +54,14 @@ public class Solution_pro_21161_전송시간 {
             // 루트 노드는 무조건 있다.
             graph[i] = new ArrayList<>();
         }
-        hashInfo = new int[N + 1];
 
-        int idx = 0;
         for (int i = 0; i < K; i++) {
-            int smallGroupNumber = mNodeA[i] / 100;
-            if (hashInfo[smallGroupNumber] == 0) hashInfo[smallGroupNumber] = ++idx; // 0번 인덱스는 루트노드 자리
-            int aIdx = getGraphIdx(mNodeA[i]);
-            if (graph[aIdx] == null) graph[aIdx] = new ArrayList<>();
-            graph[aIdx].add(new Node(mNodeB[i], mTime[i]));
+            if (graph[mNodeA[i]] == null) graph[mNodeA[i]] = new ArrayList<>();
+            graph[mNodeA[i]].add(new Node(mNodeB[i], mTime[i]));
 
-            smallGroupNumber = mNodeB[i] / 100;
-            if (hashInfo[smallGroupNumber] == 0) hashInfo[smallGroupNumber] = ++idx;
-            int bIdx = getGraphIdx(mNodeB[i]);
-            if (graph[bIdx] == null) graph[bIdx] = new ArrayList<>();
-            graph[bIdx].add(new Node(mNodeA[i], mTime[i]));
+            if (graph[mNodeB[i]] == null) graph[mNodeB[i]] = new ArrayList<>();
+            graph[mNodeB[i]].add(new Node(mNodeA[i], mTime[i]));
         }
-    }
-
-    private int getGraphIdx(int nodeNumber) {
-        if (nodeNumber < 4) return nodeNumber; // 루트노드는 그냥 출력
-        int smallGroupNumber = nodeNumber / 100;
-        return hashInfo[smallGroupNumber] * 100 + nodeNumber % 100;
     }
 
     /**
@@ -86,12 +71,10 @@ public class Solution_pro_21161_전송시간 {
      * 호출 최대 200
      */
     public void addLine(int mNodeA, int mNodeB, int mTime) {
-        int aIdx = getGraphIdx(mNodeA);
-        int bIdx = getGraphIdx(mNodeB);
-        if (graph[aIdx] == null) graph[aIdx] = new ArrayList<>();
-        graph[aIdx].add(new Node(mNodeB, mTime));
-        if (graph[bIdx] == null) graph[bIdx] = new ArrayList<>();
-        graph[bIdx].add(new Node(mNodeA, mTime));
+        if (graph[mNodeA] == null) graph[mNodeA] = new ArrayList<>();
+        graph[mNodeA].add(new Node(mNodeB, mTime));
+        if (graph[mNodeB] == null) graph[mNodeB] = new ArrayList<>();
+        graph[mNodeB].add(new Node(mNodeA, mTime));
     }
 
     /**
@@ -101,12 +84,10 @@ public class Solution_pro_21161_전송시간 {
      * 호출 최대 200
      */
     public void removeLine(int mNodeA, int mNodeB) {
-        int aIdx = getGraphIdx(mNodeA);
-        if (graph[aIdx] == null) return;
-        graph[aIdx].remove(new Node(mNodeB, -1));
-        int bIdx = getGraphIdx(mNodeB);
-        if (graph[bIdx] == null) return;
-        graph[bIdx].remove(new Node(mNodeA, -1));
+        if (graph[mNodeA] == null) return;
+        graph[mNodeA].remove(new Node(mNodeB, -1));
+        if (graph[mNodeB] == null) return;
+        graph[mNodeB].remove(new Node(mNodeA, -1));
     }
 
     /**
@@ -127,8 +108,7 @@ public class Solution_pro_21161_전송시간 {
             if (cur.cost > dist[cur.number]) continue;
             if (cur.number == mNodeB) break;
 
-            int idx = getGraphIdx(cur.number);
-            for (Node next : graph[idx]) {
+            for (Node next : graph[cur.number]) {
                 if (dist[next.number] > cur.cost + next.cost) {
                     dist[next.number] = cur.cost + next.cost;
                     pq.offer(new Node(next.number, dist[next.number]));
