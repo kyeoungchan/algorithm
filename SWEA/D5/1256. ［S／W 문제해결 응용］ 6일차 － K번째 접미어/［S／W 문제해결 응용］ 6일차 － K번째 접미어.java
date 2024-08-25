@@ -18,13 +18,13 @@ public class Solution {
     }
 
     static boolean searched;
-    static int K;
+    static int K, tc;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
         int T = Integer.parseInt(br.readLine());
-        for (int tc = 1; tc < T + 1; tc++) {
+        for (tc = 1; tc < T + 1; tc++) {
             K = Integer.parseInt(br.readLine());
             String s = br.readLine();
             if (s.length() < K) {
@@ -58,16 +58,20 @@ public class Solution {
     static void dfs(Trie idxTrie, StringBuilder tempSb) {
         if (idxTrie.last) {
             K--;
-            if (K == 0) searched = true;
-            return;
+            if (K == 0) {
+                searched = true;
+                return;
+            }
         }
 
         for (char c = 'a'; c <= 'z'; c++) {
             if (!idxTrie.children.containsKey(c)) continue;
+/*
             if (idxTrie.children.get(c).cnt < K) {
                 K -= idxTrie.children.get(c).cnt;
                 continue;
             }
+*/
             tempSb.append(c);
             dfs(idxTrie.children.get(c), tempSb);
             if (searched) return;
