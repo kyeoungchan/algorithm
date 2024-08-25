@@ -66,12 +66,10 @@ public class Solution {
 
         for (char c = 'a'; c <= 'z'; c++) {
             if (!idxTrie.children.containsKey(c)) continue;
-/*
             if (idxTrie.children.get(c).cnt < K) {
                 K -= idxTrie.children.get(c).cnt;
                 continue;
             }
-*/
             tempSb.append(c);
             dfs(idxTrie.children.get(c), tempSb);
             if (searched) return;
