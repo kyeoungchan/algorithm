@@ -32,6 +32,7 @@ public class Solution_min_발레공연 {
         br.close();
     }
 
+/*
     static class Ballerina implements Comparable<Ballerina> {
         int playTime, startTime;
         int factor;
@@ -47,16 +48,16 @@ public class Solution_min_발레공연 {
             return Integer.compare(factor, o.factor);
         }
     }
+*/
 
     static boolean canPerform(int mid, int[] d, int N, int T) {
-        PriorityQueue<Ballerina> pq = new PriorityQueue<>();
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
         int time = 0;
-        for (int i = 0; i < mid; i++) pq.offer(new Ballerina(d[i], 0));
+        for (int i = 0; i < mid; i++) pq.offer(d[i]);
         int idx = mid;
         while (!pq.isEmpty()) {
-            Ballerina min = pq.poll();
-            time = min.factor;
-            if (idx < N) pq.offer(new Ballerina(d[idx++], min.factor));
+            time = pq.poll();
+            if (idx < N) pq.offer(d[idx++] + time);
         }
         return time <= T;
     }
