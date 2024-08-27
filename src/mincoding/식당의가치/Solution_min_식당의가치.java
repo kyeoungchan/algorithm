@@ -36,9 +36,10 @@ public class Solution_min_식당의가치 {
 
     private List<Integer>[] graph;
     private List<Restaurant>[] restaurants;
-    private Map<String, Restaurant> fullNameRestaurantMap = new HashMap<>();
+    private Map<String, Restaurant> nameRestaurantMap = new HashMap<>();
     private Map<String, Integer> maxScoreMap = new HashMap<>();
-    private int N;
+    private int[] visited;
+    private int cc;
 
     /**
      * 존재하는 식당은 없다.
@@ -47,7 +48,8 @@ public class Solution_min_식당의가치 {
      * @param mRoads mRoads[i][0]과 mRoads[i][1]을 잇는 도로가 존재한다.
      */
     public void init(int N, int M, int mRoads[][]) {
-        this.N = N;
+        cc = 0;
+        visited = new int[N + 1];
         graph = new List[N + 1];
         restaurants = new List[N + 1];
         for (int i = 1; i < N + 1; i++) {
@@ -55,7 +57,7 @@ public class Solution_min_식당의가치 {
             restaurants[i] = new ArrayList<>();
         }
 
-        fullNameRestaurantMap.clear();
+        nameRestaurantMap.clear();
         maxScoreMap.clear();
 
         for (int i = 0; i < M; i++) {
@@ -79,7 +81,7 @@ public class Solution_min_식당의가치 {
         String name = getName(mName);
         restaurant.setName(name);
         restaurants[mCityID].add(restaurant);
-        fullNameRestaurantMap.put(name, restaurant);
+        nameRestaurantMap.put(name, restaurant);
 
     }
 
@@ -91,19 +93,20 @@ public class Solution_min_식당의가치 {
      * @param mScore 받은 평점 (1 <= score <= 5)
      */
     public void addValue(char mName[], int mScore) {
-        String name = getName(mName);
-        Restaurant target = fullNameRestaurantMap.get(name);
+        Restaurant target = nameRestaurantMap.get(getName(mName));
         target.addScore(mScore);
         int candidateScore = target.score;
 
+        StringBuilder sb;
         for (int i = 0; i < mName.length; i++) {
-            name = "";
+            sb = new StringBuilder();
             for (int j = i; j < mName.length; j++) {
-                name += mName[j];
-                if (maxScoreMap.containsKey(name)) {
-                    maxScoreMap.put(name, Math.max(maxScoreMap.get(name), candidateScore));
+                sb.append(mName[j]);
+                String subName = sb.toString();
+                if (maxScoreMap.containsKey(sb.toString())) {
+                    maxScoreMap.put(subName, Math.max(maxScoreMap.get(subName), candidateScore));
                 } else {
-                    maxScoreMap.put(name, candidateScore);
+                    maxScoreMap.put(subName, candidateScore);
                 }
             }
         }
@@ -134,18 +137,20 @@ public class Solution_min_식당의가치 {
      * @return 가장 가치가 높은 식당 3개의 가치의 총합을 반환. 해당하는 식당이 0개라면 0을 반환
      */
     public int regionalValue(int mCityID, int mDist) {
-        boolean[] visited = new boolean[N + 1];
+        cc++;
         PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
         ArrayDeque<Town> q = new ArrayDeque<>();
         q.offer(new Town(mCityID, 0));
-        visited[mCityID] = true;
+
+        // visited 최적화
+        visited[mCityID] = cc;
         for (Restaurant restaurant: restaurants[mCityID]) pq.offer(restaurant.score);
         while (!q.isEmpty()) {
             Town cur = q.poll();
             if (cur.dist == mDist) break;
             for (int nextId: graph[cur.number]) {
-                if (visited[nextId]) continue;
-                visited[nextId] = true;
+                if (visited[nextId] == cc) continue;
+                visited[nextId] = cc;
                 q.offer(new Town(nextId, cur.dist + 1));
                 for (Restaurant restaurant: restaurants[nextId]) pq.offer(restaurant.score);
             }
