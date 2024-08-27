@@ -20,15 +20,17 @@ public class Solution_bj_1365_꼬인전깃줄 {
                 continue;
             }
             int left = 1, right = len;
+//            int idx = len;
             while (left <= right) {
                 int mid = left + (right - left) / 2;
                 if (lis[mid] < rights[i]) {
                     left = mid + 1;
+//                    idx = mid;
                 } else {
                     right = mid - 1;
                 }
             }
-            lis[right] = rights[i];
+            lis[left] = rights[i];
         }
 
         System.out.println(N - len);
