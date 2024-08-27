@@ -19,11 +19,14 @@ public class Solution_bj_1365_꼬인전깃줄 {
                 lis[++len] = rights[i];
                 continue;
             }
-            int left = 1, right = len - 1;
+            int left = 1, right = len;
             while (left <= right) {
                 int mid = left + (right - left) / 2;
-                if (lis[mid] > rights[i]) right = mid - 1;
-                else left = mid + 1;
+                if (lis[mid] < rights[i]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
             }
             lis[right] = rights[i];
         }
