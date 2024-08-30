@@ -1,6 +1,7 @@
 package mincoding.연락처DB;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * 연락처는 이름과 전화번호로 이루어져 있다.
@@ -117,7 +118,10 @@ public class Solution_min_연락처DB {
         }
         for (int j = list.size() - 1; j > -1 && i < 5; j--) {
             Contactinfo contactinfo = list.get(j);
-            if (contactinfo.removed || temp.contains(contactinfo)) continue;
+            if (contactinfo.removed || temp.contains(contactinfo)) {
+//                list.remove(contactinfo);
+                continue;
+            }
             temp.add(contactinfo);
             res.mNameList[i] = contactinfo.name;
             res.mTelephoneList[i] = contactinfo.telephone;
