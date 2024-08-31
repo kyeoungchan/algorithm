@@ -29,7 +29,7 @@ public class Solution_bj_1374_강의실 {
             int number = Integer.parseInt(st.nextToken()); // 번호는 굳이 필요없다.
             pq.offer(new Course(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
         }
-        int result = 1;
+//        int result = 1;
         PriorityQueue<Integer> finish = new PriorityQueue<>(); // 각 강의마다 끝나는 시간을 담는 PQ
         finish.offer(pq.poll().endTime);
         while (!pq.isEmpty()) {
@@ -41,11 +41,12 @@ public class Solution_bj_1374_강의실 {
             } else {
                 // 이전 강의가 덜 끝났는데 다음 강의가 들어온다면
                 // 이전 강의는 남기고 개수를 하나 더 늘린다.
-                result++;
+//                result++;
                 finish.offer(cur.endTime); // 다음 강의를 넣는다.
             }
         }
-        System.out.println(result);
+//        System.out.println(result);
+        System.out.println(finish.size());
         br.close();
     }
 }
