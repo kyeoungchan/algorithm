@@ -64,10 +64,8 @@ class Main
                     cnt = Integer.parseInt(st.nextToken());
                     ans = Integer.parseInt(st.nextToken());
                     ret = usersolution.takeOut(time, cnt);
-/*
                     System.out.println(ans + " : " + ret);
                     System.out.println();
-*/
                     if (ans != ret)
                         okay = false;
                     break;
@@ -76,10 +74,8 @@ class Main
                     String2Char(st.nextToken(), bname[0]);
                     ans = Integer.parseInt(st.nextToken());
                     ret = usersolution.checkBacteria(time, bname[0]);
-/*
                     System.out.println(ans + " : " + ret);
                     System.out.println();
-*/
                     if (ans != ret)
                         okay = false;
                     break;
@@ -94,7 +90,7 @@ class Main
     public static void main(String[] args) throws Exception
     {
 
-        System.setIn(new java.io.FileInputStream("res/input_min_pro8.txt"));
+//        System.setIn(new java.io.FileInputStream("res/input_min_pro8.txt"));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer line = new StringTokenizer(br.readLine(), " ");
