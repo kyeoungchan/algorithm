@@ -1,6 +1,7 @@
 package mincoding.박테리아;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * 박테리아는 N종류
@@ -36,29 +37,16 @@ public class Solution_min_박테리아 {
 
         @Override
         public int compareTo(Bacteria o) {
-            return changeTime == o.changeTime ? Integer.compare(initTime, o.initTime) : Integer.compare(changeTime, o.changeTime);
-        }
-
-        @Override
-        public String toString() {
-            return "Bacteria{" +
-                    "name='" + name + '\'' +
-                    ", initTime=" + initTime +
-                    ", halfTime=" + halfTime +
-                    ", life=" + life +
-                    ", cnt=" + cnt +
-                    ", changeTime=" + changeTime +
-                    ", gone=" + gone +
-                    '}';
+            return life == o.life ? Integer.compare(initTime, o.initTime) : Integer.compare(life, o.life);
         }
     }
 
     private Map<String, Integer> nameToIdx = new HashMap<>();
-    private PriorityQueue<Bacteria> bacteriaPQ = new PriorityQueue<>();
+    private PriorityQueue<Bacteria> bacteriaPQ = new PriorityQueue<>(Comparator.comparingInt(b -> b.changeTime));
     private int[] halfTimeInfo = new int[100], bacteriaCnt = new int[100];
     private Bacteria[] bacteriaArray = new Bacteria[20_001];
     private int bacteriaIdx;
-    private PriorityQueue<Bacteria> shortLifePQ = new PriorityQueue<>(Comparator.comparingInt(b -> b.life));
+    private PriorityQueue<Bacteria> shortLifePQ = new PriorityQueue<>();
 
     /**
      * 현재 시각은 0
@@ -69,15 +57,12 @@ public class Solution_min_박테리아 {
     public void init(int N, char bNameList[][], int mHalfTime[]) {
         nameToIdx.clear();
         bacteriaCnt = new int[N];
-        System.out.println("N = " + N);
         for (int i = 0; i < N; i++) {
             bacteriaCnt[i] = 0;
             String name = getName(bNameList[i]);
             nameToIdx.put(name, i);
-            System.out.println(name + " : " + mHalfTime[i]);
             halfTimeInfo[i] = mHalfTime[i];
         }
-        System.out.println();
         bacteriaPQ.clear();
         bacteriaIdx = 0;
     }
@@ -100,41 +85,26 @@ public class Solution_min_박테리아 {
      */
     void addBacteria(int tStamp, char bName[], int mLife, int mCnt) {
         timeMoves(tStamp);
-        System.out.println("addBacteria");
-        System.out.println("tStamp = " + tStamp);
         String name = getName(bName);
-        System.out.println("name = " + name);
-        System.out.println("mLife = " + mLife);
-        System.out.println("mCnt = " + mCnt);
         int addingIdx = nameToIdx.get(name);
         int halfTime = halfTimeInfo[addingIdx];
         Bacteria bacteria = createBacteria(name, halfTime, tStamp, mLife, mCnt, tStamp + halfTime);
-        bacteriaPQ.add(bacteria);
+        bacteriaPQ.offer(bacteria);
         bacteriaCnt[addingIdx] += mCnt;
-        System.out.println("added bacteria = " + bacteria);
-        System.out.println("bacteriaCnt[addingIdx] = " + bacteriaCnt[addingIdx]);
-        System.out.println();
     }
 
     private void timeMoves(int curTime) {
-        System.out.println("timeMoves");
-        System.out.println("curTime = " + curTime);
         while (!bacteriaPQ.isEmpty() && bacteriaPQ.peek().changeTime <= curTime) {
             Bacteria bacteria = bacteriaPQ.poll();
             if (bacteria.gone) continue;
-            System.out.println("before bacteria = " + bacteria);
             if (!bacteria.timeMovesAlive(curTime)) {
                 String name = bacteria.name;
                 int idx = nameToIdx.get(name);
                 bacteriaCnt[idx] -= bacteria.cnt;
-                System.out.println("removed!");
             } else {
                 bacteriaPQ.offer(bacteria);
-                System.out.println("addAgain!");
-                System.out.println("after bacteria = " + bacteria);
             }
         }
-        System.out.println();
     }
 
     private Bacteria createBacteria(String name, int halfTime, int initTime, int life, int cnt, int changeTime) {
@@ -158,14 +128,12 @@ public class Solution_min_박테리아 {
      */
     int takeOut(int tStamp, int mCnt) {
         timeMoves(tStamp);
-        System.out.println("takeOut");
-        System.out.println("tStamp = " + tStamp);
-        System.out.println("mCnt = " + mCnt);
         int result = 0;
         shortLifePQ.clear();
         shortLifePQ.addAll(bacteriaPQ);
         while (mCnt > 0 && !shortLifePQ.isEmpty()) {
             Bacteria bacteria = shortLifePQ.poll();
+            if (bacteria.gone) continue;
             int bacteriaIdx = nameToIdx.get(bacteria.name);
             if (mCnt >= bacteria.cnt) {
                 mCnt -= bacteria.cnt;
@@ -179,7 +147,6 @@ public class Solution_min_박테리아 {
                 mCnt = 0;
             }
         }
-        System.out.println();
         return result;
     }
 
@@ -193,11 +160,7 @@ public class Solution_min_박테리아 {
      */
     int checkBacteria(int tStamp, char bName[]) {
         timeMoves(tStamp);
-        System.out.println("checkBacteria");
-        System.out.println("tStamp = " + tStamp);
         String name = getName(bName);
-        System.out.println("name = " + name);
-        System.out.println();
         return bacteriaCnt[nameToIdx.get(name)];
     }
 }
