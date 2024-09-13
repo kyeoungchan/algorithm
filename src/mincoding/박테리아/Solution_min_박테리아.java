@@ -14,16 +14,17 @@ public class Solution_min_박테리아 {
 
     static class Bacteria implements Comparable<Bacteria> {
         String name;
-        int initTime, halfTime, life, cnt, changeTime;
+        int initTime, halfTime, life, cnt, changeTime, idx;
         boolean gone;
 
-        public void setData(String name, int initTime, int halfTime, int life, int cnt, int changeTime) {
+        public void setData(String name, int initTime, int halfTime, int life, int cnt, int changeTime, int idx) {
             this.name = name;
             this.initTime = initTime;
             this.halfTime = halfTime;
             this.life = life;
             this.cnt = cnt;
             this.changeTime = changeTime;
+            this.idx = idx;
             gone = false;
         }
 
@@ -37,16 +38,32 @@ public class Solution_min_박테리아 {
 
         @Override
         public int compareTo(Bacteria o) {
+            return Integer.compare(changeTime, o.changeTime);
+        }
+    }
+
+    static class LifeInfo implements Comparable<LifeInfo> {
+        int idx, life, initTime;
+
+        public void setData(int idx, int life, int initTime) {
+            this.idx = idx;
+            this.life = life;
+            this.initTime = initTime;
+        }
+
+        @Override
+        public int compareTo(LifeInfo o) {
             return life == o.life ? Integer.compare(initTime, o.initTime) : Integer.compare(life, o.life);
         }
     }
 
     private Map<String, Integer> nameToIdx = new HashMap<>();
-    private PriorityQueue<Bacteria> bacteriaPQ = new PriorityQueue<>(Comparator.comparingInt(b -> b.changeTime));
+    private PriorityQueue<Bacteria> bacteriaPQ = new PriorityQueue<>();
     private int[] halfTimeInfo = new int[100], bacteriaCnt = new int[100];
     private Bacteria[] bacteriaArray = new Bacteria[20_001];
-    private int bacteriaIdx;
-    private PriorityQueue<Bacteria> shortLifePQ = new PriorityQueue<>();
+    private LifeInfo[] lifeInfoArray = new LifeInfo[20_001];
+    private int bacteriaIdx, lifeInfoIdx;
+    private PriorityQueue<LifeInfo> lifeInfoPQ = new PriorityQueue<>();
 
     /**
      * 현재 시각은 0
@@ -109,7 +126,7 @@ public class Solution_min_박테리아 {
 
     private Bacteria createBacteria(String name, int halfTime, int initTime, int life, int cnt, int changeTime) {
         if (bacteriaArray[bacteriaIdx] == null) bacteriaArray[bacteriaIdx] = new Bacteria();
-        bacteriaArray[bacteriaIdx].setData(name, initTime, halfTime, life, cnt, changeTime);
+        bacteriaArray[bacteriaIdx].setData(name, initTime, halfTime, life, cnt, changeTime, bacteriaIdx);
         return bacteriaArray[bacteriaIdx++];
     }
 
@@ -127,27 +144,56 @@ public class Solution_min_박테리아 {
      * 만약 한 종류의 박테리아를 소진하고 같은 종류의 박테리아가 남아있으면 또 담아준다.
      */
     int takeOut(int tStamp, int mCnt) {
-        timeMoves(tStamp);
+        timeMovesBeforeTakeOut(tStamp);
         int result = 0;
-        shortLifePQ.clear();
-        shortLifePQ.addAll(bacteriaPQ);
-        while (mCnt > 0 && !shortLifePQ.isEmpty()) {
-            Bacteria bacteria = shortLifePQ.poll();
-            if (bacteria.gone) continue;
-            int bacteriaIdx = nameToIdx.get(bacteria.name);
-            if (mCnt >= bacteria.cnt) {
-                mCnt -= bacteria.cnt;
-                result += bacteria.cnt * bacteria.life;
-                bacteriaCnt[bacteriaIdx] -= bacteria.cnt;
-                bacteria.gone = true;
-            } else {
-                bacteria.cnt -= mCnt;
-                result += mCnt * bacteria.life;
-                bacteriaCnt[bacteriaIdx] -= mCnt;
+        while (mCnt > 0 && !lifeInfoPQ.isEmpty()) {
+            LifeInfo lifeInfo = lifeInfoPQ.poll();
+            Bacteria target = bacteriaArray[lifeInfo.idx];
+            if (target.gone) continue;
+            if (target.cnt > mCnt) {
+                target.cnt -= mCnt;
+                bacteriaCnt[nameToIdx.get(target.name)] -= mCnt;
+                result += mCnt * lifeInfo.life;
                 mCnt = 0;
+            } else {
+                mCnt -= target.cnt;
+                bacteriaCnt[nameToIdx.get(target.name)] -= target.cnt;
+                target.gone = true;
+                result += target.cnt * lifeInfo.life;
             }
         }
         return result;
+    }
+
+    private void timeMovesBeforeTakeOut(int curTime) {
+        lifeInfoIdx = 0;
+        PriorityQueue<Bacteria> newPq = new PriorityQueue<>();
+        lifeInfoPQ.clear();
+        while (!bacteriaPQ.isEmpty() && bacteriaPQ.peek().changeTime <= curTime) {
+            Bacteria bacteria = bacteriaPQ.poll();
+            if (bacteria.gone) continue;
+            if (!bacteria.timeMovesAlive(curTime)) {
+                String name = bacteria.name;
+                int idx = nameToIdx.get(name);
+                bacteriaCnt[idx] -= bacteria.cnt;
+            } else {
+//                bacteriaPQ.offer(bacteria);
+                newPq.offer(bacteria);
+                lifeInfoPQ.offer(createLifeInfo(bacteria));
+            }
+        }
+        while (!bacteriaPQ.isEmpty()) {
+            Bacteria bacteria = bacteriaPQ.poll();
+            newPq.offer(bacteria);
+            lifeInfoPQ.offer(createLifeInfo(bacteria));
+        }
+        bacteriaPQ = newPq;
+    }
+
+    private LifeInfo createLifeInfo(Bacteria bacteria) {
+        if (lifeInfoArray[lifeInfoIdx] == null) lifeInfoArray[lifeInfoIdx] = new LifeInfo();
+        lifeInfoArray[lifeInfoIdx].setData(bacteria.idx, bacteria.life, bacteria.initTime);
+        return lifeInfoArray[lifeInfoIdx++];
     }
 
 
