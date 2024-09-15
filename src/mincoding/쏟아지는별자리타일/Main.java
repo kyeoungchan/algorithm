@@ -90,7 +90,6 @@ class Main {
                     ans = Integer.parseInt(st.nextToken());
                     if(ans != ret)
                         okay = false;
-                    System.out.println(ans + " : " + ret);
                     break;
 
                 case CMD_POSITION:
@@ -100,7 +99,6 @@ class Main {
                     ans = Integer.parseInt(st.nextToken());
                     if(ans != ret)
                         okay = false;
-                    System.out.println(ans + " : " + ret);
                     break;
 
                 default:
@@ -115,7 +113,7 @@ class Main {
     public static void main(String[] args) throws Exception {
 
         int TC, MARK;
-//        System.setIn(new java.io.FileInputStream("res/input_min_pro12.txt"));
+        System.setIn(new java.io.FileInputStream("res/input_min_pro12.txt"));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");

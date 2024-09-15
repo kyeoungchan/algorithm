@@ -4,9 +4,6 @@ import java.io.*;
 import java.util.*;
 
 
-/**
- *
- */
 public class Solution_min_쏟아지는별자리타일 {
 
     static class Position implements Comparable<Position> {
@@ -23,27 +20,11 @@ public class Solution_min_쏟아지는별자리타일 {
         }
     }
 
-    static class Shape {
-        int[][] tile = new int[5][5];
-
-        @Override
-        public boolean equals(Object o) {
-            Shape s = (Shape) o;
-            for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < 5; j++) {
-                    if (tile[i][j] != s.tile[i][j]) return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    private Map<Shape, PriorityQueue<Position>> shapeToPosition = new HashMap<>(); // 각 모양마다 가장 외쪽이면서 왼쪽에 위치한 타일의 중앙 값을 구하기 위한 Map
-    private Shape[][] positionToShape; // 위치마다 포함하는 shape 정보를 조회하기 위한 이차원 배열
-    private int[] dr = {-1, 0, 1, 0}, dc = {0, 1, 0, -1};
+    private Map<Integer, PriorityQueue<Position>> shapeToPosition = new HashMap<>(); // 각 모양마다 가장 외쪽이면서 왼쪽에 위치한 타일의 중앙 값을 구하기 위한 Map
+    private int[][] positionToShape; // 위치마다 포함하는 shape 정보를 조회하기 위한 이차원 배열
+    private int[] dr = {-1, 0, 1, 0}, dc = {0, 1, 0, -1}, hashArr = new int[4];
     private int[][] plane;
-    private int shapesIdx, positionIdx;
-    private Shape[] shapes = new Shape[170_001];
+    private int positionIdx;
     private Position[] positions = new Position[160_001];
 
     /**
@@ -51,16 +32,22 @@ public class Solution_min_쏟아지는별자리타일 {
      * @param mPlane 0 또는 1로 구성
      */
     public void init(int N, int[][] mPlane) {
-        positionIdx = shapesIdx = 0;
-        this.plane = mPlane;
+        positionIdx = 0;
+        plane = mPlane;
         shapeToPosition.clear();
-        positionToShape = new Shape[N][N]; // 네 방향 중 아무 거나 저장한다.
+        positionToShape = new int[N][N]; // 네 방향 중 아무 거나 저장한다.
 
-        for (int i = 0; i < N - 5; i++) {
-            for (int j = 0; j < N - 5; j++) {
+        for (int i = 0; i < N - 4; i++) {
+            for (int j = 0; j < N - 4; j++) {
                 if (!isTile(i, j)) continue;
                 setData(i, j);
-                j += 5;
+                /////////////////////////////////
+                j += 4;
+                /*
+                내가 미스해서 시간이 가장 오래 걸린 부분
+                for문 자체가 j++를 시켜주므로 +=5를 하면 내가 의도한 것보다 한칸 더 오른쪽으로 건너뛰게 된다.
+                */
+                ////////////////////////////////
             }
         }
     }
@@ -79,7 +66,7 @@ public class Solution_min_쏟아지는별자리타일 {
                 int r = startR + i;
                 int c = startC + j;
                 if (plane[r][c] == 0) continue;
-                cnt++;
+                if (++cnt > 7) return false;
                 if (!row1 && i == 0) row1 = true;
                 if (!row5 && i == 4) row5 = true;
                 if (!col1 && j == 0) col1 = true;
@@ -90,39 +77,38 @@ public class Solution_min_쏟아지는별자리타일 {
     }
 
     private void setData(int startR, int startC) {
-        System.out.println("startR = " + startR);
-        System.out.println("startC = " + startC);
+        int previousHash = 0;
         for (int d = 0; d < 4; d++) {
-            Shape shape = createShape();
-            int[][] shapeTile = shape.tile;
-            System.out.println("d = " + d);
+            int shapeHash = 0;
             for (int i = 0; i < 5; i++) {
                 int r = startR + dr[(d + 2) % 4] * i;
                 int c = startC + dc[(d + 2) % 4] * i;
                 for (int j = 0; j < 5; j++) {
-                    shapeTile[i][j] = plane[r][c];
-                    if (d == 0) positionToShape[r][c] = shape; // 처음 모양 하나만 저장
+                    shapeHash *= 10;
+                    shapeHash += plane[r][c];
+                    if (d == 1) positionToShape[r][c] = previousHash;
                     r += dr[(d + 1) % 4];
                     c += dc[(d + 1) % 4];
-                    if (shapeTile[i][j] == 0) System.out.print("  ");
-                    else System.out.print("* ");
                 }
-                System.out.println();
             }
-            System.out.println();
-            if (!shapeToPosition.containsKey(shape)) shapeToPosition.put(shape, new PriorityQueue<>());
+            boolean hasSameShapeChecked = false;
+            for (int i = 0; i < d; i++) {
+                if (hashArr[i] == shapeHash) {
+                    hasSameShapeChecked = true;
+                    break;
+                }
+            }
+            if (hasSameShapeChecked) continue;
+            hashArr[d] = shapeHash;
+            if (!shapeToPosition.containsKey(shapeHash)) shapeToPosition.put(shapeHash, new PriorityQueue<>());
             int midR = startR + dr[(d + 1) % 4] * 2 + dr[(d + 2) % 4] * 2;
             int midC = startC + dc[(d + 1) % 4] * 2 + dc[(d + 2) % 4] * 2;
-            shapeToPosition.get(shape).offer(createPosition(midR, midC));
+            shapeToPosition.get(shapeHash).add(createPosition(midR, midC));
             startR += dr[(d + 1) % 4] * 4;
             startC += dc[(d + 1) % 4] * 4;
+            if (d == 0) previousHash = shapeHash;
         }
 
-    }
-
-    private Shape createShape() {
-        if (shapes[shapesIdx] == null) shapes[shapesIdx] = new Shape();
-        return shapes[shapesIdx++];
     }
 
     private Position createPosition(int r, int c) {
@@ -136,10 +122,11 @@ public class Solution_min_쏟아지는별자리타일 {
      * @return 별자리 개수 반환
      */
     public int getCount(int[][] mPiece) {
-        Shape shape = createShape();
+        int shape = 0;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                shape.tile[i][j] = mPiece[i][j];
+                shape *= 10;
+                shape += mPiece[i][j];
             }
         }
         if (!shapeToPosition.containsKey(shape)) return 0;
@@ -152,19 +139,10 @@ public class Solution_min_쏟아지는별자리타일 {
      * @return row * 10000 + col
      */
     public int getPosition(int mRow, int mCol) {
-        System.out.println("**** getPsotion ****");
-        System.out.println("(" + mRow + ", " + mCol + ")");
-        System.out.println();
-        Shape target = positionToShape[mRow][mCol];
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (target.tile[i][j] == 1) System.out.print("* ");
-                else System.out.print("  ");
-            }
-            System.out.println();
-        }
-        System.out.println();
+        int target = positionToShape[mRow][mCol];
+//        Position targetPosition = shapeToPosition.get(target).pollFirst();
         Position targetPosition = shapeToPosition.get(target).peek();
+//        shapeToPosition.get(target).add(targetPosition);
         return targetPosition.r * 10000 + targetPosition.c;
     }
 }
