@@ -37,6 +37,7 @@ class Main {
                 if (ans != ret) {
                     ok = false;
                 }
+//                System.out.println(ans + " : " + ret);
             } else if (query == CMD_REMOVE) {
                 int mTimestamp = Integer.parseInt(stdin.nextToken());
                 ans = Integer.parseInt(stdin.nextToken());
@@ -44,6 +45,7 @@ class Main {
                 if (ans != ret) {
                     ok = false;
                 }
+//                System.out.println(ans + " : " + ret);
             }
         }
         return ok;
@@ -52,7 +54,7 @@ class Main {
     public static void main(String[] args) throws Exception {
         int T, MARK;
 
-        // System.setIn(new java.io.FileInputStream("res/sample_input.txt"));
+         System.setIn(new java.io.FileInputStream("res/input_min_pro13.txt"));
         br = new BufferedReader(new InputStreamReader(System.in));
 
         StringTokenizer stinit = new StringTokenizer(br.readLine(), " ");

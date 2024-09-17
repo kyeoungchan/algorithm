@@ -104,6 +104,7 @@ public class Solution_min_블록제거게임 {
             totalCnt -= removedCnt;
             if (!block.removedAll()) tempQ.offer(block);
         }
+        blockQueue = tempQ;
         return totalCnt;
     }
 }
