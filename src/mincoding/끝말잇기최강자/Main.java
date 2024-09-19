@@ -50,7 +50,7 @@ class Main {
 
     public static void main(String[]args) throws Exception {
         int T, SUCCESS;
-        System.setIn(new FileInputStream("res/input_min_pro14.txt"));
+//        System.setIn(new FileInputStream("res/input_min_pro14.txt"));
         br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer(br.readLine());
 

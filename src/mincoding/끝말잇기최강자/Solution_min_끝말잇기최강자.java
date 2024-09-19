@@ -52,21 +52,18 @@ public class Solution_min_끝말잇기최강자 {
 
 
     public int playRound(int pid, char ch) {
-        System.out.println("\nplayRound");
-        System.out.println("pid = " + pid);
-        System.out.println("ch = " + ch);
         List<String> reverseList = new ArrayList<>();
         while (true) {
             if (!pqMap.containsKey(ch) || pqMap.get(ch).isEmpty()) break;
             String word = pqMap.get(ch).poll();
             if (usedmap.containsKey(word)) continue;
-            System.out.println("using Word = " + word);
-            System.out.println("pid = " + pid);
             usedmap.put(word, true);
             String reversedWord = reverseWord(word);
-            System.out.println("reversedWord = " + reversedWord);
             if (!usedmap.containsKey(reversedWord)) reverseList.add(reversedWord);
-            if (++pid > N) pid = 1;
+            while (true) {
+                if (++pid > N) pid = 1;
+                if (!loosed[pid]) break;
+            }
             ch = reversedWord.charAt(0);
         }
         for (String word : reverseList) {
@@ -75,6 +72,7 @@ public class Solution_min_끝말잇기최강자 {
             PriorityQueue<String> pq = pqMap.get(key);
             pq.offer(word);
         }
+        loosed[pid] = true;
         return pid;
     }
 
