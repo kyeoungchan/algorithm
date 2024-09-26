@@ -1,4 +1,4 @@
-package mincoding.단어관라;
+package mincoding.전자사전;
 
 import java.util.*;
 
