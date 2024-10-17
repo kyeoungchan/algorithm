@@ -6,7 +6,7 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
         int N = Integer.parseInt(br.readLine());
-        long[] dp = new long[N + 1];
+        int[] dp = new int[N + 1];
         // 50 50 50
         //    20
         //       100
@@ -14,12 +14,10 @@ public class Main {
             st = new StringTokenizer(br.readLine(), " ");
             int t = Integer.parseInt(st.nextToken()); // 기간
             int p = Integer.parseInt(st.nextToken()); // 금액
-            if (i + t - 1 > N) {
-                dp[i] = Math.max(dp[i], dp[i - 1]);
-                continue;
+            dp[i] = Math.max(dp[i], dp[i - 1]);
+            if (i + t - 1 <= N) {
+                dp[i + t - 1] = Math.max(dp[i - 1] + p, dp[i + t - 1]);
             }
-            dp[i + t - 1] = Math.max(dp[i - 1] + p, dp[i + t - 1]);
-            if (t != 1) dp[i] = Math.max(dp[i], dp[i - 1]);
         }
         System.out.println(dp[N]);
         br.close();
