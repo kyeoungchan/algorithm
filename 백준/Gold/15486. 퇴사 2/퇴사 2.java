@@ -21,12 +21,7 @@ public class Main {
             dp[i + t - 1] = Math.max(dp[i - 1] + p, dp[i + t - 1]);
             if (t != 1) dp[i] = Math.max(dp[i], dp[i - 1]);
         }
-        long ans = 0L;
-        for (int i = 1; i < N + 1; i++) {
-//            System.out.println(dp[i]);
-            ans = Math.max(ans, dp[i]);
-        }
-        System.out.println(ans);
+        System.out.println(dp[N]);
         br.close();
     }
 }
