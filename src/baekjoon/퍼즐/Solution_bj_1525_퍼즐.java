@@ -19,12 +19,14 @@ public class Solution_bj_1525_퍼즐 {
 */
 
     static int[] tenPower = {1, 10, 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000};
-    static boolean[] check = new boolean[876_543_211]; // 해시는 12345678 ~ 876543210까지 가능하다.
+    //    static boolean[] check = new boolean[876_543_211]; // 해시는 12345678 ~ 876543210까지 가능하다.
+    static Map<Integer, Boolean> map;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
+        map = new HashMap<>();
         int hash = 0;
         for (int i = 0; i < 3; i++) {
             st = new StringTokenizer(br.readLine(), " ");
@@ -34,10 +36,11 @@ public class Solution_bj_1525_퍼즐 {
             }
         }
 
-        check[hash] = true;
+//        check[hash] = true;
+        map.put(hash, true);
 //        ArrayDeque<Node> q = new ArrayDeque<>();
         ArrayDeque<int[]> q = new ArrayDeque<>();
-        q.offer(new int[] {hash, 0});
+        q.offer(new int[]{hash, 0});
 
         int answer = -1; // 이동이 불가능한 경우 -1 출력
         while (!q.isEmpty()) {
@@ -93,11 +96,12 @@ public class Solution_bj_1525_퍼즐 {
         } else {
             newHash = generateHash(zeroPos, switchVal, switchPos, 0, cur);
         }
-
 //        System.out.println("newHash = " + newHash);
-        if (!check[newHash]) {
-            check[newHash] = true;
-            q.offer(new int[] {newHash, cur[1] + 1});
+
+        if (!map.containsKey(newHash)) {
+//            check[newHash] = true;
+            map.put(newHash, true);
+            q.offer(new int[]{newHash, cur[1] + 1});
         }
     }
 
