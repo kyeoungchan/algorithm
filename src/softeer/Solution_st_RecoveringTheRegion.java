@@ -10,6 +10,7 @@ public class Solution_st_RecoveringTheRegion {
     static int[][] board, memo;
 
     public static void main(String[] args) throws Exception {
+        System.setIn(new FileInputStream("res/input_st_RecoveringTheRegion.txt"));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
         N = Integer.parseInt(br.readLine());
