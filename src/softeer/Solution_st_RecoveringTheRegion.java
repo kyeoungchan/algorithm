@@ -23,77 +23,63 @@ public class Solution_st_RecoveringTheRegion {
             }
         }
 
+//        printBoard();
+        boolean[] numberCheck = new boolean[N + 1];
         memo = new int[N][N];
-        makeGroup(1);
+        startMemo(0, 0, 1, 0, numberCheck);
 
-        printMemo(memo);
+        printMemo();
         br.close();
     }
 
-    static boolean makeGroup(int memoVal) {
-        if (memoVal == N + 1) {
-            return true;
-        }
-        int r = -1, c = -1;
-        start: for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (memo[i][j] == 0) {
-                    r = i;
-                    c = j;
-                    break start;
-                }
-            }
-        }
-
-        List<Integer> groupPoses = new ArrayList<>();
-        groupPoses.add(r * N + c);
-
-        boolean[] numbersCheck = new boolean[N + 1];
-        numbersCheck[board[r][c]] = true;
-
-        boolean[][] visited = new boolean[N][N];
-        visited[r][c] = true;
-
+    static boolean startMemo(int r, int c, int memoVal, int count, boolean[] numberCheck) {
+        numberCheck[board[r][c]] = true;
         memo[r][c] = memoVal;
+        count++;
+        if (memoVal == N && count == N) return true; // 재귀호출 종료
 
-        ArrayDeque<int[]> q = new ArrayDeque<>();
-        q.offer(new int[]{r, c});
-        while (!q.isEmpty()) {
-            int[] cur = q.poll();
-
-            for (int d = 0; d < 4; d++) {
-                int nr = cur[0] + dr[d];
-                int nc = cur[1] + dc[d];
-                if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1 || visited[nr][nc] || numbersCheck[board[nr][nc]] || memo[nr][nc] != 0) continue;
-                groupPoses.add(nr * N + nc);
-                numbersCheck[board[nr][nc]] = true;
-                visited[nr][nc] = true;
-                memo[nr][nc] = memoVal;
-                if (groupPoses.size() == N) {
-                    if (makeGroup(memoVal + 1)) return true;
-                    groupPoses.remove(N - 1);
-                    numbersCheck[board[nr][nc]] = false;
-                    visited[nr][nc] = false;
-                    memo[nr][nc] = 0;
-                } else {
-                    q.offer(new int[]{nr, nc});
-                }
+        for (int d = 0; d < 4; d++) {
+            int nr = r + dr[d];
+            int nc = c + dc[d];
+            if (nr < 0 || nr > N - 1 || nc < 0 || nc > N - 1 || memo[nr][nc] != 0) continue;
+            if (count != N && numberCheck[board[nr][nc]]) continue;
+            int nMemoVal = memoVal;
+            int nCount = count;
+            boolean[] nNumberCheck = numberCheck;
+            if (count == N) {
+                nMemoVal++;
+                nCount = 0;
+                nNumberCheck = new boolean[N + 1];
             }
+/*
+            printBoard();
+            printMemo();
+*/
+            if (startMemo(nr, nc, nMemoVal, nCount, nNumberCheck)) return true;
         }
-        for (int pos : groupPoses) {
-            memo[pos / N][pos % N] = 0;
-        }
-
+        numberCheck[board[r][c]] = false;
+        memo[r][c] = 0;
         return false;
     }
 
-    static void printMemo(int[][] memo) {
+    static void printBoard() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+
+    static void printMemo() {
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 System.out.print(memo[i][j] + " ");
             }
             System.out.println();
         }
-//        System.out.println();
+        System.out.println();
     }
 }
