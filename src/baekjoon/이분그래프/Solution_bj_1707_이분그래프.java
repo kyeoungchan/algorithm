@@ -17,58 +17,60 @@ public class Solution_bj_1707_이분그래프 {
             List<Integer>[] graph = new List[V + 1];
             for (int i = 1; i < V + 1; i++) graph[i] = new ArrayList<>();
 
+            // 입력으로 주어지는 그래프가 비연결 그래프일 수 있으므로 readyQ로 간선 정보로 주어지는 정점을 하나를 넣어준다.
+            ArrayDeque<Integer> readyQ = new ArrayDeque<>();
+
             for (int i = 0; i < E; i++) {
                 st = new StringTokenizer(br.readLine(), " ");
                 int u = Integer.parseInt(st.nextToken());
                 int v = Integer.parseInt(st.nextToken());
                 graph[u].add(v);
                 graph[v].add(u);
+                readyQ.offer(u);
             }
-
-/*
-            for (int i = 1; i < V + 1; i++) {
-                System.out.println(graph[i]);
-            }
-*/
 
             ArrayDeque<Integer> q = new ArrayDeque<>();
             int[] status = new int[V + 1];
-            q.offer(1);
-            status[1]++;
-            int cnt = 1;
+
+            int firstV = readyQ.poll();
+            q.offer(firstV);
+            status[firstV]++;
 
             boolean possible = true;
-            boolean otherSide = false;
             while (!q.isEmpty()) {
                 int cur = q.poll();
+
                 for (int next : graph[cur]) {
-/*
-                    System.out.println("cur = " + cur);
-                    System.out.println("next = " + next);
-                    System.out.println("status[cur] = " + status[cur]);
-                    System.out.println("status[next] = " + status[next]);
-                    System.out.println();
-*/
                     if (status[cur] == status[next]) {
                         // 이미 같은 집합으로 다음 정점이 들어와있는 상황이라면 이분 그래프가 아니다.
                         possible = false;
                         break;
-                    }
-                    if (status[next] == 0) {
-                        cnt++;
-                        status[next] = status[cur] * -1;
-                        q.offer(next);
-                        otherSide = true;
-                    }
+                    } else if (status[next] != 0) continue;
+
+                    status[next] = status[cur] * -1;
+                    q.offer(next);
                 }
                 if (!possible) break;
+                while (q.isEmpty() && !readyQ.isEmpty()) {
+                    int next = readyQ.poll();
+                    if (status[next] != 0) continue;
+                    status[next]++;
+                    q.offer(next);
+                }
             }
 
-//            System.out.println("Arrays.toString(status) = " + Arrays.toString(status));
-            if (possible && otherSide && cnt == V) sb.append("YES\n");
+            if (possible) sb.append("YES\n");
             else sb.append("NO\n");
         }
         System.out.println(sb.toString());
         br.close();
     }
 }
+/*
+* 반례
+1
+5 3
+1 3
+1 4
+2 5
+정답: YES*/
