@@ -41,20 +41,8 @@ public class Solution_bj_13460_구슬탈출2 {
             blueC = bluePos[1];
             this.moveCnt = moveCnt;
         }
-
-        @Override
-        public String toString() {
-            return "State{" +
-                    "redR=" + redR +
-                    ", redC=" + redC +
-                    ", blueR=" + blueR +
-                    ", blueC=" + blueC +
-                    ", moveCnt=" + moveCnt +
-                    '}';
-        }
     }
 
-    static boolean inHole;
     static char[][] board;
     static int[] dr = new int[]{-1, 0, 1, 0}, dc = new int[]{0, 1, 0, -1};
     static int holeR, holeC;
@@ -70,10 +58,7 @@ public class Solution_bj_13460_구슬탈출2 {
             String s = br.readLine();
             for (int j = 0; j < M; j++) {
                 char c = s.charAt(j);
-                if (c == '#') {
-                    board[i][j] = c;
-                    continue;
-                }
+
                 if (c == 'R') {
                     redR = i;
                     redC = j;
@@ -84,7 +69,9 @@ public class Solution_bj_13460_구슬탈출2 {
                     holeR = i;
                     holeC = j;
                 }
-                board[i][j] = '.';
+
+                if (c != '#') c = '.';
+                board[i][j] = c;
             }
         }
 
@@ -94,76 +81,56 @@ public class Solution_bj_13460_구슬탈출2 {
         visited[redR][redC][blueR][blueC] = true;
 
         int answer = -1;
-        boolean redHoled = false;
         end: while (!q.isEmpty()) {
             State cur = q.poll();
-//            System.out.println("cur = " + cur);
             int newMoveCnt = cur.moveCnt + 1;
-            if (newMoveCnt > 10) continue;
+            if (newMoveCnt > 10) break;
             for (int d = 0; d < 4; d++) {
+                int[] newPosRed, newPosBlue;
                 if (isBlueFirst(cur, d)) {
-                    // 파란 공이 먼저 가는 경우
-                    int[] newPosBlue = goStraight(cur.blueR, cur.blueC, d, cur.redR, cur.redC);
-                    if (inHole) {
-//                        System.out.println("1");
-                        inHole = false;
-                        continue;
-                    }
-                    int[] newPosRed = goStraight(cur.redR, cur.redC, d, newPosBlue[0], newPosBlue[1]);
-                    if (inHole) {
-//                        System.out.println(2);
-                        answer = newMoveCnt;
-                        break end;
-                    }
-                    if (visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]]) continue;
-                    visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]] = true;
-                    q.offer(new State(newPosRed, newPosBlue, newMoveCnt));
+                    // 파란 구슬이 먼저 굴러가는 경우
+                    newPosBlue = goStraight(cur.blueR, cur.blueC, d, cur.redR, cur.redC);
+                    // 파란 구슬이 먼저 구멍으로 굴러갔다면 빨간 구슬은 볼 것도 없다.
+                    if (isOut(newPosBlue)) continue;
+                    newPosRed = goStraight(cur.redR, cur.redC, d, newPosBlue[0], newPosBlue[1]);
                 } else {
-                    // 빨간 공이 먼저 가는 경우
-                    int[] newPosRed = goStraight(cur.redR, cur.redC, d, cur.blueR, cur.blueC);
-//                    System.out.println("newPosRed = " + Arrays.toString(newPosRed));
-
-                    if (inHole) {
-//                        System.out.println(3);
-                        redHoled = true;
-                        inHole = false;
-                    }
-                    int[] newPosBlue = goStraight(cur.blueR, cur.blueC, d, newPosRed[0], newPosRed[1]);
-                    if (inHole) {
-//                        System.out.println(4);
-                        inHole = false;
-                        redHoled = false;
-                        continue;
-                    }
-                    if (redHoled) {
-//                        System.out.println(5);
-                        answer = newMoveCnt;
-                        break end;
-                    }
-                    if (visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]]) continue;
-                    visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]] = true;
-                    q.offer(new State(newPosRed, newPosBlue, newMoveCnt));
-
+                    // 빨간 구슬이 먼저 굴러가는 경우
+                    newPosRed = goStraight(cur.redR, cur.redC, d, cur.blueR, cur.blueC);
+                    newPosBlue = goStraight(cur.blueR, cur.blueC, d, newPosRed[0], newPosRed[1]);
+                    // 빨간 구슬이 구멍으로 굴러간 것과 관계없이 파란 구슬이 구멍으로 굴러갔으면 무효다.
+                    if (isOut(newPosBlue)) continue;
                 }
+                if (isOut(newPosRed)) {
+                    answer = newMoveCnt;
+                    break end;
+                }
+                if (visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]]) continue;
+                visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]] = true;
+                q.offer(new State(newPosRed, newPosBlue, newMoveCnt));
+
             }
         }
         System.out.println(answer);
         br.close();
     }
 
-    static int[] goStraight(int r, int c, int d, int oR, int oC) {
+    static boolean isBlueFirst(State cur, int d) {
+        return (d == 0 && cur.blueR <= cur.redR) || (d == 1 && cur.blueC >= cur.redC) || (d == 2 && cur.blueR >= cur.redR) || (d == 3 && cur.blueC <= cur.redC);
+    }
+
+    static int[] goStraight(int r, int c, int d, int opponentR, int opponentC) {
         if (board[r][c] == '#') {
+            // 이 메서드는 절대 현재 위치가 벽인 상태에서는 호출하지 않는다.
             System.out.println("Error!");
             return null;
         }
         while (true) {
             int tempR = r + dr[d];
             int tempC = c + dc[d];
-            if (board[tempR][tempC] == '#') break;
-            if (tempR == oR && tempC == oC) break;
-            if (isInHole(tempR, tempC)) {
-                inHole = true;
+            if (board[tempR][tempC] == '#' || (tempR == opponentR && tempC == opponentC)) break;
+            if (holeR == tempR && holeC == tempC) {
                 return new int[] {0, 0};
+                // 실제로는 0,0은 벽이 있으므로 갈 수 없는 곳이지만, 예를 들어 빨간 구슬이 빠져나가고 파란 구슬이 빠져나가는지를 파악하기 위해서는 빨간 구슬은 어딘가에 놔둬야하고, 그것을 0,0으로 설정하였다.
             }
             r = tempR;
             c = tempC;
@@ -171,15 +138,7 @@ public class Solution_bj_13460_구슬탈출2 {
         return new int[]{r, c};
     }
 
-    static boolean isInHole(int r, int c) {
-        return holeR == r && holeC == c;
-    }
-
-    static boolean isInHole(int[] pos) {
-        return holeR == pos[0] && holeC == pos[1];
-    }
-
-    static boolean isBlueFirst(State cur, int d) {
-        return (d == 0 && cur.blueR <= cur.redR) || (d == 1 && cur.blueC >= cur.redC) || (d == 2 && cur.blueR >= cur.redR) || (d == 3 && cur.blueC <= cur.redC);
+    static boolean isOut(int[] pos) {
+        return pos[0] == 0 && pos[1] == 0;
     }
 }
