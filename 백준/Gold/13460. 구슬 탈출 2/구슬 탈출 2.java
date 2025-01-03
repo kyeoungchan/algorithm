@@ -68,10 +68,7 @@ public class Main {
             String s = br.readLine();
             for (int j = 0; j < M; j++) {
                 char c = s.charAt(j);
-                if (c == '#') {
-                    board[i][j] = c;
-                    continue;
-                }
+
                 if (c == 'R') {
                     redR = i;
                     redC = j;
@@ -82,7 +79,9 @@ public class Main {
                     holeR = i;
                     holeC = j;
                 }
-                board[i][j] = '.';
+
+                if (c != '#') c = '.';
+                board[i][j] = c;
             }
         }
 
@@ -95,9 +94,8 @@ public class Main {
         boolean redHoled = false;
         end: while (!q.isEmpty()) {
             State cur = q.poll();
-//            System.out.println("cur = " + cur);
             int newMoveCnt = cur.moveCnt + 1;
-            if (newMoveCnt > 10) continue;
+            if (newMoveCnt > 10) break;
             for (int d = 0; d < 4; d++) {
                 if (isBlueFirst(cur, d)) {
                     // 파란 공이 먼저 가는 경우
