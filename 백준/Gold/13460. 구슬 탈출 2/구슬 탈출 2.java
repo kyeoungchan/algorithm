@@ -52,7 +52,6 @@ public class Main {
         }
     }
 
-//    static boolean inHole;
     static char[][] board;
     static int[] dr = new int[]{-1, 0, 1, 0}, dc = new int[]{0, 1, 0, -1};
     static int holeR, holeC;
@@ -91,58 +90,31 @@ public class Main {
         visited[redR][redC][blueR][blueC] = true;
 
         int answer = -1;
-        boolean redHoled = false;
         end: while (!q.isEmpty()) {
             State cur = q.poll();
             int newMoveCnt = cur.moveCnt + 1;
             if (newMoveCnt > 10) break;
             for (int d = 0; d < 4; d++) {
+                int[] newPosRed, newPosBlue;
                 if (isBlueFirst(cur, d)) {
                     // 파란 구슬이 먼저 굴러가는 경우
-                    int[] newPosBlue = goStraight(cur.blueR, cur.blueC, d, cur.redR, cur.redC);
-                    if (isOut(newPosBlue)) {
-//                        inHole = false;
-                        continue;
-                    }
-                    int[] newPosRed = goStraight(cur.redR, cur.redC, d, newPosBlue[0], newPosBlue[1]);
-                    if (isOut(newPosRed)) {
-                        answer = newMoveCnt;
-                        break end;
-                    }
-                    if (visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]]) continue;
-                    visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]] = true;
-                    q.offer(new State(newPosRed, newPosBlue, newMoveCnt));
+                    newPosBlue = goStraight(cur.blueR, cur.blueC, d, cur.redR, cur.redC);
+                    if (isOut(newPosBlue)) continue;
+                    newPosRed = goStraight(cur.redR, cur.redC, d, newPosBlue[0], newPosBlue[1]);
                 } else {
                     // 빨간 구슬이 먼저 굴러가는 경우
-                    int[] newPosRed = goStraight(cur.redR, cur.redC, d, cur.blueR, cur.blueC);
-/*
-                    if (inHole) {
-                        redHoled = true;
-                        inHole = false;
-                    }
-*/
-                    int[] newPosBlue = goStraight(cur.blueR, cur.blueC, d, newPosRed[0], newPosRed[1]);
-/*
-                    if (inHole) {
-                        inHole = false;
-                        redHoled = false;
-                        continue;
-                    }
-                    if (redHoled) {
-                        answer = newMoveCnt;
-                        break end;
-                    }
-*/
+                    newPosRed = goStraight(cur.redR, cur.redC, d, cur.blueR, cur.blueC);
+                    newPosBlue = goStraight(cur.blueR, cur.blueC, d, newPosRed[0], newPosRed[1]);
                     if (isOut(newPosBlue)) continue;
-                    if (isOut(newPosRed)) {
-                        answer = newMoveCnt;
-                        break end;
-                    }
-                    if (visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]]) continue;
-                    visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]] = true;
-                    q.offer(new State(newPosRed, newPosBlue, newMoveCnt));
-
                 }
+                if (isOut(newPosRed)) {
+                    answer = newMoveCnt;
+                    break end;
+                }
+                if (visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]]) continue;
+                visited[newPosRed[0]][newPosRed[1]][newPosBlue[0]][newPosBlue[1]] = true;
+                q.offer(new State(newPosRed, newPosBlue, newMoveCnt));
+
             }
         }
         System.out.println(answer);
@@ -160,7 +132,6 @@ public class Main {
             int tempC = c + dc[d];
             if (board[tempR][tempC] == '#' || (tempR == opponentR && tempC == opponentC)) break;
             if (isInHole(tempR, tempC)) {
-//                inHole = true;
                 return new int[] {0, 0};
                 // 실제로는 0,0은 벽이 있으므로 갈 수 없는 곳이지만, 예를 들어 빨간 구슬이 빠져나가고 파란 구슬이 빠져나가는지를 파악하기 위해서는 빨간 구슬은 어딘가에 놔둬야하고, 그것을 0,0으로 설정하였다.
             }
