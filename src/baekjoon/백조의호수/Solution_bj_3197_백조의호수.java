@@ -10,23 +10,22 @@ import java.util.*;
  */
 public class Solution_bj_3197_백조의호수 {
 
-    static class State {
-        int id;
-        int r, c, meltCnt;
+    static class Node {
+        int r, c;
 
-        public State(int id, int r, int c, int meltCnt) {
-            this.id = id;
+        public Node(int r, int c) {
             this.r = r;
             this.c = c;
-            this.meltCnt = meltCnt;
         }
     }
 
     static char[][] map;
-    static int R, C, answer;
+    static int R, C;
     static int[] dr = new int[] {-1, 0, 1, 0}, dc = new int[]{0, 1, 0, -1};
-    static int[][][] visited;
-    static ArrayDeque<State> q;
+    static boolean[][] visited;
+    static ArrayDeque<Node> q;
+    static ArrayDeque<Node> waterQ;
+    static Node[] swans;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -34,92 +33,86 @@ public class Solution_bj_3197_백조의호수 {
         R = Integer.parseInt(st.nextToken());
         C = Integer.parseInt(st.nextToken());
         map = new char[R][C];
-        int startRow = -1, startCol = -1;
-        int endRow = -1, endCol = -1;
-        visited = new int[R][C][2];
+        visited = new boolean[R][C];
+        swans = new Node[2];
+        q = new ArrayDeque<>();
+        waterQ = new ArrayDeque<>();
+
+        int swanIdx = 0;
         for (int i = 0; i < R; i++) {
             String s = br.readLine();
             for (int j = 0; j < C; j++) {
                 char c = s.charAt(j);
                 if (c == 'L') {
-                    if (startRow == -1) {
-                        startRow = i;
-                        startCol = j;
-                    } else {
-                        endRow = i;
-                        endCol = j;
-                    }
-                    c = '.';
+                    swans[swanIdx++] = new Node(i, j);
+                }
+                if (c != 'X') {
+                    waterQ.offer(new Node(i, j));
                 }
                 map[i][j] = c;
-                visited[i][j][0] = visited[i][j][1] = Integer.MAX_VALUE;
             }
         }
 
-        q = new ArrayDeque<>();
-        visited[startRow][startCol][0] = 0;
-        q.offer(new State(0, startRow, startCol, 0));
-        visited[endRow][endCol][1] = 0;
-        q.offer(new State(1, endRow, endCol, 0));
+        q.offer(swans[0]);
+        visited[swans[0].r][swans[0].c] = true;
 
-        end: while (!q.isEmpty()) {
-            State cur = q.poll();
+        int day = 0;
+        boolean meet = false;
 
-            int opponent = ++cur.id % 2;
-            for (int d = 0; d < 4; d++) {
-                int nr = cur.r + dr[d];
-                int nc = cur.c + dc[d];
-                if (nr < 0 || nr > R - 1 || nc < 0 || nc > C - 1) continue;
-                if (map[nr][nc] == '.') {
-                    if (moveOnWater(cur)) break end;
-                    continue;
+
+        while (true) {
+            ArrayDeque<Node> nextQ = new ArrayDeque<>();
+            while (!q.isEmpty()) {
+                Node cur = q.poll();
+
+                // 백조를 만날 시에 종료
+                if (cur.r == swans[1].r && cur.c == swans[1].c) {
+                    meet = true;
+                    break;
                 }
-                int nMeltCnt = cur.meltCnt + 1;
-                if (visited[nr][nc][cur.id] <= nMeltCnt) continue;
-                if (visited[nr][nc][opponent] != Integer.MAX_VALUE) {
-                    answer = visited[nr][nc][opponent] + cur.meltCnt;
-                    break end;
-                }
-                visited[nr][nc] = nMeltCnt;
-                q.offer(new State(cur.id, nr, nc, nMeltCnt));
-            }
-        }
 
-/*
-        for (int i = 0; i < R; i++) {
-            for (int j = 0; j < C; j++) {
-                System.out.print(visited[i][j]);
+                for (int d = 0; d < 4; d++) {
+                    int nr = cur.r + dr[d];
+                    int nc = cur.c + dc[d];
+
+                    if (nr < 0 || nr > R - 1 || nc < 0 || nc > C - 1 || visited[nr][nc]) continue;
+                    visited[nr][nc] = true;
+
+                    // 물에 인접한 얼음으로 다음날 백조가 탐색할 지역
+                    if (map[nr][nc] == 'X') {
+                        nextQ.offer(new Node(nr, nc));
+                        continue;
+                    }
+                    // 현재 탐색 가능 지역
+                    q.offer(new Node(nr, nc));
+                }
             }
-            System.out.println();
+
+            // 백조가 만났으면 종료
+            if (meet) break;
+            // q를 다음날 탐색할 지역이 담긴 nextQ로 바꾼다.
+            q = nextQ;
+
+            // 얼음을 녹인다.
+            int size = waterQ.size();
+            for (int i = 0; i < size; i++) {
+                Node cur = waterQ.poll();
+                for (int d = 0; d < 4; d++) {
+                    int nr = cur.r + dr[d];
+                    int nc = cur.c + dc[d];
+
+                    if (nr < 0 || nr > R - 1 || nc < 0 || nc > C - 1) continue;
+
+                    // 물에 인접한 얼음을 발견하면 녹이고 다시 큐에 넣는다.
+                    if (map[nr][nc] == 'X') {
+                        map[nr][nc] = '.';
+                        waterQ.offer(new Node(nr, nc));
+                    }
+                }
+            }
+            day++;
         }
-*/
-        int answer = visited[endRow][endCol] / 2;
-        if (visited[endRow][endCol] % 2 != 0) answer++;
-        System.out.println(answer);
+        System.out.println(day);
         br.close();
-    }
-
-    static boolean moveOnWater(State cur) {
-        int opponent = ++cur.meltCnt % 2;
-        int nMeltCnt = cur.meltCnt + 1;
-        ArrayDeque<int[]> intQ = new ArrayDeque<>();
-        for (int d = 0; d < 4; d++) {
-            int nr = cur.r + dr[d];
-            int nc = cur.c + dc[d];
-            if (nr < 0 || nr > R - 1 || nc < 0 || nc > C - 1) continue;
-            if (map[nr][nc] == '.') {
-                intQ.offer(new int[]{nr, nc});
-                visited[nr][nc][cur.id] = cur.meltCnt;
-            } else {
-                if (visited[nr][nc][opponent] != Integer.MAX_VALUE) {
-                    answer = cur.meltCnt + visited[nr][nc][opponent];
-                    return true;
-                }
-                q.offer(new State(cur.id, nr, nc, nMeltCnt));
-                visited[nr][nc][cur.id] = nMeltCnt;
-            }
-        }
-
-
     }
 }
