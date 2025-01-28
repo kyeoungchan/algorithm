@@ -1,112 +1,110 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-// 카카오: 주사위 고르기
 public class Solution {
 
-    static int N;
-    static List<Integer> choice = new ArrayList<>();
-    static int[][] dices;
-    static List<Integer> arrA;
-    static List<Integer> arrB;
-    static int[] answer;
-    static int max = Integer.MIN_VALUE;
+    private int n, max;
+    private int[] answer, answerA, answerB;
+    private int[][] dice;
+    private List<Integer> casesOfA, casesOfB;
 
-    public static void makeArr(int depth, int[][] dice, int sum, List<Integer> arr) {
-        if (depth == N / 2) {
-            arr.add(sum);
-            return;
-        }
-        for (int i = 0; i < 6; i++) {
-            int newSum = sum + dice[depth][i];
-            makeArr(depth + 1, dice, newSum, arr);
-        }
-    }
 
-    public static void makeArrAB() {
-        arrA = new ArrayList<>();
-        arrB = new ArrayList<>();
-
-        int[][] diceA = new int[N / 2][6];
-        int[][] diceB = new int[N / 2][6];
-        int a = 0, b = 0;
-        for (int i = 0; i < N; i++) { // diceA, diceB 만듦
-            if (choice.contains(i)) { // diceA
-                diceA[a] = dices[i];
-                a++;
-            } else { // diceB
-                diceB[b] = dices[i];
-                b++;
-            }
-        }
-
-        makeArr(0, diceA, 0, arrA);
-        makeArr(0, diceB, 0, arrB);
-    }
-
-    public static int calculateWinningPercent() {
-        int count = 0;
-
-        makeArrAB(); // 이제 arrA, arrB에 모든 경우의 수 저장됨..!
-
-        Collections.sort(arrB);
-        for (int i = 0; i < arrA.size(); i++) {
-            // 이분 탐색으로 arrB에 number 보다 작은 숫자가 몇개 있는지 구한다.
-            int number = arrA.get(i);
-
-            int left = 0, right = arrB.size() - 1;
-
-            int index = Integer.MIN_VALUE;
-            while (left <= right) {
-                int middle = (left + right) / 2;
-
-                if (arrB.get(middle) < number) { // 조건 만족: number 보다 작아야 함!! 같아도 안됨.
-                    left = middle + 1;
-                    index = Math.max(index, middle);
-                } else {
-                    right = middle - 1;
-                }
-            }
-            if (index != Integer.MIN_VALUE) {
-                count += index + 1;
-            }
-        }
-        return count;
-    }
-
-    public static void choiceDice(int depth, int s) {
-        if (depth == N / 2) {
-            int winning = calculateWinningPercent();
-//            System.out.println(choice.get(0) + ", " + choice.get(1) + " => " + winning);
-            if (max < winning) {
-                max = winning;
-                for (int i = 0; i < choice.size(); i++) {
-                    answer[i] = choice.get(i) + 1;
-                }
-            }
-            return;
-        }
-        for (int i = s; i < N; i++) {
-            choice.add(i);
-            choiceDice(depth + 1, i + 1);
-            choice.remove(choice.size() - 1);
-        }
-    }
-
-    public static int[] solution(int[][] dice) {
-        N = dice.length;
-        dices = dice;
-        answer = new int[N / 2];
-        choiceDice(0, 0);
+    public int[] solution(int[][] dice) {
+        this.dice = dice;
+        n = dice.length;
+        answer = new int[n / 2];
+        answerA = new int[n / 2];
+        answerB = new int[n / 2];
+        casesOfA = new ArrayList<>();
+        casesOfB = new ArrayList<>();
+        select(0, 0, 0, 0);
         return answer;
     }
 
-    public static void main(String[] args) {
-        int[][] dice = {{1, 2, 3, 4, 5, 6}, {3, 3, 3, 3, 4, 4}, {1, 3, 3, 4, 4, 4}, {1, 1, 4, 4, 5, 5}};
-        int[] result = solution(dice);
-        for (int i = 0; i < result.length; i++) {
-            System.out.print(result[i] + " ");
+    private void select(int diceNum, int idxA, int idxB, int cnt) {
+        // 만약 n이 4고, 현재 3번 다이스, 즉 diceNum=2인 상태인데 cnt가 0이하라면 무효
+        // 만약 n이 4고, 현재 4번 다이스, 즉 diceNum=3인 상태인데 cnt가 1이하라면 무효
+        // 만약 n이 6이고, 현재 4번 다이스, 즉 diceNum=3인 상태인데 cnt가 0이하라면 무효
+        // 만약 n이 6이고, 현재 5번 다이스, 즉 diceNum=4인 상태인데 cnt가 1이하라면 무효
+        // 만약 n이 6이고, 현재 6번 다이스, 즉 diceNum=5인 상태인데 cnt가 2이하라면 무효
+        // 만약 n이 8이고, 현재 5번 다이스, 즉 diceNum=4인 상태인데 cnt가 0이하라면 무효
+        // 만약 n이 8이고, 현재 6번 다이스, 즉 diceNum=5인 상태인데 cnt가 1이하라면 무효
+
+        if (cnt == n) {
+            casesOfA.clear();
+            throwDices(0, answerA, 0, casesOfA);
+            casesOfB.clear();
+            throwDices(0, answerB, 0, casesOfB);
+
+            int winCnt = calculateWin(casesOfA, casesOfB);
+            int loseCnt = calculateWin(casesOfB, casesOfA);
+
+
+            if (winCnt > loseCnt) {
+                if (winCnt > max) {
+                    max = winCnt;
+                    for (int i = 0; i < n / 2; i++) {
+                        answer[i] = answerA[i] + 1;
+                    }
+                }
+            } else {
+                if (loseCnt > max) {
+                    max = loseCnt;
+                    for (int i = 0; i < n / 2; i++) {
+                        answer[i] = answerB[i] + 1;
+                    }
+                }
+            }
+            return;
+        }
+
+        if (idxA < n / 2) {
+            answerA[idxA] = diceNum;
+            select(diceNum + 1, idxA + 1, idxB, cnt + 1);
+        }
+        if (idxB < n / 2) {
+            answerB[idxB] = diceNum;
+            select(diceNum + 1, idxA, idxB + 1, cnt + 1);
         }
     }
+
+    private void throwDices(int idx, int[] answerCandidate, int sum, List<Integer> cases) {
+        if (idx == n / 2) {
+            cases.add(sum);
+            return;
+        }
+
+        int diceIdx = answerCandidate[idx];
+        for (int i = 0; i < 6; i++) {
+            int newSum = sum + dice[diceIdx][i];
+            throwDices(idx + 1, answerCandidate, newSum, cases);
+        }
+    }
+
+    private int calculateWin(List<Integer> wantToWin, List<Integer> notWantToWin) {
+        int cnt = 0;
+        Collections.sort(notWantToWin);
+        for (int i = 0; i < wantToWin.size(); i++) {
+            int caseI = wantToWin.get(i);
+            int left = 0, right = notWantToWin.size() - 1;
+            int idx = -1;
+            while (left <= right) {
+                int mid = left + (right - left) / 2;
+                if (notWantToWin.get(mid) < caseI) {
+                    left = mid + 1;
+                    idx = mid;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            // 만약 notWantToWin의 값들이 caseI보다 죄다 크거나 같으면 idx = -1
+            // 만약 notWantToWin의 값들이 caseI보다 작으면 idx = notWantToWin.size()-1
+            // 그 외에는 처음으로 caseI보다 크거나 같은 인덱스 바로 전 인덱스의 값이 idx
+            if (idx != -1) {
+                cnt += idx + 1;
+            }
+        }
+        return cnt;
+
+    }
+
 }
