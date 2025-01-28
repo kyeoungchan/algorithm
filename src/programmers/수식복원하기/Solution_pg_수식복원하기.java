@@ -62,7 +62,7 @@ public class Solution_pg_수식복원하기 {
         StringBuilder sb = new StringBuilder();
         for (int index: answerIndexes) {
             String expression = expressions[index];
-            sb = new StringBuilder();
+            sb.delete(0, sb.length());
             int result = -1;
             boolean calculated = false;
             boolean questioned = false;
