@@ -10,7 +10,8 @@ public class Solution_pg_주사위고르기 {
     }
 
     private int n, max;
-    private int[] answer, answerA, answerB;
+    private boolean[] selectedByA;
+    private int[] answer;
     private int[][] dice;
     private List<Integer> casesOfA, casesOfB;
 
@@ -19,15 +20,15 @@ public class Solution_pg_주사위고르기 {
         this.dice = dice;
         n = dice.length;
         answer = new int[n / 2];
-        answerA = new int[n / 2];
-        answerB = new int[n / 2];
+        selectedByA = new boolean[n];
+        int[] dicesOfA = new int[n / 2];
         casesOfA = new ArrayList<>();
         casesOfB = new ArrayList<>();
-        select(0, 0, 0, 0);
+        select(0, 0, dicesOfA);
         return answer;
     }
 
-    private void select(int diceNum, int idxA, int idxB, int cnt) {
+    private void select(int diceNum, int cnt, int[] dicesOfA) {
         // 만약 n이 4고, 현재 3번 다이스, 즉 diceNum=2인 상태인데 cnt가 0이하라면 무효
         // 만약 n이 4고, 현재 4번 다이스, 즉 diceNum=3인 상태인데 cnt가 1이하라면 무효
         // 만약 n이 6이고, 현재 4번 다이스, 즉 diceNum=3인 상태인데 cnt가 0이하라면 무효
@@ -35,43 +36,39 @@ public class Solution_pg_주사위고르기 {
         // 만약 n이 6이고, 현재 6번 다이스, 즉 diceNum=5인 상태인데 cnt가 2이하라면 무효
         // 만약 n이 8이고, 현재 5번 다이스, 즉 diceNum=4인 상태인데 cnt가 0이하라면 무효
         // 만약 n이 8이고, 현재 6번 다이스, 즉 diceNum=5인 상태인데 cnt가 1이하라면 무효
+        if (n - diceNum < n / 2 - cnt) {
+            return;
+        }
 
-        if (cnt == n) {
+        if (cnt == n / 2) {
             casesOfA.clear();
-            throwDices(0, answerA, 0, casesOfA);
             casesOfB.clear();
-            throwDices(0, answerB, 0, casesOfB);
+            throwDices(0, dicesOfA, 0, casesOfA);
 
+            int[] dicesOfB = new int[n / 2];
+            int idx = 0;
+            for (int i = 0; i < n; i++) {
+                if (selectedByA[i]) continue;
+                dicesOfB[idx++] = i;
+            }
+
+            throwDices(0, dicesOfB, 0, casesOfB);
             int winCnt = calculateWin(casesOfA, casesOfB);
-            int loseCnt = calculateWin(casesOfB, casesOfA);
 
-
-            if (winCnt > loseCnt) {
-                if (winCnt > max) {
-                    max = winCnt;
-                    for (int i = 0; i < n / 2; i++) {
-                        answer[i] = answerA[i] + 1;
-                    }
-                }
-            } else {
-                if (loseCnt > max) {
-                    max = loseCnt;
-                    for (int i = 0; i < n / 2; i++) {
-                        answer[i] = answerB[i] + 1;
-                    }
+            if (max < winCnt) {
+                max = winCnt;
+                for (int i = 0; i < n / 2; i++) {
+                    answer[i] = dicesOfA[i] + 1;
                 }
             }
             return;
         }
 
-        if (idxA < n / 2) {
-            answerA[idxA] = diceNum;
-            select(diceNum + 1, idxA + 1, idxB, cnt + 1);
-        }
-        if (idxB < n / 2) {
-            answerB[idxB] = diceNum;
-            select(diceNum + 1, idxA, idxB + 1, cnt + 1);
-        }
+        dicesOfA[cnt] = diceNum;
+        selectedByA[diceNum] = true;
+        select(diceNum + 1, cnt + 1, dicesOfA);
+        selectedByA[diceNum] = false;
+        select(diceNum + 1, cnt, dicesOfA);
     }
 
     private void throwDices(int idx, int[] answerCandidate, int sum, List<Integer> cases) {
