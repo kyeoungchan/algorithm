@@ -30,13 +30,12 @@ public class Solution_bj_1325_효율적인해킹 {
             hackable[b].add(a);
         }
 
-
         int length = 0;
         StringBuilder sb = new StringBuilder();
         q = new ArrayDeque<>();
         for (int i = 1; i < N + 1; i++) {
-            if (lengthInfo[i] != -1) continue;
             setLengthInfo(i);
+/*
             if (length == lengthInfo[i]) {
                 sb.append(i).append(" ");
             } else if (length < lengthInfo[i]) {
@@ -44,8 +43,15 @@ public class Solution_bj_1325_효율적인해킹 {
                 sb.append(i).append(" ");
                 length = lengthInfo[i];
             }
+*/
+            length = Math.max(length, lengthInfo[i]);
         }
 
+        for (int i = 1; i < N + 1; i++) {
+            if (lengthInfo[i] == length) {
+                sb.append(i).append(" ");
+            }
+        }
         System.out.println(sb.toString());
         br.close();
     }
