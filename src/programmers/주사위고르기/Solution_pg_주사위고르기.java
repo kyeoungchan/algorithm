@@ -103,9 +103,9 @@ public class Solution_pg_주사위고르기 {
             // 만약 notWantToWin의 값들이 caseI보다 죄다 크거나 같으면 idx = -1
             // 만약 notWantToWin의 값들이 caseI보다 작으면 idx = notWantToWin.size()-1
             // 그 외에는 처음으로 caseI보다 크거나 같은 인덱스 바로 전 인덱스의 값이 idx
-            if (idx != -1) {
+//            if (idx != -1) {
                 cnt += idx + 1;
-            }
+//            }
         }
         return cnt;
 
