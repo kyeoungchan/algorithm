@@ -6,7 +6,6 @@ public class Main {
     static int N;
     static int[] lengthInfo, visited;
     static List<Integer>[] hackable;
-    static List<Integer> answers;
     static ArrayDeque<Integer> q;
 
     public static void main(String[] args) throws Exception {
@@ -21,7 +20,6 @@ public class Main {
             hackable[i] = new ArrayList<>();
             lengthInfo[i] = -1;
         }
-        answers = new ArrayList<>();
 
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine(), " ");
@@ -32,23 +30,19 @@ public class Main {
 
 
         int length = 0;
+        StringBuilder sb = new StringBuilder();
         q = new ArrayDeque<>();
         for (int i = 1; i < N + 1; i++) {
-            if (lengthInfo[i] != -1) continue;
             setLengthInfo(i);
             if (length == lengthInfo[i]) {
-                answers.add(i);
+                sb.append(i).append(" ");
             } else if (length < lengthInfo[i]) {
-                answers.clear();
-                answers.add(i);
+                sb.delete(0, sb.length());
+                sb.append(i).append(" ");
                 length = lengthInfo[i];
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (int answer : answers) {
-            sb.append(answer).append(" ");
-        }
         System.out.println(sb.toString());
         br.close();
     }
