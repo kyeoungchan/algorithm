@@ -1,6 +1,7 @@
 package mincoding.상품랭킹관리;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * 각 상품 정보는 상품ID, 카테고리, 점수, 랭킹으로 구성
@@ -31,9 +32,8 @@ public class Solution_pro_상품랭킹관리 {
     }
 
     private PriorityQueue<Product>[] pq = new PriorityQueue[6];
-    private Product[] products = new Product[7_600_000];
+    private Product[] products = new Product[1_000_000];
     private Map<Integer, Integer> idToIdx = new HashMap<>();
-    private List<Integer>[] categoriesToIdx = new List[6];
     private int idx;
 
 
@@ -41,11 +41,6 @@ public class Solution_pro_상품랭킹관리 {
         idToIdx.clear();
         idx = 0;
         for (int i = 0; i < 6; i++) {
-            if (categoriesToIdx[i] == null) {
-                categoriesToIdx[i] = new ArrayList<>();
-            } else {
-                categoriesToIdx[i].clear();
-            }
             if (pq[i] == null) {
                 pq[i] = new PriorityQueue<>();
             } else {
@@ -55,22 +50,26 @@ public class Solution_pro_상품랭킹관리 {
     }
 
     public void add(int mGoodsID, int mCategory, int mScore) {
+/*
         System.out.println("add");
         System.out.println("mGoodsID = " + mGoodsID);
         System.out.println("mCategory = " + mCategory);
         System.out.println("mScore = " + mScore);
+*/
         Product newProduct = createProduct(mGoodsID, mCategory, mScore);
         pq[0].offer(newProduct);
         pq[mCategory].offer(newProduct);
+/*
         System.out.println("pq[0] = " + pq[0]);
         System.out.println("pq[mCategory] = " + pq[mCategory]);
         System.out.println();
+*/
     }
 
     private Product createProduct(int id, int category, int score) {
         if (products[idx] == null) products[idx] = new Product();
         idToIdx.put(id, idx);
-        if (!categoriesToIdx[category].contains(id)) categoriesToIdx[category].add(id);
+
         Product newProduct = products[idx++];
         newProduct.id = id;
         newProduct.category = category;
@@ -89,71 +88,97 @@ public class Solution_pro_상품랭킹관리 {
     }
 
     public void remove(int mGoodsID) {
+/*
         System.out.println("remove");
         System.out.println("mGoodsID = " + mGoodsID);
+*/
         Product existingProduct = products[idToIdx.get(mGoodsID)];
         existingProduct.changed = true;
-//        idToIdx.remove(mGoodsID);
+/*
         System.out.println("pq[0] = " + pq[0]);
         System.out.println();
+*/
     }
 
     public void purchase(int mGoodsID) {
+/*
         System.out.println("purchase");
         System.out.println("mGoodsID = " + mGoodsID);
-        calcScore(mGoodsID, 5);
-        System.out.println();
+*/
+        Product originProduct = products[idToIdx.get(mGoodsID)];
+        int category = originProduct.category;
+        int newScore = Math.min(originProduct.score + 5, 100);
+        remove(mGoodsID);
+        add(mGoodsID, category, newScore);
+//        System.out.println();
     }
 
     public void takeBack(int mGoodsID) {
+/*
         System.out.println("takeBack");
         System.out.println("mGoodsID = " + mGoodsID);
-        calcScore(mGoodsID, -10);
-        System.out.println();
-    }
-
-    private void calcScore(int id, int score) {
-        Product originProduct = products[idToIdx.get(id)];
+*/
+        Product originProduct = products[idToIdx.get(mGoodsID)];
         int category = originProduct.category;
-        int originScore = originProduct.score;
-        int newScore = originScore + score;
-        if (newScore < 0) newScore = 0;
-        else if (newScore > 100) newScore = 100;
-        remove(id);
-        add(id, category, newScore);
+        int newScore = Math.max(originProduct.score - 10, 0);
+        remove(mGoodsID);
+        add(mGoodsID, category, newScore);
+//        System.out.println();
     }
 
     public void changeScore(int mCategory, int mChangeScore) {
+/*
         System.out.println("changeScore");
         System.out.println("mCategory = " + mCategory);
         System.out.println("mChangeScore = " + mChangeScore);
         System.out.println();
+*/
         if (mChangeScore == 0) return;
-        int len = categoriesToIdx[mCategory].size();
-        for (int i = 0; i < len; i++) {
-            int id = categoriesToIdx[mCategory].get(i);
-//            if (!idToIdx.containsKey(id)) continue;
-            Product target = products[idToIdx.get(id)];
-            if (target.changed) continue;
-            calcScore(id, mChangeScore);
+        PriorityQueue<Product> temp = new PriorityQueue<>();
+        if (mChangeScore > 0) {
+            while (!pq[mCategory].isEmpty()) {
+                Product target = pq[mCategory].poll();
+                if (target.changed) continue;
+                target.changed = true;
+                int newScore = Math.min(target.score + mChangeScore, 100);
+                Product newProduct = createProduct(target.id, mCategory, newScore);
+                temp.offer(newProduct);
+                pq[0].offer(newProduct);
+            }
+        } else {
+            while (!pq[mCategory].isEmpty()) {
+                Product target = pq[mCategory].poll();
+                if (target.changed) continue;
+                target.changed = true;
+                int newScore = Math.max(target.score + mChangeScore, 0);
+                Product newProduct = createProduct(target.id, mCategory, newScore);
+                temp.offer(newProduct);
+                pq[0].offer(newProduct);
+            }
         }
+        pq[mCategory] = temp;
+/*
         System.out.println();
         System.out.println();
+*/
     }
 
     public int getTopRank(int mCategory) {
+/*
         System.out.println("getTopRank");
         System.out.println("mCategory = " + mCategory);
         System.out.println("pq[mCategory] = " + pq[mCategory]);
         System.out.println();
+*/
         int res = -1;
-        for (Product p : pq[mCategory]) {
-            if (!p.changed) {
-                res = p.id;
+        while (true) {
+            Product product = pq[mCategory].poll();
+            if (!product.changed) {
+                res = product.id;
+                pq[mCategory].offer(product);
                 break;
             }
         }
-
         return res;
     }
 }

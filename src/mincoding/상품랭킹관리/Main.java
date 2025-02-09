@@ -61,8 +61,10 @@ class Main {
                     mCategory = Integer.parseInt(st.nextToken());
                     ret = userSolution.getTopRank(mCategory);
                     ans = Integer.parseInt(st.nextToken());
+/*
                     System.out.println("res: " + ret + ", ans: " + ans);
                     System.out.println();
+*/
                     if (ans != ret)
                         isCorrect = false;
                     break;
