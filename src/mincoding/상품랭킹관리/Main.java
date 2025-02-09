@@ -62,8 +62,11 @@ class Main {
                     ret = userSolution.getTopRank(mCategory);
                     ans = Integer.parseInt(st.nextToken());
 /*
-                    System.out.println("res: " + ret + ", ans: " + ans);
-                    System.out.println();
+                    if (tc == 11) {
+                        System.out.println("mCategory = " + mCategory);
+                        System.out.println("res: " + ret + ", ans: " + ans);
+                        System.out.println();
+                    }
 */
                     if (ans != ret)
                         isCorrect = false;
@@ -76,6 +79,8 @@ class Main {
         return isCorrect;
     }
 
+    static int tc;
+
     public static void main(String[] args) throws Exception {
          System.setIn(new java.io.FileInputStream("res/input_min_pro80.txt"));
 
@@ -86,6 +91,7 @@ class Main {
         int MARK = Integer.parseInt(st.nextToken());
 
         for (int testcase = 1; testcase <= TC; ++testcase) {
+            tc = testcase;
             int score = run(br) ? MARK : 0;
             System.out.println("#" + testcase + " " + score);
         }
