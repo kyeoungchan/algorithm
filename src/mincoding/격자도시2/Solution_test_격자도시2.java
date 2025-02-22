@@ -59,100 +59,106 @@ public class Solution_test_격자도시2 {
 
             TreeMap<Integer, Integer> subway = subwayInfo.get(rowToIdx.get(r));
             TreeMap<Integer, Integer> emptySpot = emptyInfo.get(rowToIdx.get(r));
-            System.out.println("emptySpot = " + emptySpot);
-            Integer leftStart = subway.floorKey(c1);
-            if (leftStart != null) {
+            Integer leftSubwayStart = subway.floorKey(c1);
+            if (leftSubwayStart != null) {
                 // 만약 기존에 있던 지하철 중에 c1보다 더 시작 열이 작거나 같은 것이 존재한다면
-                Integer leftEnd = subway.get(leftStart);
-                if (c2 <= leftEnd) {
+                Integer leftSubwayEnd = subway.get(leftSubwayStart);
+                if (c2 <= leftSubwayEnd) {
                     // endLeft가 c2보다 크거나 같으면 기존에 있는 지하철에 포함되는 지하철이라는 뜻이므로 continue!
                     continue;
                 }
-                if (c1 <= leftEnd) {
+                if (c1 <= leftSubwayEnd) {
                     // 일단 새로 지어야할 지하철의 길이 중 기존의 지하철과 겹치는 부분은 빼주고
-                    addingSubwayLength -= leftEnd - c1 + 1;
+                    addingSubwayLength -= leftSubwayEnd - c1 + 1;
                     // 기존의 지하철의 끝 지점을 c2로 업데이트 해준다.
-                    subway.put(leftStart, c2);
-                    // 업데이트 여부 true로 바꿔준다.
+                    subway.put(leftSubwayStart, c2);
+                    // 지하철 업데이트 여부 true로 바꿔준다.
                     subwayPut = true;
 
+                    // 왼쪽 빈 공간은 기존에 이미 확인한 상황이므로 왼쪽 빈 공간은 입력한 것으로 설정해둔다.
                     leftEmptyPut = true;
-                    emptySpot.remove(leftEnd + 1);
+                    // 그리고 기존 지하철의 오른쪽 빈 공간 정보가 있다면 제거한다.
+                    emptySpot.remove(leftSubwayEnd + 1);
                 }
             }
 
-            Integer rightStart = subway.higherKey(c1);
-            if (rightStart != null) {
-                Integer rightEnd = subway.get(rightStart);
-                while (rightEnd <= c2) {
+            Integer rightSubwayStart = subway.higherKey(c1);
+            if (rightSubwayStart != null) {
+                Integer rightSubwayEnd = subway.get(rightSubwayStart);
+                while (rightSubwayEnd <= c2) {
                     // 기존의 오른쪽 지하철들 중 새로 들어오는 지하철에 포함되는 지하철은 모두 합병 시켜야한다.
 
                     // 추가되는 길이 기존의 지하철 길이만큼 없앤다.
-                    addingSubwayLength -= rightEnd - rightStart + 1;
+                    addingSubwayLength -= rightSubwayEnd - rightSubwayStart + 1;
                     // 기존 지하철 정보 삭제
-                    subway.remove(rightStart);
+                    subway.remove(rightSubwayStart);
 
-                    Integer leftEmptyStart = emptySpot.floorKey(rightStart);
+                    Integer leftEmptyStart = emptySpot.lowerKey(rightSubwayStart);
                     if (leftEmptyStart != null) {
                         Integer leftEmptyEnd = emptySpot.get(leftEmptyStart);
-                        if (leftEmptyEnd == rightStart - 1) {
+                        if (leftEmptyEnd == rightSubwayStart - 1) {
                             // 기존 지하철 기준 왼쪽에 있는 빈 공간에 대한 정보를 삭제한다.
                             emptySpot.remove(leftEmptyStart);
                         }
                     }
                     // 기존 지하철 기준 오른쪽에 있는 빈 공간도 있으면 삭제한다.
-                    emptySpot.remove(rightEnd + 1);
+                    emptySpot.remove(rightSubwayEnd + 1);
 
-                    rightStart = subway.higherKey(c1);
-                    if (rightStart == null) break;
-                    rightEnd = subway.get(rightStart);
+                    rightSubwayStart = subway.higherKey(c1);
+                    if (rightSubwayStart == null) break;
+                    rightSubwayEnd = subway.get(rightSubwayStart);
                 }
-                if (rightStart != null && rightStart <= c2) {
+                if (rightSubwayStart != null && rightSubwayStart <= c2) {
                     // 합병되지는 않았지만 c2보다는 시작점이 작아서 걸치는 애가 있다면
-                    addingSubwayLength -= c2 - rightStart + 1;
-                    subway.remove(rightStart);
+                    addingSubwayLength -= c2 - rightSubwayStart + 1;
+                    subway.remove(rightSubwayStart);
 
-                    // 오른쪽 끝 지점은 c2가 아니라 endRight로 둔다.
+                    // 오른쪽 끝 지점은 c2가 아니라 rightSubwayStart로 둔다.
                     if (subwayPut) {
-                        // 이미 기존 왼쪽 지하철과 합쳐진 경우라면 시작점을 startLeft로 넣는다.
-                        subway.put(leftStart, rightEnd);
+                        // 이미 기존 왼쪽 지하철과 합쳐진 경우라면 시작점을 leftSubwayStart로 넣는다.
+                        subway.put(leftSubwayStart, rightSubwayEnd);
                     } else {
                         // 왼쪽 지하철과 합쳐진 적 없다면 시작점은 c1으로 넣는다.
-                        subway.put(c1, rightEnd);
+                        subway.put(c1, rightSubwayEnd);
                     }
 
+                    // 기존에 있던 오른쪽 지하철과 합쳐지는 상황이므로 오른쪽 빈 공간에 대해서는 신경쓸 필요가 없어진다.
                     rightEmptyPut = true;
-                    Integer leftEmptyStart = emptySpot.floorKey(rightStart);
-                    if (leftEmptyStart != null && emptySpot.get(leftEmptyStart) == rightStart - 1) {
+                    // 기존 오른쪽 지하철의 왼쪽 빈 공간은 신경써서 있다면 제거해준다.
+                    Integer leftEmptyStart = emptySpot.lowerKey(rightSubwayStart);
+                    if (leftEmptyStart != null && emptySpot.get(leftEmptyStart) == rightSubwayStart - 1) {
                         emptySpot.remove(leftEmptyStart);
                     }
                 }
             }
 
             if (!subwayPut) {
+                // 기존의 어느 지하철과도 겹치는 부분이 없는 경우
                 subway.put(c1, c2);
             }
             answer -= addingSubwayLength;
 
             if (!leftEmptyPut) {
-                Integer leftSubwayStart = subway.lowerKey(c1);
+                leftSubwayStart = subway.lowerKey(c1);
                 if (leftSubwayStart == null) {
                     if (c1 > 3) {
                         emptySpot.put(1, c1 - 1);
+                    } else {
+                        emptySpot.remove(1);
                     }
                 } else {
                     Integer leftSubwayEnd = subway.get(leftSubwayStart);
-                    if (c1 - leftSubwayEnd >= 4) {
+                    if (c1 - leftSubwayEnd > 3) {
                         emptySpot.put(leftSubwayEnd + 1, c1 - 1);
+                    } else {
+                        emptySpot.remove(leftSubwayEnd + 1);
                     }
                 }
             }
 
             if (!rightEmptyPut) {
-                Integer rightSubwayStart = subway.higherKey(c2);
-                System.out.println("rightSubwayStart = " + rightSubwayStart);
+                rightSubwayStart = subway.higherKey(c2);
                 if (rightSubwayStart == null) {
-                    System.out.println("c2 = " + c2);
                     if (M - c2 > 2) {
                         emptySpot.put(c2 + 1, M);
                     }
@@ -162,16 +168,12 @@ public class Solution_test_격자도시2 {
                     }
                 }
             }
-            System.out.println("emptySpot = " + emptySpot);
-            System.out.println();
         }
 
         for (int i = 0; i < idx; i++) {
             TreeMap<Integer, Integer> emptySpot = emptyInfo.get(i);
             if (emptySpot.isEmpty()) continue;
 
-            System.out.println("emptySpot = " + emptySpot);
-            System.out.println("r = " + rowToIdx.get(i));
             if (emptySpot.size() == 1) {
                 Map.Entry<Integer, Integer> entry = emptySpot.pollFirstEntry();
                 answer -= (entry.getValue() - entry.getKey() + 1) / 2;
