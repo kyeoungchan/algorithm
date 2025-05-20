@@ -42,7 +42,6 @@ public class Solution_min_경유지운송_Param {
             max = Math.max(max, mLimit[i]);
         }
 
-        printGraph();
     }
 
     public void add(int sCity, int eCity, int mLimit) {
@@ -50,8 +49,6 @@ public class Solution_min_경유지운송_Param {
         graph[eCity].add(new City(sCity, mLimit));
         min = Math.min(min, mLimit);
         max = Math.max(max, mLimit);
-
-        printGraph();
     }
 
     public int calculate(int sCity, int eCity, int M, int[] mStopover) {
@@ -72,8 +69,8 @@ public class Solution_min_경유지운송_Param {
             // 목적지에 도달할 수 없는 경우
             return -1;
         }
-        for (int stopover : mStopover) {
-            if (!visited[stopover]) {
+        for (int i = 0; i < M; i++) {
+            if (!visited[mStopover[i]]) {
                 // 경유지에 도달할 수 없는 경우
                 return -1;
             }
@@ -84,23 +81,16 @@ public class Solution_min_경유지운송_Param {
 
         while (left <= right) {
             int mid = left + (right - left) / 2;
-            if (!underLimit(mid, sCity, eCity, mStopover)) {
+            if (!underLimit(mid, sCity, eCity, M, mStopover)) {
                 right = mid - 1;
             } else {
                 left = mid + 1;
             }
         }
-        System.out.println("left = " + left);
-        System.out.println("right = " + right);
         return right;
     }
 
-    private boolean underLimit(int mid, int start, int end, int[] stopovers) {
-        System.out.println("mid = " + mid);
-        System.out.println("start = " + start);
-        System.out.println("end = " + end);
-        System.out.println("Arrays.toString(stopovers) = " + Arrays.toString(stopovers));
-        printGraph();
+    private boolean underLimit(int mid, int start, int end, int M, int[] stopovers) {
 
         boolean[] visited = new boolean[N];
         ArrayDeque<Integer> q = new ArrayDeque<>();
@@ -109,27 +99,17 @@ public class Solution_min_경유지운송_Param {
 
         while (!q.isEmpty()) {
             int cur = q.poll();
-            System.out.println("cur = " + cur);
             for (City city : graph[cur]) {
-                System.out.println("city = " + city);
                 int next = city.number;
                 if (visited[next] || city.weight < mid) continue;
                 visited[next] = true;
                 q.offer(next);
             }
         }
-        System.out.println();
         if (!visited[end]) return false;
-        for (int stopover : stopovers) {
-            if (!visited[stopover]) return false;
+        for (int i = 0; i < M; i++) {
+            if (!visited[stopovers[i]]) return false;
         }
         return true;
-    }
-
-    private void printGraph() {
-        for (int i = 0; i < N; i++) {
-            System.out.println(graph[i]);
-        }
-        System.out.println();
     }
 }
