@@ -1,57 +1,24 @@
-import java.util.*;
-
-public class Solution {
+class Solution {
     final int MOD = 1_000_000_007;
-
+    
     public int solution(int m, int n, int[][] puddles) {
-        int[][] dp = new int[n][m];
-        for (int[] puddle : puddles) {
-            int r = puddle[1] - 1;
-            int c = puddle[0] - 1;
-            dp[r][c] = -1;
+        int[][] dp = new int[n + 1][m + 1];
+        for (int[] pos : puddles) {
+            dp[pos[1]][pos[0]]--;
         }
-
-        dp[0][0] = 1;
-
-        int startC = 0;
-        for (int i = 0; i < m - 1; i++) {
-            startC++;
-            int r = 0;
-            int c = startC;
-            while (r < n && c >= 0) {
-                if (dp[r][c] != -1) {
-                    if (r != 0 && dp[r - 1][c] != -1) {
-                        dp[r][c] += dp[r - 1][c];
-                    }
-                    if (c != 0 && dp[r][c - 1] != -1) {
-                        dp[r][c] += dp[r][c - 1];
-                    }
-                    dp[r][c] %= MOD;
+        dp[1][1] = 1;
+        for (int i = 1; i < n + 1; i++) {
+            for (int j = 1; j < m + 1; j++) {
+                if (dp[i][j] == -1) {
+                    // 물 웅덩이라면 다음 길에 영향을 주지 않도록 0으로 변경 후 건너뛰기
+                    dp[i][j]++;
+                    continue;
                 }
-                r++;
-                c--;
+                dp[i][j] += dp[i - 1][j];
+                dp[i][j] += dp[i][j - 1];
+                dp[i][j] %= MOD;
             }
         }
-
-        int startR = 0;
-        for (int i = 0; i < n - 1; i++) {
-            startR++;
-            int r = startR;
-            int c = m - 1;
-            while (r < n && c >= 0) {
-                if (dp[r][c] != -1) {
-                    if (r != 0 && dp[r - 1][c] != -1) {
-                        dp[r][c] += dp[r - 1][c];
-                    }
-                    if (c != 0 && dp[r][c - 1] != -1) {
-                        dp[r][c] += dp[r][c - 1];
-                    }
-                    dp[r][c] %= MOD;
-                }
-                r++;
-                c--;
-            }
-        }
-        return dp[n - 1][m - 1];
+        return dp[n][m];
     }
 }
