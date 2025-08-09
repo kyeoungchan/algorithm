@@ -1,20 +1,22 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        StringTokenizer st = new StringTokenizer(br.readLine());
         int N = Integer.parseInt(st.nextToken());
-        int K = Integer.parseInt(st.nextToken());
-        int[] dp = new int[K + 1]; // 최대 K만큼의 무게만을 넣을 수 있다.
+        int K = Integer.parseInt(st.nextToken()); // 준서가 버틸 수 있는 무게
+        int[] dp = new int[K + 1]; // 무게별로 배낭이 담을 수 있는 최대 가격 메모
         for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            int W = Integer.parseInt(st.nextToken());
-            int V = Integer.parseInt(st.nextToken());
-            for (int j = K; j >= W; j--)
-                dp[j] = Math.max(dp[j], dp[j - W] + V);
+            st = new StringTokenizer(br.readLine());
+            int wi = Integer.parseInt(st.nextToken()); // W
+            int vi = Integer.parseInt(st.nextToken()); // V
+            for (int w = K; w >= wi; w--) {
+                dp[w] = Math.max(dp[w], dp[w - wi] + vi);
+            }
         }
+
         System.out.println(dp[K]);
         br.close();
     }
