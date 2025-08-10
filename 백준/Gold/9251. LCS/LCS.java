@@ -1,12 +1,12 @@
+import java.util.*;
 import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String s1 = "-" + br.readLine(); // 인덱스 처리를 1부터 하기 위해 "-" 더 추가
+        String s1 = "-" + br.readLine();
         String s2 = "-" + br.readLine();
         int[][] dp = new int[s1.length()][s2.length()];
-
         for (int i = 1; i < s1.length(); i++) {
             char c1 = s1.charAt(i);
             for (int j = 1; j < s2.length(); j++) {
