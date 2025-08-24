@@ -1,4 +1,4 @@
-package baekjoon.knapsack;
+package baekjoon.평범한배낭;
 
 import java.util.*;
 import java.io.*;
