@@ -4,39 +4,39 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(br.readLine());
+        int[] dp1 = new int[n];
+        int[] dp2 = new int[n];
+        int[] arr = new int[n];
 
-        int[] arr = new int[N];
-        int[] increasingDp = new int[N]; // 오르막길 길이
-        int[] decreasingDp = new int[N]; // 내리막길 길이
-        int answer = 0;
-        for (int i = 0; i < N; i++) {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < n; i++) {
             arr[i] = Integer.parseInt(st.nextToken());
         }
 
-        for (int i = 0; i < N; i++) {
-            increasingDp[i] = 1;
+        for (int i = 0; i < n; i++) {
+            dp1[i]++;
             for (int j = 0; j < i; j++) {
                 if (arr[i] > arr[j]) {
-                    increasingDp[i] = Math.max(increasingDp[i], increasingDp[j] + 1);
+                    dp1[i] = Math.max(dp1[i], dp1[j] + 1);
                 }
             }
         }
 
-        for (int i = N - 1; i >= 0; i--) {
-            decreasingDp[i] = 1;
-            for (int j = N - 1; j > i; j--) {
+        for (int i = n - 1; i >= 0; i--) {
+            dp2[i]++;
+            for (int j = n - 1; j > i; j--) {
                 if (arr[i] > arr[j]) {
-                    decreasingDp[i] = Math.max(decreasingDp[i], decreasingDp[j] + 1);
+                    dp2[i] = Math.max(dp2[i], dp2[j] + 1);
                 }
             }
         }
 
-        for (int i = 0; i < N; i++) {
-            answer = Math.max(answer, increasingDp[i] + decreasingDp[i] - 1);
+        int max = 0;
+        for (int i = 0; i < n; i++) {
+            max = Math.max(max, dp1[i] + dp2[i]);
         }
-        System.out.println(answer);
+        System.out.println(max - 1);
         br.close();
     }
 }
