@@ -12,6 +12,7 @@ public class Main {
         StringTokenizer st;
 
         int n = Integer.parseInt(br.readLine());
+        int max = 0;
         int[][] wires = new int[n][2];
 
         // 설치 가능한 최대 개수로 설정
@@ -33,15 +34,13 @@ public class Main {
 
             for (int j = 0; j < i; j++) {
                 if (wires[i][1] > wires[j][1]) {
+                    // i번째 전깃줄을 그을 때 최고로 많이 설치할 수 있는 경우의 수 메모
+                    // 가장 긴 증가하는 부분 수열과 같은 메커니즘이다.
                     dp[i] = Math.max(dp[i], dp[j] + 1);
+                    // 각 위치마다 전깃줄을 그을 때 최고로 많이 설치할 수 있는 경우의 수를 메모했으니 각 위치들 모두 비교해서 최고 값을 구하면 최대 설치 가능 개수가 나온다.
+                    max = Math.max(max, dp[i]);
                 }
             }
-        }
-
-        int max = 0;
-
-        for (int i = 0; i < n; i++) {
-            max = Math.max(max, dp[i]);
         }
 
         System.out.println(n - max);
