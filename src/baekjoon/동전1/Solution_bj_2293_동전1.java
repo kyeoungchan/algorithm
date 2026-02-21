@@ -14,7 +14,7 @@ import java.util.*;
 public class Solution_bj_2293_동전1 {
 
     static int n, k;
-    static int[] coins, dp;
+    static int[] dp;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -25,12 +25,11 @@ public class Solution_bj_2293_동전1 {
         dp = new int[k + 1];
         dp[0] = 1;
 
-        coins = new int[n];
         for (int i = 0; i < n; i++) {
-            coins[i] = Integer.parseInt(br.readLine());
+            int coin = Integer.parseInt(br.readLine());
             for (int j = 1; j <= k; j++) {
-                if (j - coins[i] < 0) continue;
-                dp[j] += dp[j - coins[i]];
+                if (j - coin < 0) continue;
+                dp[j] += dp[j - coin];
             }
         }
 
