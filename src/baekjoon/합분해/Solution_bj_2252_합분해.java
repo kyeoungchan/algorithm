@@ -6,6 +6,8 @@ import java.util.*;
 /**
  * 0부터 N까지의 정수 K개를 더해서 그 합이 N이 되는 경우의 수를 구하는 프로그램
  * https://www.acmicpc.net/problem/2225
+ *
+ * 참고: https://velog.io/@kyu9610/JAVA-%EB%B0%B1%EC%A4%80-2225%EB%B2%88-%ED%95%A9%EB%B6%84%ED%95%B4
  */
 public class Solution_bj_2252_합분해 {
     public static void main(String[] args) throws Exception {
