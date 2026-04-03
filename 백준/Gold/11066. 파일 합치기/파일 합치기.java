@@ -23,8 +23,9 @@ public class Main {
                     int end = start + len;
                     dp[start][end] = Integer.MAX_VALUE;
                     for (int idx = start; idx < end; idx++) {
-                        int sum = dp[start][idx] + dp[idx + 1][end] + sumFiles[idx] - sumFiles[start - 1] + sumFiles[end] - sumFiles[idx];
-                        
+//                        int sum = dp[start][idx] + dp[idx + 1][end] + sumFiles[idx] - sumFiles[start - 1] + sumFiles[end] - sumFiles[idx];
+                        int sum = dp[start][idx] + dp[idx + 1][end] + sumFiles[end] - sumFiles[start - 1];
+
                         dp[start][end] = Math.min(dp[start][end], sum);
                     }
                 }
