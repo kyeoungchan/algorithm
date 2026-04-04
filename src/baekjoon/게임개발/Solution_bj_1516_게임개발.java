@@ -1,4 +1,4 @@
-package baekjoon;
+package baekjoon.게임개발;
 
 import java.io.*;
 import java.util.*;
