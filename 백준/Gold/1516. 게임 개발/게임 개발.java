@@ -3,57 +3,60 @@ import java.util.*;
 
 public class Main {
 
-    static int N;
-    static int[] time, dp;
-    static List<Integer>[] before;
-
-    static int INF = 100_000 * 500 + 1;
-
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
         StringBuilder sb = new StringBuilder();
 
-        N = Integer.parseInt(br.readLine());
-        time = new int[N + 1];
-        before = new List[N + 1];
-        dp = new int[N + 1];
+        int N = Integer.parseInt(br.readLine());
+        int[] times = new int[N + 1];
+        int[] indegrees = new int[N + 1];
+        List<Integer>[] nextList = new List[N + 1];
+
         for (int i = 1; i <= N; i++) {
-            before[i] = new ArrayList<>();
+            nextList[i] = new ArrayList<>();
+        }
+
+        for (int i = 1; i <= N; i++) {
             st = new StringTokenizer(br.readLine());
-            time[i] = Integer.parseInt(st.nextToken());
+            times[i] = Integer.parseInt(st.nextToken());
+
             while (true) {
-                int b =  Integer.parseInt(st.nextToken());
-                if (b == -1) {
+                int val =  Integer.parseInt(st.nextToken());
+                if (val == -1) {
                     break;
                 }
-                before[i].add(b);
+                nextList[val].add(i);
+                indegrees[i]++;
             }
-            dp[i] = INF;
         }
 
-        for (int i = 1; i < N + 1; i++) {
-            if (dp[i] != INF) continue;
-            dp[i] = calculate(i);
+        ArrayDeque<Integer> q = new ArrayDeque<>();
+
+        for (int i = 1; i <= N; i++) {
+            if (indegrees[i] == 0) {
+                q.offer(i);
+            }
+        }
+
+        int[] results = new int[N + 1];
+
+        while (!q.isEmpty()) {
+            int cur = q.poll();
+            for (int next: nextList[cur]) {
+                indegrees[next]--;
+                results[next] = Math.max(results[next], results[cur] + times[cur]);
+
+                if (indegrees[next] == 0) {
+                    q.offer(next);
+                }
+            }
         }
 
         for (int i = 1; i <= N; i++) {
-            sb.append(dp[i]).append("\n");
+            sb.append(times[i] + results[i]).append("\n");
         }
         System.out.println(sb);
         br.close();
-    }
-
-    static int calculate(int num) {
-        if (dp[num] != INF) return dp[num];
-
-        int max = 0;
-        for (int bNum : before[num]) {
-            if (dp[bNum] == INF) {
-                dp[bNum] = calculate(bNum);
-            }
-            max = Math.max(max, dp[bNum]);
-        }
-        return dp[num] = max + time[num];
     }
 }
