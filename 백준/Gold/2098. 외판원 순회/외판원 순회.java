@@ -1,51 +1,53 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
 
-    static int N, W[][], dp[][], ANS, INF = 987654321;
+    static int N, INF = 1_000_000 * 16 + 1;
+    static int[][] graph, dp;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
         N = Integer.parseInt(br.readLine());
-        W = new int[N][N];
-        for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            for (int j = 0; j < N; j++) {
-                W[i][j] = Integer.parseInt(st.nextToken());
-            }
-        }
-
+        graph = new int[N][N];
         dp = new int[N][1 << N];
+
+        StringTokenizer st;
         for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < N; j++) {
+                graph[i][j] = Integer.parseInt(st.nextToken());
+            }
             Arrays.fill(dp[i], -1);
         }
-        ANS = Integer.MAX_VALUE;
 
-        // 현재 노드, 현재까지 가중치의 합, 현재 방문한 노드들
-        System.out.println(travel(0, 1));
+        travel(0, 1);
+
+        System.out.println(dp[0][1]);
         br.close();
     }
 
-    static int travel(int city, int visited) {
-        if (visited == (1 << N) - 1) {
-            if (W[city][0] == 0) {
-                return INF;
+    static void travel(int num, int status) {
+        if (status == (1 << N) - 1) {
+            if (graph[num][0] == 0) {
+                dp[num][status] = INF;
+            } else {
+                dp[num][status] = graph[num][0];
             }
-            return W[city][0];
+            return;
         }
 
-        if (dp[city][visited] != -1) {
-            return dp[city][visited];
-        }
+        if (dp[num][status] != -1) return;
 
-        dp[city][visited] = INF;
+        dp[num][status] = INF;
 
-        for (int i = 0; i < N; i++) {
-            if (W[city][i] == 0 || (visited & (1 << i)) != 0) continue;
-            dp[city][visited] = Math.min(dp[city][visited], travel(i, visited | (1 << i)) + W[city][i]);
+        for (int next = 0; next < N; next++) {
+            if (graph[num][next] == 0 || ((1 << next) & status) > 0) {
+                continue;
+            }
+            int nStatus = (1 << next) | status;
+            travel(next, nStatus);
+            dp[num][status] = Math.min(dp[num][status], graph[num][next] + dp[next][nStatus]);
         }
-        return dp[city][visited];
     }
 }
