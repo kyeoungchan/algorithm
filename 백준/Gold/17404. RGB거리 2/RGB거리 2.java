@@ -7,26 +7,23 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
         StringTokenizer st;
+        int N = Integer.parseInt(br.readLine());
         int[][] costs = new int[N][3];
-
+        int[][] dp = new int[N][3];
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
             costs[i][0] = Integer.parseInt(st.nextToken());
             costs[i][1] = Integer.parseInt(st.nextToken());
             costs[i][2] = Integer.parseInt(st.nextToken());
         }
-
         int answer = INF;
 
-
         for (int firstColor = 0; firstColor < 3; firstColor++) {
-            int[][] dp = new int[N][3];
             for (int color = 0; color < 3; color++) {
                 if (color == firstColor) {
                     dp[0][color] = costs[0][color];
-                } else {
+                } else  {
                     dp[0][color] = INF;
                 }
             }
@@ -44,6 +41,7 @@ public class Main {
         }
 
         System.out.println(answer);
+
         br.close();
     }
 }
