@@ -1,63 +1,62 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
-/**
- * 일단은 가방은 제일 가벼운 애부터 꺼낸다.
- * 보석은 제일 비싼 애부터, 가격이 같으면 무거운 애부터 꺼낸다.
- */
 public class Main {
-	
-	static class Jewerly implements Comparable<Jewerly>{
-		int value;
-		int weight;
-		
-		public Jewerly(int value, int weight) {
-			this.value = value;
-			this.weight = weight;
-		}
 
-		@Override
-		public int compareTo(Jewerly o) {
-			return weight == o.weight ? Integer.compare(o.value, value) : Integer.compare(weight, o.weight);
-		}
-		
-	}
+    static class Jewel implements Comparable<Jewel> {
+        int weight, value;
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-		int N = Integer.parseInt(st.nextToken());
-		int K = Integer.parseInt(st.nextToken());
-		PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
-		ArrayList<Jewerly> js = new ArrayList<>();
-		int[] knapsacks = new int[K];
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine(), " ");
-			int w = Integer.parseInt(st.nextToken());
-			int v = Integer.parseInt(st.nextToken());
-			js.add(new Jewerly(v, w));
-		}
-		Collections.sort(js);
-		
-		for (int i = 0; i < K; i++) {
-			knapsacks[i] = Integer.parseInt(br.readLine());
-		}
-		Arrays.sort(knapsacks);
-		
-		int jsIdx = 0;
-		long answer = 0L;
-		for (int w: knapsacks) {
-			while (jsIdx < N && js.get(jsIdx).weight <= w) {
-				pq.offer(js.get(jsIdx++).value);
-			}
-			
-			if (!pq.isEmpty()) {
-				answer += pq.poll();
-			}
-		}
+        public Jewel (int weight, int value) {
+            this.weight = weight;
+            this.value = value;
+        }
 
-		System.out.println(answer);
-		br.close();
-	}
+        @Override
+        public int compareTo(Jewel o) {
+            return weight == o.weight ? Integer.compare(o.value, value) :  Integer.compare(weight, o.weight);
+        }
+    }
 
+    public static void main(String[] args) throws Exception {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        int K = Integer.parseInt(st.nextToken());
+        PriorityQueue<Jewel> pq = new PriorityQueue<>();
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            int M = Integer.parseInt(st.nextToken());
+            int V = Integer.parseInt(st.nextToken());
+            pq.offer(new Jewel(M, V));
+        }
+
+        List<Integer> bags = new ArrayList<>(K);
+        for (int i = 0; i < K; i++) {
+            int C =  Integer.parseInt(br.readLine());
+            bags.add(C);
+        }
+
+        Collections.sort(bags);
+
+        PriorityQueue<Integer> pq2 = new PriorityQueue<>(Comparator.reverseOrder());
+
+        long answer = 0;
+        for (int i = 0; i < K; i++) {
+            int C = bags.get(i);
+            while (!pq.isEmpty()) {
+                Jewel jewel = pq.poll();
+                if (jewel.weight > C) {
+                    pq.offer(jewel);
+                    break;
+                }
+                pq2.offer(jewel.value);
+            }
+            if (!pq2.isEmpty()) {
+                answer += pq2.poll();
+            }
+        }
+        System.out.println(answer);
+        br.close();
+    }
 }
