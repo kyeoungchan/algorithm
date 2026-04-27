@@ -18,22 +18,20 @@ public class Main {
         }
 
         int answer = 0;
-        boolean passed = false;
         for (int i = 0; i < g; i++) {
             char ch = S.charAt(i);
-            if (!countMap.containsKey(ch)) {
-                passed = true;
-                continue;
-            }
+            if (!countMap.containsKey(ch)) continue;
             countMap.put(ch, countMap.get(ch) - 1);
         }
-        if (!passed) {
-            boolean valid = true;
-            for (Integer count : countMap.values()) {
-                if (count != 0) { valid = false; break; }
+        
+        boolean valid = true;
+        for (Integer count : countMap.values()) {
+            if (count != 0) {
+                valid = false;
+                break;
             }
-            if (valid) answer++;
         }
+        if (valid) answer++;
 
         skip: for (int i = g; i < sLen; i++) {
             char chL = S.charAt(i - g);
