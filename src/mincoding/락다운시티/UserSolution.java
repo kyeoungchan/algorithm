@@ -4,7 +4,7 @@ import java.util.*;
 
 class UserSolution {
 
-    static class Node implements Comparable<Node> {
+    static class Node {
 
         int r, c, dist;
 
@@ -13,25 +13,25 @@ class UserSolution {
             this.c = c;
             this.dist = dist;
         }
-
-        @Override
-        public int compareTo(Node o) {
-            return Integer.compare(dist, o.dist);
-        }
     }
 
-    static final int INF = 1_000_000_001;
-    int N, M;
+    int N, M, visitedTime;
     int[] dr = new int[] {-1, 0, 1, 0} , dc = new int[]{0, 1, 0, -1};
     List<String> certifications;
     Set<String> set;
     String[][] grid;
+    int[][] visited;
+    ArrayDeque<Node> q;
 
     void init(int N, int M, String mGrade[][]) {
         this.N = N;
         this.M = M;
         this.grid = mGrade;
+        visitedTime = 0;
         set = new HashSet<>();
+        visited = new int[N][N];
+        q = new ArrayDeque<>();
+
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 set.add(mGrade[i][j]);
@@ -52,9 +52,10 @@ class UserSolution {
         }
         if (!set.contains(mGrade)){
             set.add(mGrade);
-            certifications.add(mGrade);
-            Collections.sort(certifications);
-
+//            certifications.add(mGrade);
+            // 정렬된 위치에 바로 삽입 → O(log K) 탐색 + O(K) 삽입
+            int pos = Collections.binarySearch(certifications, mGrade);
+            if (pos < 0) certifications.add(-pos - 1, mGrade);
         }
     }
 
@@ -84,29 +85,25 @@ class UserSolution {
     }
 
     boolean travel(String certification, int L, int sr, int sc, int er, int ec) {
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        int[][] dist = new int[N][N];
-        for (int i = 0; i < N; i++) {
-            Arrays.fill(dist[i], INF);
-        }
+        visitedTime++;
+        q.clear();
 
-        pq.offer(new Node(sr, sc, 0));
-        dist[sr][sc] = 0;
+        q.offer(new Node(sr, sc, 0));
+        visited[sr][sc] = visitedTime;
 
-        while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-            if (cur.dist > dist[cur.r][cur.c]) continue;
+        while (!q.isEmpty()) {
+            Node cur = q.poll();
             for (int d = 0; d < 4; d++) {
                 int nr = cur.r + dr[d];
                 int nc = cur.c + dc[d];
                 if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
                 if (grid[nr][nc].compareTo(certification) < 0) continue;
                 int nDist = cur.dist + 1;
-                if (dist[nr][nc] <= nDist) continue;
+                if (visited[nr][nc] == visitedTime) continue;
                 if (nDist > L) continue;
                 if (nr == er && nc == ec) return true;
-                dist[nr][nc] = nDist;
-                pq.offer(new Node(nr, nc, nDist));
+                visited[nr][nc] = visitedTime;
+                q.offer(new Node(nr, nc, nDist));
             }
         }
         return false;
