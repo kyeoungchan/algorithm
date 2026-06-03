@@ -17,16 +17,39 @@ class UserSolution {
 
     int N, M, visitedTime;
     int[] dr = new int[] {-1, 0, 1, 0} , dc = new int[]{0, 1, 0, -1};
-    List<String> certifications;
-    Set<String> set;
-    String[][] grid;
+    List<Integer> certifications;
+    Set<Integer> set;
+    int[][] grid;
     int[][] visited;
     ArrayDeque<Node> q;
+    StringBuilder sb;
+
+    int hash(String grade) {
+        int result = 0;
+        int len = grade.length();
+        for (int i = 0; i < M; i++) {
+            if (i >= len) result *= 27;
+            else result = result * 27 + (grade.charAt(i) - 'A' + 1);
+        }
+        return result;
+    }
+
+    String unhash(int val) {
+        sb.setLength(0);
+        while (val > 0) {
+            int mod = val % 27;
+            if (mod > 0) sb.append((char) ('A' + mod - 1));
+            val /= 27;
+        }
+        return sb.reverse().toString();
+    }
 
     void init(int N, int M, String mGrade[][]) {
+        sb = new StringBuilder();
         this.N = N;
         this.M = M;
-        this.grid = mGrade;
+//        this.grid = mGrade;
+        grid = new int[N][N];
         visitedTime = 0;
         set = new HashSet<>();
         visited = new int[N][N];
@@ -34,7 +57,10 @@ class UserSolution {
 
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                set.add(mGrade[i][j]);
+//                set.add(mGrade[i][j]);
+                int hashed = hash(mGrade[i][j]);
+                set.add(hashed);
+                grid[i][j] = hashed;
             }
         }
         certifications = new ArrayList<>(set);
@@ -45,33 +71,33 @@ class UserSolution {
         int curR = mRow;
         int curC = mCol;
         int d = mDir == 0 ? 2 : 1;
+        int hashed = hash(mGrade);
         for (int i = 0; i < mLength; i++) {
-            grid[curR][curC] = mGrade;
+            grid[curR][curC] = hashed;
             curR += dr[d];
             curC += dc[d];
         }
-        if (!set.contains(mGrade)){
-            set.add(mGrade);
-//            certifications.add(mGrade);
+        if (!set.contains(hashed)){
+            set.add(hashed);
             // 정렬된 위치에 바로 삽입 → O(log K) 탐색 + O(K) 삽입
-            int pos = Collections.binarySearch(certifications, mGrade);
-            if (pos < 0) certifications.add(-pos - 1, mGrade);
+            int pos = Collections.binarySearch(certifications, hashed);
+            if (pos < 0) certifications.add(-pos - 1, hashed);
         }
     }
 
     String calculate(int L, int sRow, int sCol, int eRow, int eCol) {
         int left = 0;
         int right = certifications.size() - 1;
-        String result = null;
+        int result = 0;
         while (left <= right) {
             int mid = left + (right - left) / 2;
-            String certification = certifications.get(mid);
+            int target = certifications.get(mid);
 
             boolean canGo;
-            if (grid[eRow][eCol].compareTo(certification) < 0) {
+            if (grid[eRow][eCol] < target) {
                 canGo = false;
             } else {
-                canGo = travel(certification, L, sRow, sCol, eRow, eCol);
+                canGo = travel(target, L, sRow, sCol, eRow, eCol);
             }
 
             if (canGo) {
@@ -81,10 +107,11 @@ class UserSolution {
                 right = mid - 1;
             }
         }
-        return result;
+
+        return unhash(result);
     }
 
-    boolean travel(String certification, int L, int sr, int sc, int er, int ec) {
+    boolean travel(int certification, int L, int sr, int sc, int er, int ec) {
         visitedTime++;
         q.clear();
 
@@ -97,7 +124,7 @@ class UserSolution {
                 int nr = cur.r + dr[d];
                 int nc = cur.c + dc[d];
                 if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
-                if (grid[nr][nc].compareTo(certification) < 0) continue;
+                if (grid[nr][nc] < certification) continue;
                 int nDist = cur.dist + 1;
                 if (visited[nr][nc] == visitedTime) continue;
                 if (nDist > L) continue;
