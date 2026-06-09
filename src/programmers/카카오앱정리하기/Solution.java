@@ -4,13 +4,18 @@ import java.util.*;
 
 class Solution {
 
-    static class Cell {
+    static class App {
         int id, r, c;
 
-        Cell(int id, int r, int c) {
+        App(int id, int r, int c) {
             this.id = id;
             this.r = r;
             this.c = c;
+        }
+
+        @Override
+        public String toString() {
+            return "id: " + id + ", r: " + r + ", c: " + c + "\n";
         }
     }
 
@@ -21,7 +26,7 @@ class Solution {
     public int[][] solution(int[][] board, int[][] commands) {
         N = board.length;
         M = board[0].length;
-        this.board= board;
+        this.board = board;
 
         for (int[] command: commands) {
             move(command[0], command[1]);
@@ -31,120 +36,124 @@ class Solution {
     }
 
     void move(int id, int d) {
-        Set<Integer> group = getGroup(id, d);
-        moveGroup(group, d);
+        // printBoard();
+        Set<Integer> movingGroup = getGroup(id, d);
+        moveGroup(movingGroup, d);
 
         while (true) {
-            List<Integer> broken = findBrokenApps(d);
-            if (broken.isEmpty()) break;
+            // printBoard();
+            List<Integer> brokenApps = findBrokenApps(d);
+            if (brokenApps.isEmpty()) break;
 
-            int brokenId = broken.get(0);
-            Set<Integer> newGroup = getGroup(brokenId, d);
-            moveGroup(newGroup, d);
+            movingGroup = getGroup(brokenApps.get(0), d);
+            moveGroup(movingGroup, d);
         }
     }
 
     Set<Integer> getGroup(int id, int d) {
         Set<Integer> group = new HashSet<>();
-        ArrayDeque<Integer> q = new ArrayDeque<>();
+        ArrayDeque<App> q = new ArrayDeque<>();
 
         group.add(id);
-        q.offer(id);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (board[i][j] == id) q.offer(new App(board[i][j], i, j));
+            }
+        }
 
         while (!q.isEmpty()) {
-            int cur = q.poll();
+            // System.out.println(q);
+            App cur = q.poll();
 
-            for (int r = 0; r < N; r++) {
-                for (int c = 0; c < M; c++) {
-                    if (board[r][c] != cur) continue;
+            int nr = (cur.r + dr[d] + N) % N;
+            int nc = (cur.c + dc[d] + M) % M;
+            if (board[nr][nc] == 0 || group.contains(board[nr][nc])) continue;
 
-                    int nr = (r + dr[d] + N) % N;
-                    int nc = (c + dc[d] + M) % M;
-
-                    int next = board[nr][nc];
-                    if (next != 0 && !group.contains(next)) {
-                        group.add(next);
-                        q.offer(next);
+            group.add(board[nr][nc]);
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (board[i][j] == board[nr][nc]) {
+                        q.offer(new App(board[nr][nc], i, j));
                     }
                 }
             }
         }
+
         return group;
     }
 
     void moveGroup(Set<Integer> group, int d) {
-        List<Cell> cells = new ArrayList<>();
+        // System.out.println(group);
+        List<App> apps = new ArrayList<>();
 
-        for (int r = 0; r < N; r++) {
-            for (int c = 0; c < M; c++) {
-                if (group.contains(board[r][c])) {
-                    cells.add(new Cell(board[r][c], r, c));
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (group.contains(board[i][j])) {
+                    apps.add(new App(board[i][j], i, j));
                 }
             }
         }
 
-        // 원래 있던 앱 지우기
-        for (Cell cell: cells) {
-            board[cell.r][cell.c] = 0;
+        // 어플 지우기
+        for (App app: apps) {
+            board[app.r][app.c] = 0;
         }
 
-        // d 방향으로 한 칸 이동
-        for (Cell cell: cells) {
-            int nr = (cell.r + dr[d] + N) % N;
-            int nc = (cell.c + dc[d] + M) % M;
-            board[nr][nc] = cell.id;
+        // 어플 이동시키기
+        for (App app: apps) {
+            int nr = (app.r + dr[d] + N) % N;
+            int nc = (app.c + dc[d] + M) % M;
+            board[nr][nc] = app.id;
         }
     }
 
     List<Integer> findBrokenApps(int d) {
-        List<Integer> broken = new ArrayList<>();
-        boolean[] added = new boolean[101];
+        List<Integer> brokenApps = new ArrayList<>();
 
         if (d == 1 || d == 3) {
-            // 좌우 이동
-            for (int r = 0; r < N; r++) {
-                int leftId = board[r][0];
-                int rightId = board[r][M-1];
-
-                if (leftId == 0 || leftId != rightId) continue;
-
-                // board 자체를 가로지르는 어플이 있을 수 있으므로 확인
-                boolean brokenInThisRow = false;
-                for (int c = 0; c < M; c++) {
-                    if (board[r][c] != leftId) {
-                        brokenInThisRow = true;
+            // 좌우로 움직인 경우
+            for (int i = 0; i < N; i++) {
+                if (board[i][0] == 0 || board[i][0] != board[i][M - 1]) continue;
+                boolean isBroken = false;
+                for (int j = 1; j < M; j++) {
+                    if (board[i][j] != board[i][0]) {
+                        isBroken = true;
                         break;
                     }
                 }
-
-                if (brokenInThisRow && !added[leftId]) {
-                    broken.add(leftId);
-                    added[leftId] = true;
+                if (isBroken) {
+                    brokenApps.add(board[i][0]);
+                    break;
                 }
             }
         } else {
-            // 상하 이동
-            for (int c = 0; c < M; c++) {
-                int topId = board[0][c];
-                int bottomId = board[N - 1][c];
-
-                if (topId == 0 || topId != bottomId) continue;
-
-                boolean brokenInThisCol = false;
-                for (int r = 0; r < N; r++) {
-                    if (board[r][c] != topId) {
-                        brokenInThisCol = true;
+            // 상하로 움직인 경우
+            for (int j = 0; j < M; j++) {
+                if (board[0][j] == 0 || board[0][j] != board[N - 1][j]) continue;
+                boolean isBroken = false;
+                for (int i = 1; i < N; i++) {
+                    if (board[i][j] != board[0][j]) {
+                        isBroken = true;
                         break;
                     }
                 }
-
-                if (brokenInThisCol && !added[topId]) {
-                    broken.add(topId);
-                    added[topId] = true;
+                if (isBroken) {
+                    brokenApps.add(board[0][j]);
+                    break;
                 }
             }
         }
 
-        return broken;
+        return brokenApps;
+    }
+
+    void printBoard() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                System.out.printf("%2d", board[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 }
