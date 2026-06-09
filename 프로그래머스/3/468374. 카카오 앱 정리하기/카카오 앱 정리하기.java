@@ -2,50 +2,52 @@ import java.util.*;
 
 class Solution {
     
+    static class Cell {
+        int id, r, c;
+        
+        Cell(int id, int r, int c) {
+            this.id = id;
+            this.r = r;
+            this.c = c;
+        }
+    }
+    
     int N, M;
+    int[] dr = new int[] {0, 0, 1, 0, -1}, dc = new int[] {0, 1, 0, -1, 0};
     int[][] board;
-
-    // 1: 오른쪽, 2: 아래, 3: 왼쪽, 4: 위
-    int[] dr = {0, 0, 1, 0, -1};
-    int[] dc = {0, 1, 0, -1, 0};
     
     public int[][] solution(int[][] board, int[][] commands) {
-        this.N = board.length;
-        this.M = board[0].length;
-        this.board = new int[N][M];
+        N = board.length;
+        M = board[0].length;
+        this.board= board;
         
-        for (int i = 0; i < N; i++) {
-            this.board[i] = board[i].clone();
-        }
-        
-        for (int[] cmd : commands) {
-            process(cmd[0], cmd[1]);
+        for (int[] command: commands) {
+            move(command[0], command[1]);
         }
         
         return this.board;
     }
     
-    void process(int startApp, int dir) {
-        Set<Integer> group = getGroup(startApp, dir);
-        moveGroup(group, dir);
+    void move(int id, int d) {
+        Set<Integer> group = getGroup(id, d);
+        moveGroup(group, d);
         
         while (true) {
-            List<Integer> broken = findBrokenApps(dir);
+            List<Integer> broken = findBrokenApps(d);
             if (broken.isEmpty()) break;
             
-            int brokenApp = broken.get(0);
-            Set<Integer> newGroup = getGroup(brokenApp, dir);
-            moveGroup(newGroup, dir);
+            int brokenId = broken.get(0);
+            Set<Integer> newGroup = getGroup(brokenId, d);
+            moveGroup(newGroup, d);
         }
     }
     
-    // startApp을 dir로 한 칸 이동 시 움직여야 하는 앱을 반환
-    Set<Integer> getGroup(int startApp, int dir) {
+    Set<Integer> getGroup(int id, int d) {
         Set<Integer> group = new HashSet<>();
-        Queue<Integer> q = new ArrayDeque<>();
+        ArrayDeque<Integer> q = new ArrayDeque<>();
         
-        group.add(startApp);
-        q.offer(startApp);
+        group.add(id);
+        q.offer(id);
         
         while (!q.isEmpty()) {
             int cur = q.poll();
@@ -53,9 +55,9 @@ class Solution {
             for (int r = 0; r < N; r++) {
                 for (int c = 0; c < M; c++) {
                     if (board[r][c] != cur) continue;
-
-                    int nr = (r + dr[dir] + N) % N;
-                    int nc = (c + dc[dir] + M) % M;
+                    
+                    int nr = (r + dr[d] + N) % N;
+                    int nc = (c + dc[d] + M) % M;
                     
                     int next = board[nr][nc];
                     if (next != 0 && !group.contains(next)) {
@@ -65,47 +67,46 @@ class Solution {
                 }
             }
         }
-        
         return group;
     }
     
-    // group에 해당하는 앱을 dir로 한 칸 이동
-    void moveGroup(Set<Integer> group, int dir) {
+    void moveGroup(Set<Integer> group, int d) {
         List<Cell> cells = new ArrayList<>();
         
         for (int r = 0; r < N; r++) {
             for (int c = 0; c < M; c++) {
                 if (group.contains(board[r][c])) {
-                    cells.add(new Cell(r, c, board[r][c]));
+                    cells.add(new Cell(board[r][c], r, c));
                 }
             }
         }
         
         // 원래 있던 앱 지우기
-        for (Cell cell : cells) {
+        for (Cell cell: cells) {
             board[cell.r][cell.c] = 0;
         }
         
-        // dir 방향으로 한 칸 이동
-        for (Cell cell : cells) {
-            int nr = (cell.r + dr[dir] + N) % N;
-            int nc = (cell.c + dc[dir] + M) % M;
+        // d 방향으로 한 칸 이동
+        for (Cell cell: cells) {
+            int nr = (cell.r + dr[d] + N) % N;
+            int nc = (cell.c + dc[d] + M) % M;
             board[nr][nc] = cell.id;
         }
     }
     
-    // 현재 board 상태에서 격자를 넘어가 잘린 상태로 존재하는 앱들을 반환
-    List<Integer> findBrokenApps(int dir) {
+    List<Integer> findBrokenApps(int d) {
         List<Integer> broken = new ArrayList<>();
         boolean[] added = new boolean[101];
         
-        if (dir == 1 || dir == 3) {  // 좌우 이동
+        if (d == 1 || d == 3) {
+            // 좌우 이동
             for (int r = 0; r < N; r++) {
                 int leftId = board[r][0];
-                int rightId = board[r][M - 1];
+                int rightId = board[r][M-1];
                 
                 if (leftId == 0 || leftId != rightId) continue;
                 
+                // board 자체를 가로지르는 어플이 있을 수 있으므로 확인
                 boolean brokenInThisRow = false;
                 for (int c = 0; c < M; c++) {
                     if (board[r][c] != leftId) {
@@ -119,7 +120,8 @@ class Solution {
                     added[leftId] = true;
                 }
             }
-        } else {  // 상하 이동
+        } else {
+            // 상하 이동
             for (int c = 0; c < M; c++) {
                 int topId = board[0][c];
                 int bottomId = board[N - 1][c];
@@ -142,14 +144,5 @@ class Solution {
         }
         
         return broken;
-    }
-    
-    static class Cell {
-        int r, c, id;
-        Cell(int r, int c, int id) {
-            this.r = r;
-            this.c = c;
-            this.id = id; 
-        }
     }
 }
