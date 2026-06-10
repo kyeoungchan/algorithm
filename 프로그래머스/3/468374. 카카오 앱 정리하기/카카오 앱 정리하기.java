@@ -119,7 +119,10 @@ class Solution {
                         break;
                     }
                 }
-                if (isBroken) brokenApps.add(board[i][0]);
+                if (isBroken) {
+                    brokenApps.add(board[i][0]);
+                    break;
+                }
             }
         } else {
             // 상하로 움직인 경우
@@ -132,7 +135,10 @@ class Solution {
                         break;
                     }
                 }
-                if (isBroken) brokenApps.add(board[0][j]);
+                if (isBroken) {
+                    brokenApps.add(board[0][j]);
+                    break;
+                }
             }
         }
         
