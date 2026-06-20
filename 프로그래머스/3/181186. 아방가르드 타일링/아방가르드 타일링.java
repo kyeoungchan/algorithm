@@ -1,34 +1,40 @@
-class Solution {
-    
-    final int MOD = 1_000_000_007;
-    
-    public int solution(int n) {
-//         long[] dp = new long[Math.max(n + 1, 7)];
-//         dp[1] = 1; dp[2] = 3; dp[3] = 10;
-//         dp[4] = 23; dp[5] = 62; dp[6] = 170;
+import java.util.*;
 
-//         for (int i = 7; i <= n; i++) {
-//             dp[i] = dp[i-1] + 2*dp[i-2] + 6*dp[i-3] + dp[i-4] - dp[i-6];
-//             dp[i] = ((dp[i] % MOD) + MOD) % MOD;  // -dp[i-6] 때문에 음수 가능
-//         }
-//         return (int) dp[n];
+class Solution {
+    public int solution(int n) {
+        int MOD = 1_000_000_007;
         long[] dp = new long[Math.max(n + 1, 4)];
+        long[] H = new long[3];
         dp[0] = 1;
         dp[1] = 1;
         dp[2] = 3;
         dp[3] = 10;
+        /*
         
-        long[] h = new long[3];
+        dp[n] = 1 * dp[n - 1] + 2 * dp[n - 2] + 5 * dp[n - 3]
+              + 2 * dp[n - 4] + 2 * dp[n - 5] + 4 * dp[n - 6]
+        dp[4] = dp[3] + 2 * dp[2] + 5 * dp[1] 
+          + 2 * dp[0]; 4->0, 1
+        dp[5] = dp[4] + 2 * dp[3] + 5 * dp[2]
+          + 2 * dp[1] + 2 * dp[0] 5->1, 2
+        dp[6] = dp[5] + 2 * dp[4] + 5 * dp[3]
+          + 2 * dp[2] + 2 * dp[1] + 5 * dp[0]
+        dp[n] - dp[n - 1] = dp[n - 1] + dp[n] + 3 * dp[n - 2] - 3 * dp[n - 3]
+        */
+        
+        H[0] = 11;
+        H[1] = 1;
+        H[2] = 3;
         
         for (int i = 4; i <= n; i++) {
-            dp[i] += dp[i - 1] + 2 * dp[i - 2] + 5 * dp[i - 3];
+            int idx = i % 3;
+            dp[i] = (2 * (H[0] + H[1] + H[2]) - dp[i - 1] + MOD) % MOD;
+            dp[i] += 2 * H[idx];
             dp[i] %= MOD;
-            
-            h[(i - 4) % 3] += dp[i - 4];
-            h[(i - 4) % 3] %= MOD;
-            
-            dp[i] += (h[0] + h[1] + h[2] + h[i % 3]) * 2;
+            dp[i] += dp[i - 3];
             dp[i] %= MOD;
+            H[idx] += dp[i];
+            H[idx] %= MOD;
         }
         
         return (int) dp[n];
