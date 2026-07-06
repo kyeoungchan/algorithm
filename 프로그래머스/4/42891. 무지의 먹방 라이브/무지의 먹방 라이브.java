@@ -32,14 +32,13 @@ class Solution {
         
         long prevTotalTime = 0;
         long totalTime = 0;
-        int prevTime = 0;
+        long prevTime = 0;
         
-        int lastIdx = -1;
+        
         while (!pq.isEmpty()) {
             
             Food cur = pq.poll();
             totalTime += (cur.time - prevTime) * len;
-            lastIdx = cur.idx;
             
             if (totalTime > k) {
                 List<Integer> idxList = new ArrayList<>();
@@ -48,9 +47,7 @@ class Solution {
                     idxList.add(pq.poll().idx);
                 }
                 Collections.sort(idxList);
-                
-                answer = idxList.get((int) (k - prevTotalTime) % len) + 1;
-                
+                answer = idxList.get((int) ((k - prevTotalTime) % len)) + 1;        
             }
             
             prevTime = cur.time;
@@ -58,7 +55,6 @@ class Solution {
             len--;
         }
         
-        if (answer == 0) answer = lastIdx + 1;
         return answer;
     }
 }
