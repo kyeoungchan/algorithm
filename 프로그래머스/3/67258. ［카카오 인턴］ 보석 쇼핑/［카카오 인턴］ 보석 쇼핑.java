@@ -2,34 +2,6 @@ import java.util.*;
 
 class Solution {
     
-    static class Info {
-        int num, idx;
-        
-        Info(int num, int idx) {
-            this.num = num;
-            this.idx = idx;
-        }
-        
-        @Override
-        public int hashCode() {
-            return num;
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof Info) {
-                Info info = (Info) o;
-                return num == info.num;
-            }
-            return false;
-        }
-        
-        @Override
-        public String toString() {
-            return "[num: " + num + ", idx: " + idx + "]";
-        }
-    }
-    
     public int[] solution(String[] gems) {
         Map<String, Integer> map = new HashMap<>();
         int n = 0;
