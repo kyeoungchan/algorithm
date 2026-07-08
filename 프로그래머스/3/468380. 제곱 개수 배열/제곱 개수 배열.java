@@ -1,84 +1,99 @@
+import java.util.*;
+
 class Solution {
     
-    int n;
+    int N;
     int[] arr;
-    long[] prefixLen, prefixSum;
+    long[] prefixSum, prefixLen;
     
     public long[] solution(int[] arr, long l, long r) {
+    
         this.arr = arr;
-        n = arr.length;
+        N = arr.length;
+        prefixSum = new long[N];
+        prefixLen = new long[N];
         
-        prefixLen = new long[n];
-        prefixSum = new long[n];
-        prefixLen[0] = arr[0];
+        
         prefixSum[0] = (long) arr[0] * arr[0];
-        
-        for (int i = 1; i < n; i++) {
-            prefixLen[i] = prefixLen[i - 1] + arr[i];
-            prefixSum[i] = prefixSum[i - 1] + (long) arr[i] * arr[i];
+        prefixLen[0] = arr[0];
+        for (int i = 1; i < N; i++) {
+            prefixSum[i] = (long) arr[i] * arr[i] + prefixSum[i - 1];
+            prefixLen[i] = arr[i] + prefixLen[i - 1];
         }
+        // System.out.println(Arrays.toString(prefixSum));
+        // System.out.println(Arrays.toString(prefixLen));
         
-        long K = getPrefixSum(r) - getPrefixSum(l - 1);
+        long K = genK(l, r);
         
         long C = 0L;
         
-        long L = r - l + 1;
-        long s = 1L;
-        long maxS = prefixLen[n - 1] - L + 1;
+        long tempL = 1;
+        long tempR = r - l + 1;
         
-        long cur = getPrefixSum(L);
-        
-        while (s <= maxS) {
-            if (s == maxS) {
-                if (cur == K) C++;
-                break;
-            }
+        while (tempR <= prefixLen[N - 1]) {
+            int leftIdx = getIdx(tempL);
+            int rightIdx = getIdx(tempR);
+            long tempK = genK(tempL, tempR);
             
-            int outBound = lowerBound(s);
-            
-            int inBound = lowerBound(s + L);
-            
-            long diff = arr[inBound] - arr[outBound];
-            
-            long endS = Math.min(prefixLen[outBound], prefixLen[inBound] - L);
-            endS = Math.min(endS, maxS - 1);
-            
-            long windowCount = endS - s + 1;
+            long rightMove = prefixLen[rightIdx] - tempR + 1;
+            long leftMove = prefixLen[leftIdx] - tempL + 1;
+            long move = Math.min(leftMove, rightMove);
+            long diff = arr[rightIdx] - arr[leftIdx];
             
             if (diff == 0) {
-                if (cur == K) C += windowCount;
-            } else if ((K - cur) % diff == 0) {
-                // cur, cur + diff, cur + 2*diff +.. + cur + (windowCount-1) * diff
-                long mod = (K - cur) / diff;
-                if (mod >= 0 && mod < windowCount) C++;
+                if (tempK == K)
+                    C += move;
+            } else if ((K - tempK) % diff == 0) {
+                long mod = (K - tempK) / diff;
+                if (mod >= 0 && mod < move) C++;
             }
-            
-            cur += diff * windowCount;
-            s = endS + 1;
+            tempL += move;
+            tempR += move;
         }
         
         return new long[] {K, C};
     }
     
-    long getPrefixSum(long count) {
-        int idx = lowerBound(count);
-        if (idx == 0) return (long) arr[idx] * count;
+    long genK(long l, long r) {
+        long rightSum = getSum(r);
         
-        long innerCount = count - prefixLen[idx - 1];
-        return prefixSum[idx - 1] + arr[idx] * innerCount;
+        long leftSum = 0L;
+        if (l != 1) {
+            leftSum = getSum(l - 1);   
+        }
+        
+        return rightSum - leftSum;
     }
     
-    int lowerBound(long count) {
+    long getSum(long seq) {
+        // 처음부터 seq번째까지의 합 반환
+        int seqIdx = getIdx(seq);
+        
+        long sum = 0L;
+        if (seqIdx > 0) {
+            sum = prefixSum[seqIdx - 1];
+            sum += (seq - prefixLen[seqIdx - 1]) * arr[seqIdx];
+        } else {
+            sum = arr[0] * seq;
+        }
+        return sum;
+    }
+    
+    int getIdx(long seq) {
+        // seq번째 값이 어느 인덱스에 있는지 반환
         int left = 0;
-        int right = n - 1;
+        int right = N - 1;
+        int seqIdx = -1;
+        
         while (left <= right) {
             int mid = left + (right - left) / 2;
-            if (prefixLen[mid] >= count) {
+            if (prefixLen[mid] >= seq) {
+                seqIdx = mid;
                 right = mid - 1;
             } else {
                 left = mid + 1;
             }
         }
-        return left;
+        return seqIdx;
     }
 }
