@@ -1,157 +1,111 @@
 import java.util.*;
 
-public class Solution {
-    private String[] expressions;
-    private List<Integer> answerIndexes;
-    private boolean possibleSystem;
-
-    public String[] solution(String[] expressions) throws Exception {
-        this.expressions = expressions;
-        answerIndexes = new ArrayList<>(); // X가 주어진 수식들의 인덱스를 담는 리스트
-        setIndexesList();
-        String[] answer = new String[answerIndexes.size()];
-
-        List<Integer> numeralSystems = new ArrayList<>();
-        for (int i = 2; i < 10; i++) {
-            numeralSystems.add(i);
-        }
-        List<Integer> firstDigits = new ArrayList<>();
-        List<Integer> secondDigits = new ArrayList<>();
-        List<Integer> resultDigits = new ArrayList<>();
-        for (int i = 0; i < expressions.length; i++) {
-            char operator = parseExpression(firstDigits, secondDigits, resultDigits, expressions[i]);
-            for (int j = numeralSystems.size() - 1; j >= 0; j--) {
-                int numeralSystem = numeralSystems.get(j);
-                possibleSystem = true;
-                int firstValueInTenSystem = getValueInTenSystem(firstDigits, numeralSystem);
-                if (!possibleSystem) {
-                    numeralSystems.remove(j);
+class Solution {
+    public String[] solution(String[] expressions) {
+        Deque<String[]> resultQ = new ArrayDeque<>();
+        
+        boolean[] possible = new boolean[10];
+        for (int i = 2; i <= 9; i++) possible[i] = true;
+        
+        for (String expression: expressions) {
+            
+            String[] arr = expression.split(" ");
+            // System.out.println(Arrays.toString(arr));
+            int calcAnswer = "X".equals(arr[4]) ? -1 : Integer.parseInt(arr[4]);
+            for (int i = 2; i <= 9; i++) {
+                if (!possible[i]) continue;
+                Integer operand1 = genDecimal(arr[0], i);
+                // System.out.println("base: " + i);
+                // System.out.println("operand1: " + operand1);
+                if (operand1 == null) {
+                    possible[i] = false;
                     continue;
                 }
-                int secondValueInTenSystem = getValueInTenSystem(secondDigits, numeralSystem);
-                if (!possibleSystem) {
-                    numeralSystems.remove(j);
+                Integer operand2 = genDecimal(arr[2], i);
+                // System.out.println("operand2: " + operand2);
+                if (operand2 == null) {
+                    possible[i] = false;
                     continue;
                 }
-                if (answerIndexes.contains(i)) {
-                    continue;
-                }
-                int resultValueInTenSystem = getValueInTenSystem(resultDigits, numeralSystem);
-                if (!possibleSystem) {
-                    numeralSystems.remove(j);
-                    continue;
-                }
-                int calculateVal = calculate(firstValueInTenSystem, operator, secondValueInTenSystem);
-                if (calculateVal != resultValueInTenSystem) {
-                    numeralSystems.remove(j);
+                
+                if (calcAnswer != -1) {
+                    int calcDecimal = calc(operand1, arr[1], operand2);
+                    // System.out.println("calcDecimal: " + calcDecimal);
+                    int calcResult = genBase(calcDecimal, i);
+                    // System.out.println("calcResult: " + calcResult);
+                    // System.out.println();
+                    if (calcResult != calcAnswer) {
+                        possible[i] = false;
+                    }    
                 }
             }
+             
+            if (calcAnswer == -1) {
+                resultQ.offer(arr);
+            }
         }
-
-        int i = 0;
+        // System.out.println(Arrays.toString(possible));
+        
+        String[] answer = new String[resultQ.size()];
         StringBuilder sb = new StringBuilder();
-        for (int index: answerIndexes) {
-            String expression = expressions[index];
-            sb.delete(0, sb.length());
+        int idx = 0;
+        
+        while(!resultQ.isEmpty()) {
+            String[] cur = resultQ.poll();
             int result = -1;
-            boolean calculated = false;
-            boolean questioned = false;
-            sb.append(expression, 0, expression.length() - 1);
-            for (int numeralSystem: numeralSystems) {
-                char operator = parseExpression(firstDigits, secondDigits, resultDigits, expression);
-                int firstValueInTenSystem = getValueInTenSystem(firstDigits, numeralSystem);
-                int secondValueInTenSystem = getValueInTenSystem(secondDigits, numeralSystem);
-                int calculateVal = calculate(firstValueInTenSystem, operator, secondValueInTenSystem);
-                calculateVal = getValueInNumeralSystem(calculateVal, numeralSystem);
-                if (!calculated) {
-                    calculated = true;
-                    result = calculateVal;
-                } else if (calculateVal != result) {
-                    sb.append("?");
-                    questioned = true;
+            sb.setLength(0);
+            
+            for (int i = 2; i <= 9; i++) {
+                if (!possible[i]) continue;
+                int operand1 = genDecimal(cur[0], i);
+                int operand2 = genDecimal(cur[2], i);
+                int resultDecimal = calc(operand1, cur[1], operand2);
+                int resultBase = genBase(resultDecimal, i);
+                if (result == -1) {
+                    result = resultBase;
+                } else if (result != resultBase) {
+                    result = -1;
                     break;
                 }
             }
-            if (!questioned) {
-                sb.append(result);
-            }
-            answer[i++] = sb.toString();
+            sb.append(cur[0]).append(" ").append(cur[1]).append(" ").append(cur[2]).append(" ").append("=").append(" ");
+            if (result == -1) sb.append("?");
+            else sb.append(result);
+            answer[idx++] = sb.toString();
         }
+        
         return answer;
     }
-
-    private void setIndexesList() {
-        for (int i = 0; i < expressions.length; i++) {
-            if (expressions[i].endsWith("X")) {
-                answerIndexes.add(i);
-            }
-        }
-    }
-
-    private int getValueInNumeralSystem(int valueInTenSystem, int numeralSystem) {
+    
+    Integer genDecimal(String target, int base) {
         int result = 0;
-        int i = 1;
-        while (valueInTenSystem > 0) {
-            result += (valueInTenSystem % numeralSystem) * i;
-            valueInTenSystem /= numeralSystem;
-            i *= 10;
+        for (int i = 0; i < target.length(); i++) {
+            int digit = target.charAt(i) - '0';
+            // 예를 들어 2진수인데 한자릿수가 2이상일 수가 없다..
+            if (digit >= base) return null;
+            result *= base;
+            result += digit;
         }
         return result;
     }
-
-    private int getValueInTenSystem(List<Integer> digits, int numeralSystem) {
-        int result = 0;
-        int multi = 1;
-        for (int i = digits.size() - 1; i >= 0; i--) {
-            int digit = digits.get(i);
-            if (digit >= numeralSystem) {
-                possibleSystem = false;
-                break;
-            }
-            result += digit * multi;
-            multi *= numeralSystem;
+    
+    int calc(int operand1, String operator, int operand2) {
+        if ("+".equals(operator)) {
+            return operand1 + operand2;
+        } else {
+            return operand1 - operand2;
         }
-        return result;
     }
-
-    private int calculate(int firstOperand, char operator, int secondOperand) {
-        if (operator == '+') {
-            return firstOperand + secondOperand;
-        } else if (operator == '-') {
-            return firstOperand - secondOperand;
+    
+    int genBase(int decimal, int base) {
+        if (decimal == 0) return 0;
+        StringBuilder sb = new StringBuilder();
+        while (decimal > 0) {
+            sb.append(decimal % base);
+            decimal /= base;
         }
-        return firstOperand + secondOperand;
-    }
-
-    private char parseExpression(List<Integer> firstDigits, List<Integer> secondDigits, List<Integer> resultDigits, String expression) {
-        firstDigits.clear();
-        boolean firstEnd = false;
-        secondDigits.clear();
-        boolean secondEnd = false;
-        resultDigits.clear();
-        char operator = '?';
-        for (int i = 0; i < expression.length(); i++) {
-            char parsedChar = expression.charAt(i);
-            if (parsedChar == ' ') {
-                if (!firstEnd) firstEnd = true;
-                else if (!secondEnd && !secondDigits.isEmpty()) secondEnd = true;
-            } else if (isNumber(parsedChar)) {
-                if (!firstEnd) {
-                    firstDigits.add(parsedChar - '0');
-                } else if (!secondEnd) {
-                    secondDigits.add(parsedChar - '0');
-                } else {
-                    resultDigits.add(parsedChar - '0');
-                }
-            } else if (parsedChar == '+' || parsedChar == '-') {
-                operator = parsedChar;
-            }
-        }
-        return operator;
-    }
-
-    private boolean isNumber(char parsed) {
-        int value = parsed - '0';
-        return value >= 0 && value <= 9;
+        sb.reverse();
+        // System.out.println(sb);
+        return Integer.parseInt(sb.toString());
     }
 }
