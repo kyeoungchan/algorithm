@@ -1,58 +1,56 @@
 class Solution {
     
-    int N, M;
+    int n, m, INF = 101;
     
     public int solution(int[][] beginning, int[][] target) {
-        int answer = Integer.MAX_VALUE;
-        N = beginning.length;
-        M = beginning[0].length;
-        
-        for (int rowMask = 0; rowMask < (1 << N); rowMask++) {
+        int answer = INF;
+        n = beginning.length;
+        m = beginning[0].length;
+        for (int rMask = 0; rMask < (1 << n); rMask++) {
             int temp = 0;
-            int[][] curBoard = copyArray(beginning);
-            for (int r = 0; r < N; r++) {
-                if ((((1 << r) & rowMask)) != 0) {
-                    temp++;
-                    for (int c = 0; c < M; c++) {
-                        curBoard[r][c]++;
-                        curBoard[r][c] %= 2;
+            int[][] tempArr = copyArray(beginning);
+            for (int r = 0; r < n; r++) {
+                if (((1 << r) & rMask) > 0) {
+                    for (int c = 0; c < m; c++) {
+                        tempArr[r][c]++;
+                        tempArr[r][c] %= 2;
                     }
+                    temp++;
                 }
             }
             
-            for (int c = 0; c < M; c++) {
-                if (target[0][c] != curBoard[0][c]) {
-                    temp++;
-                    for (int r = 0; r < N; r++) {
-                        curBoard[r][c]++;
-                        curBoard[r][c] %= 2;
-                    }
+            for (int c = 0; c < m; c++) {
+                if (tempArr[0][c] == target[0][c]) continue;
+                for (int r = 0; r < n; r++) {
+                    tempArr[r][c]++;
+                    tempArr[r][c] %= 2;
                 }
+                temp++;
             }
             
-            if (isSame(curBoard, target)) {
-                answer = Math.min(answer, temp);    
+            if (correct(tempArr, target)) {
+                answer = Math.min(answer, temp);
             }
-            
         }
-        if (answer == Integer.MAX_VALUE) answer = -1;
+        
+        if (answer == INF) answer = -1;
         return answer;
     }
     
     int[][] copyArray(int[][] source) {
-        int[][] result = new int[N][M];
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                result[i][j] = source[i][j];
+        int[][] target = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                target[i][j] = source[i][j];
             }
         }
-        return result;
+        return target;
     }
     
-    boolean isSame(int[][] arr1, int[][] arr2) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (arr1[i][j] != arr2[i][j]) return false;
+    boolean correct(int[][] arr1, int[][] arr2) {
+        for (int r = 0; r < n; r++) {
+            for (int c = 0; c < m; c++) {
+                if (arr1[r][c] != arr2[r][c]) return false;
             }
         }
         return true;
