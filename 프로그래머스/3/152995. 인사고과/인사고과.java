@@ -2,89 +2,65 @@ import java.util.*;
 
 class Solution {
     
-    static class Incentive implements Comparable<Incentive> {
+    static class Employee implements Comparable<Employee> {
         int attitude, peer, idx;
         
-        Incentive(int attitude, int peer, int idx) {
+        Employee(int attitude, int peer, int idx) {
             this.attitude = attitude;
             this.peer = peer;
             this.idx = idx;
         }
         
         @Override
-        public int compareTo(Incentive o) {
-            return Integer.compare(o.attitude, attitude);
+        public int compareTo(Employee o) {
+            return attitude == o.attitude ? 
+                Integer.compare(o.peer, peer) :
+                Integer.compare(o.attitude, attitude);
         }
         
         @Override
         public String toString() {
-            return "attitude: " + attitude + ", peer: " + peer + ", idx: " + idx;
+            return "idx: " + idx + ", attitude: " + attitude + ", peer: " + peer;
         }
     }
     
     public int solution(int[][] scores) {
-        int N = scores.length;
-        // 완호밖에 없음
-        if (N == 1) return 1;
-        else if (N == 2) {
-            return scores[0][0] + scores[0][1] >= scores[1][0] + scores[1][1] ? 1 : 2;    
+        
+        if (scores.length == 1) {
+            return 1;
         }
         
-        List<Incentive> incentives = new ArrayList<>();
-        
-        for (int i = 0; i < N; i++) {
-            incentives.add(new Incentive(scores[i][0], scores[i][1], i));
+        List<Employee> scoreList = new ArrayList<>();
+        for (int i = 0; i < scores.length; i++) {
+            scoreList.add(new Employee(scores[i][0], scores[i][1], i));
         }
+        Collections.sort(scoreList);
         
-        Collections.sort(incentives);
-
-        // System.out.println(incentives);
-        
-        
-        Set<Integer> noIncentive = new HashSet<>();        
-        
-        Deque<Incentive> buffer = new ArrayDeque<>();
-        buffer.offer(incentives.get(0));
-        buffer.offer(incentives.get(1));
-        
+        Deque<Employee> q = new ArrayDeque<>();
+        Set<Integer> noIncentive = new HashSet<>();
         PriorityQueue<Integer> pq = new PriorityQueue<>(Comparator.reverseOrder());
+        q.offer(scoreList.get(0));
         
-        for (int i = 2; i < N; i++) {
-            Incentive cur = incentives.get(i);
-            // System.out.println("cur: " + cur);
-            while (!buffer.isEmpty() && buffer.peek().attitude > cur.attitude) {
-                pq.offer(buffer.poll().peer);
+        for (int i = 1; i < scores.length; i++) {
+            Employee cur = scoreList.get(i);
+            while (!q.isEmpty() && q.peek().attitude > cur.attitude) {
+                pq.offer(q.poll().peer);
             }
-            buffer.offer(cur);
-            // System.out.println("buffer: " + buffer);
-            // System.out.println("pq: " + pq);
-            
-            if (!pq.isEmpty()) {
-                int n = pq.poll();
-                if (n > cur.peer) {
-                    // 원호가 인센티브를 못 받으면 -1 반환하고 끝
-                    if (cur.idx == 0) return -1;
-                    noIncentive.add(cur.idx);
-                }
-                pq.offer(n);
+            if (!pq.isEmpty() && pq.peek() > cur.peer) {
+                if (cur.idx == 0) return -1;
+                noIncentive.add(cur.idx);
             }
-            // System.out.println("noIncentive: " + noIncentive);
-            // System.out.println();
-            
+            q.offer(cur);
         }
-        // System.out.println(noIncentive);
         
         int targetScore = scores[0][0] + scores[0][1];
-        // List<Integer> highScore = new ArrayList<>();
-        
         int answer = 1;
-        for (int i = 1; i < N; i++) {
-            if (noIncentive.contains(i)) continue;
-            if (scores[i][0] + scores[i][1] > targetScore) answer++;
+        for (int i = 0; i < scoreList.size(); i++) {
+            Employee cur = scoreList.get(i);
+            int idx = cur.idx;
+            if (noIncentive.contains(idx)) continue;
+            if (cur.attitude + cur.peer > targetScore) answer++;
         }
-        
-        
-        
         return answer;
     }
 }
