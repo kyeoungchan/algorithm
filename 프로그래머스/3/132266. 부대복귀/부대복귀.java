@@ -3,54 +3,55 @@ import java.util.*;
 class Solution {
     
     static class Soldier {
-        int position, cost;
+        int num, dist;
         
-        Soldier(int position, int cost) {
-            this.position = position;
-            this.cost = cost;
+        Soldier(int num, int dist) {
+            this.num = num;
+            this.dist = dist;
         }
     }
     
+    List<Integer>[] graph;
+    
     public int[] solution(int n, int[][] roads, int[] sources, int destination) {
-        
-        List<Integer>[] roadList = new List[n+1];
-        for (int i = 1; i <= n; i++) roadList[i] = new ArrayList<>();
-        
+        graph = new List[n + 1];
+        for (int i = 1; i <= n; i++) graph[i] = new ArrayList<>();
         for (int[] road: roads) {
             int a = road[0];
             int b = road[1];
-            roadList[a].add(b);
-            roadList[b].add(a);
+            graph[a].add(b);
+            graph[b].add(a);
         }
         
-        int[] answer = new int[sources.length];
-        int[] visited = new int[n+1];
+        int[] visited = new int[n + 1];
         
-        ArrayDeque<Soldier> q = new ArrayDeque<>();
+        Deque<Soldier> q = new ArrayDeque<>();
+        int[] answer = new int[sources.length];
+        Arrays.fill(answer, -1);
         for (int i = 0; i < sources.length; i++) {
             int s = sources[i];
-            if (s == destination) continue;
-            
-            visited[s] = s;
+            if (s == destination) {
+                answer[i] = 0;
+                continue;
+            }
             q.clear();
+            visited[s] = s;
             q.offer(new Soldier(s, 0));
-            
-            flag: while (!q.isEmpty()) {
+            over: while(!q.isEmpty()) {
                 Soldier cur = q.poll();
-                int nextCost = cur.cost + 1;
-                for (int next: roadList[cur.position]) {
+                for (int next: graph[cur.num]) {
+                    
                     if (visited[next] == s) continue;
+                    int nDist = cur.dist + 1;
                     if (next == destination) {
-                        answer[i] = nextCost;
-                        break flag;
+                        answer[i] = nDist;
+                        break over;
                     }
                     visited[next] = s;
-                    q.offer(new Soldier(next, nextCost));
+                    q.offer(new Soldier(next, nDist));
                 }
             }
-            if (answer[i] == 0) answer[i]--;
         }
-        
         return answer;
     }
 }
