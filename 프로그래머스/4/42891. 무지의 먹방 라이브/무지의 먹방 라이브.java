@@ -3,58 +3,49 @@ import java.util.*;
 class Solution {
     
     static class Food implements Comparable<Food> {
-        int time, idx;
+        int num, quantity;
         
-        Food(int time, int idx) {
-            this.time = time;
-            this.idx = idx;
+        Food(int num, int quantity) {
+            this.num = num;
+            this.quantity = quantity;
         }
         
         @Override
         public int compareTo(Food o) {
-            return time == o.time ? Integer.compare(idx, o.idx) : Integer.compare(time, o.time);
+            return Integer.compare(quantity, o.quantity);
         }
     }
+        
     
     public int solution(int[] food_times, long k) {
-        int answer = 0;
         PriorityQueue<Food> pq = new PriorityQueue<>();
-        
-        long sumTime = 0;
-        int len = food_times.length;
-        
-        for (int i = 0; i < len; i++) {
-            pq.offer(new Food(food_times[i], i));
-            sumTime += food_times[i];
+        for (int i = 0; i < food_times.length; i++) {
+            pq.offer(new Food(i + 1, food_times[i]));
         }
-        
-        if (sumTime <= k) return -1;
-        
-        long prevTotalTime = 0;
-        long totalTime = 0;
-        long prevTime = 0;
-        
-        
+        // Collections.sort(foodTimes);
+        int answer = -1;
+        // long time = 0L;
+        long minus = 0L;
+        List<Integer> remain = new ArrayList<>();
         while (!pq.isEmpty()) {
+            int pqSize = pq.size();
+            Food cur = pq.peek();
+            long thisMinus = cur.quantity-minus;
             
-            Food cur = pq.poll();
-            totalTime += (cur.time - prevTime) * len;
-            
-            if (totalTime > k) {
-                List<Integer> idxList = new ArrayList<>();
-                idxList.add(cur.idx);
+            if (k < thisMinus * pqSize) {
                 while (!pq.isEmpty()) {
-                    idxList.add(pq.poll().idx);
+                    remain.add(pq.poll().num);
                 }
-                Collections.sort(idxList);
-                answer = idxList.get((int) ((k - prevTotalTime) % len)) + 1;        
+                Collections.sort(remain);
+                int idx = (int)(k % remain.size());
+                answer = remain.get(idx);
+                break;
             }
+            k -= thisMinus * pqSize;
+            minus += thisMinus;
+            pq.poll();
             
-            prevTime = cur.time;
-            prevTotalTime = totalTime;
-            len--;
         }
-        
         return answer;
     }
 }
