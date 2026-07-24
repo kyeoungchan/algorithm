@@ -150,7 +150,7 @@ class Solution {
     }
     
     long genKey(int x, int y) {
-        return (long)x * 1_000_000_000L + y;
+        return x * 1_000_000_000L + y;
     }
     
     boolean onRoad(Point point, int[] road) {
