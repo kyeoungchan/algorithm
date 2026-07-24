@@ -2,7 +2,7 @@ import java.util.*;
 
 class Solution {
     
-    static class Point {
+    static class Point implements Comparable<Point> {
         int x, y, limit;
         
         Point(int x, int y, int limit) {
@@ -10,219 +10,207 @@ class Solution {
             this.y = y;
             this.limit = limit;
         }
-    }
-    
-    static class Road {
-        int x1, y1, x2, y2, limit;
         
-        Road(int x1, int y1, int x2, int y2, int limit) {
-            this.x1 = x1;
-            this.y1 = y1;
-            this.x2 = x2;
-            this.y2 = y2;
-            this.limit = limit;
-        }
-        
-        boolean isVertical() {
-            return x1 == x2;
+        @Override
+        public int compareTo(Point o) {
+            return x == o.x ? Integer.compare(y, o.y) : Integer.compare(x, o.x);
         }
     }
     
-    static class PointOnRoad {
-        int id, x, y;
-        
-        PointOnRoad(int id, int x, int y) {
-            this.id = id;
-            this.x = x;
-            this.y = y;
-        }
-    }
-    
-    static class Status implements Comparable<Status> {
+    static class Drive implements Comparable<Drive> {
         int id, limit;
         
-        Status (int id, int limit) {
+        Drive(int id, int limit) {
             this.id = id;
             this.limit = limit;
         }
         
         @Override
-        public int compareTo(Status o) {
+        public int compareTo(Drive o) {
             return Integer.compare(o.limit, limit);
         }
     }
     
-    static final int INF = 1_000_000_001;
-    int n, m;
-    int[] cityNodes;
+    int n, m, id, INF = 123456789;
     List<Point> points;
-    Map<Long, Integer> idMap;
-    Road[] roads;
+    Map<Long, Integer> posToId;
     
     public int[] solution(int[][] city, int[][] road) {
+        this.n = city.length;
+        this.m = road.length;
         
-        n = city.length;
-        m = road.length;
-        cityNodes = new int[n];
+        // 1. 각 로드마다 포인트들이 정렬이 되지 않더라도 올라가있어야 함.
         points = new ArrayList<>();
-        idMap = new HashMap<>();
-        roads = new Road[m];
+        // 도시 번호는 1부터 시작하기 때문에 null 추가
+        points.add(null);
         
-        for (int i = 0; i < n; i++) {
-            int x = city[i][0];
-            int y = city[i][1];
-            cityNodes[i] = getNode(x, y, INF);
+        posToId = new HashMap<>();
+        
+        id = 1;
+        for (int[] c: city) {
+            points.add(new Point(c[0], c[1], INF));
+            long pos = genKey(c[0], c[1]);
+            posToId.put(pos, id++);
         }
         
-        List<Integer>[] nodeRoads = new List[m];
+        TreeSet<Point>[] pointOnRoad = new TreeSet[m];
         
+        // 카메라 길에다가 놓기
         for (int i = 0; i < m; i++) {
-            int x1 = road[i][0];
-            int y1 = road[i][1];
-            int x2 = road[i][2];
-            int y2 = road[i][3];
+            pointOnRoad[i] = new TreeSet<>();
+            int camX = (road[i][0] + road[i][2]) / 2;
+            int camY = (road[i][1] + road[i][3]) / 2;
             int limit = road[i][4];
-            roads[i] = new Road(x1, y1, x2, y2, limit);
-            
-            nodeRoads[i] = new ArrayList<>();
-            int mx = (x1 + x2) / 2;
-            int my = (y1 + y2) / 2;
-            int id = getNode(mx, my, limit);
-            nodeRoads[i].add(id);
+            int thisId = getId(camX, camY, limit);
+            pointOnRoad[i].add(points.get(thisId));
         }
         
-        for (int i = 0; i < m - 1; i++) {
-            for (int j = i + 1; j < m; j++) {
-                Road r1 = roads[i];
-                Road r2 = roads[j];
-                int id = getIntersect(r1, r2);
-                if (id == -1) continue;
-                nodeRoads[i].add(id);
-                nodeRoads[j].add(id);
-            }
-        }
-        
-        for (int i = 0; i < n; i++) {
-            int id = cityNodes[i];
-            Point point = points.get(id);
+        // 도시 길에다가 놓기
+        for (int i = 1; i <= n; i++) {
+            Point c = points.get(i);
             for (int j = 0; j < m; j++) {
-                if (isOnRoad(point, roads[j])) {
-                    nodeRoads[j].add(id);
+                if (onRoad(c, road[j])) {
+                    pointOnRoad[j].add(points.get(i));
                 }
             }
         }
         
-        int nodeCount = points.size();
-        List<Integer>[] graph = new List[nodeCount];
-        for (int i = 0; i < nodeCount; i++) graph[i] = new ArrayList<>();
+        // 교차로 탐색
+        for (int i = 0; i < m - 1; i++) {
+            int[] r1 = road[i];
+            TreeSet<Point> r1Points = pointOnRoad[i];
+            for (int j = i + 1; j < m; j++) {
+                int[] r2 = road[j];
+                Integer intersectId = getIntersect(r1, r2);
+                if (intersectId == null) continue;
+                TreeSet<Point> r2Points = pointOnRoad[j];
+                r1Points.add(points.get(intersectId));
+                r2Points.add(points.get(intersectId));
+            }
+        }
         
-        List<PointOnRoad> pointOnRoads = new ArrayList<>();
+        List<Integer>[] graph = new List[id];
+        for (int i = 1; i < id; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        
         for (int i = 0; i < m; i++) {
-            pointOnRoads.clear();
-            for (int id: nodeRoads[i]) {
-                int x = points.get(id).x;
-                int y = points.get(id).y;
-                int limit = points.get(id).limit;
-                pointOnRoads.add(new PointOnRoad(id, x, y));
-            }
-            if (roads[i].isVertical()) {
-                pointOnRoads.sort((p1, p2) -> Integer.compare(p1.y, p2.y));
-            } else {
-                pointOnRoads.sort((p1, p2) -> Integer.compare(p1.x, p2.x));
-            }
-            
-            int prev = pointOnRoads.get(0).id;
-            for (int j = 1; j < pointOnRoads.size(); j++) {
-                int cur = pointOnRoads.get(j).id;
-                if (prev != cur) {
-                    graph[prev].add(cur);
-                    graph[cur].add(prev);
-                }
-                prev = cur;
+            TreeSet<Point> pointSet = pointOnRoad[i];
+            Point cur = pointSet.pollFirst();
+            long curKey = genKey(cur.x, cur.y);
+            int curId = posToId.get(curKey);
+            while (!pointSet.isEmpty()) {
+                Point next = pointSet.pollFirst();
+                long nextKey = genKey(next.x, next.y);
+                int nextId = posToId.get(nextKey);
+                graph[curId].add(nextId);
+                graph[nextId].add(curId);
+                curId = nextId;
             }
         }
         
-        int[] dist = new int[nodeCount];
-        Arrays.fill(dist, -1);
-        
-        PriorityQueue<Status> pq = new PriorityQueue<>();
-        int initId = cityNodes[0];
-        int initLimit = points.get(initId).limit;
-        dist[initId] = initLimit;
-        pq.offer(new Status(initId, initLimit));
+        int[] dist = new int[id];
+        // Arrays.fill(dist, INF);
+        dist[1] = INF;
+        PriorityQueue<Drive> pq = new PriorityQueue<>();
+        pq.offer(new Drive(1, INF));
         
         while (!pq.isEmpty()) {
-            Status cur = pq.poll();
-            if (cur.limit < dist[cur.id]) continue;
-            for (int nextId: graph[cur.id]) {
-                int nextLimit = points.get(nextId).limit;
-                nextLimit = Math.min(nextLimit, cur.limit);
-                if (dist[nextId] >= nextLimit) continue;
-                dist[nextId] = nextLimit;
-                pq.offer(new Status(nextId, nextLimit));
+            Drive cur = pq.poll();
+            if (dist[cur.id] > cur.limit) continue;
+            
+            for (int next: graph[cur.id]) {
+                int nextLimit = Math.min(cur.limit, points.get(next).limit);
+                if (dist[next] >= nextLimit) continue;
+                dist[next] = nextLimit;
+                pq.offer(new Drive(next, nextLimit));
             }
         }
-
         
         int[] answer = new int[n - 1];
         for (int i = 0; i < n - 1; i++) {
-            int nodeId = cityNodes[i + 1];
-            if (dist[nodeId] == INF) answer[i] = 0;
-            else answer[i] = dist[nodeId];
+            answer[i] = dist[i + 2] == INF ? 0 : dist[i + 2];
         }
         return answer;
     }
     
-    int getNode(int x, int y, int limit) {
-        long key = generateKey(x, y);
-        if (idMap.containsKey(key)) {
-            int id = idMap.get(key);
-            Point point = points.get(id);
-            // limits.set(id, Math.min(limit, limits.get(id)));
-            point.limit = Math.min(limit, point.limit);
-            return id;
+    int getId(int x, int y, int limit) {
+        long key = genKey(x, y);
+        if (posToId.containsKey(key)) {
+            int newId = posToId.get(key);
+            Point point = points.get(newId);
+            point.limit = Math.min(point.limit, limit);
+            return newId;
         }
-        
-        int id = points.size();
-        idMap.put(key, id);
-        points.add(new Point(x, y, limit));
-        return id;
+        int newId = id++;
+        posToId.put(key, newId);
+        Point point = new Point(x, y, limit);
+        points.add(point);
+        return newId;
     }
     
-    long generateKey(int x, int y) {
-        return (((long) x << 32)) | (y & 0xffffffffL);
+    long genKey(int x, int y) {
+        return (long)x * 1_000_000_000L + y;
     }
     
-    int getIntersect(Road r1, Road r2) {
-        if (r1.isVertical() && !r2.isVertical()) {
-            if (r2.x1 <= r1.x1 && r1.x1 <= r2.x2 && r1.y1 <= r2.y1 && r2.y1 <= r1.y2) {
-                return getNode(r1.x1, r2.y1, INF);
+    boolean onRoad(Point point, int[] road) {
+        return road[0] <= point.x && point.x <= road[2] &&
+            road[1] <= point.y && point.y <= road[3];
+    }
+    
+    // 서로 다른 두 도로는 최대 한 점에서만 만납니다.
+    Integer getIntersect(int[] r1, int[] r2) {
+        boolean isR1Vertical = r1[0] == r1[2];
+        boolean isR2Vertical = r2[0] == r2[2];
+        if (isR1Vertical && isR2Vertical) {
+            // 둘다 세로축에 평행한 경우
+            // x값이 일단 같아야하고
+            if (r1[0] != r2[0]) return null;
+            
+            if (r1[3] == r2[1]) {
+                // r1 위에 r2가 한점으로 만나는 경우
+                return getId(r1[0], r1[3], INF);
+            } else if (r1[1] == r2[3]) {
+                // r2 위에 r1이 한점으로 만나는 경우
+                return getId(r1[0], r1[1], INF);
+            } else {
+                return null;
             }
-        } else if (!r1.isVertical() && r2.isVertical()) {
-            if (r1.x1 <= r2.x1 && r2.x1 <= r1.x2 && r2.y1 <= r1.y1 && r1.y1 <= r2.y2) {
-                return getNode(r2.x1, r1.y1, INF);
+        } else if (!isR1Vertical && !isR2Vertical) {
+            // 둘다 가로축에 평행한 경우
+            // y값이 일단 같아야 하고
+            if (r1[1] != r2[1]) return null;
+            
+            if (r1[2] == r2[0]) {
+                // r1 오른쪽에 r2가 한점으로 만나는 경우
+                return getId(r1[2], r1[1], INF);
+            } else if (r1[0] == r2[2]) {
+                // r2 오른쪽에 r1이 한점으로 만나는 경우
+                return getId(r1[0], r1[1], INF);
+            } else {
+                return null;
             }
-        } else if (r1.isVertical() && r2.isVertical() && r1.x1 == r2.x1) {
-            if (r1.y2 == r2.y1) {
-                return getNode(r1.x1, r1.y2, INF);
-            }
-            if (r1.y1 == r2.y2) {
-                return getNode(r1.x1, r1.y1, INF);
-            }
-        } else if (!r1.isVertical() && !r2.isVertical() && r1.y1 == r2.y1) {
-            if (r1.x1 == r2.x2) {
-                return getNode(r1.x1, r1.y1, INF);
-            }
-            if (r1.x2 == r2.x1) {
-                return getNode(r1.x2, r1.y1, INF);
+        } else {
+            if (isR1Vertical) {
+                // r1만 세로축에 평행한 경우
+                int x = r1[0];
+                int y = r2[1];
+                if (r1[1] <= y && y <= r1[3]) {
+                    if (r2[0] <= x && x <= r2[2]) {
+                        return getId(x, y, INF);
+                    }
+                }
+            } else {
+                // r2만 세로축에 평행한 경우
+                int x = r2[0];
+                int y = r1[1];
+                if (r2[1] <= y && y <= r2[3]) {
+                    if (r1[0] <= x && x <= r1[2]) {
+                        return getId(x, y, INF);
+                    }
+                }
             }
         }
-        return -1;
-    }
-    
-    boolean isOnRoad(Point point, Road road) {
-        int x = point.x;
-        int y = point.y;
-        return road.x1 <= x && x <= road.x2 && road.y1 <= y && y <= road.y2;
+        return null;
     }
 }
